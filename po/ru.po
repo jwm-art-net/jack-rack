@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
-"POT-Creation-Date: 2003-07-03 19:14+0100\n"
+"POT-Creation-Date: 2003-10-22 02:07+0100\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -98,11 +98,11 @@ msgstr "Вкл"
 msgid "Wet/dry"
 msgstr "Wet/dry"
 
-#: src/ui_callbacks.c:77
+#: src/ui_callbacks.c:81
 msgid "I/O Channels"
 msgstr "I/O·каналы"
 
-#: src/ui_callbacks.c:90
+#: src/ui_callbacks.c:94
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
@@ -110,19 +110,19 @@ msgstr ""
 "Предупреждение: изменение·количества·каналов приведёт\n"
 "к·стиранию·текущих·настроек·эффект-процессора"
 
-#: src/ui_callbacks.c:135
+#: src/ui_callbacks.c:139
 msgid "Select file"
 msgstr "Выберите файл"
 
-#: src/ui_callbacks.c:280
+#: src/ui_callbacks.c:284
 msgid "An LADSPA effects rack for the JACK audio API"
 msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
 
-#: src/ui_callbacks.c:365
+#: src/ui_callbacks.c:356
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
-#: src/ui_callbacks.c:470
+#: src/ui_callbacks.c:464
 #, c-format
 msgid ""
 "%s\n"
@@ -133,15 +133,15 @@ msgstr ""
 "\n"
 "%s%s"
 
-#: src/ui_callbacks.c:471
+#: src/ui_callbacks.c:465
 msgid "JACK client thread shut down by server"
 msgstr "Нить процесса JACK-клиент уничтожена сервером"
 
-#: src/ui_callbacks.c:472
+#: src/ui_callbacks.c:466
 msgid "JACK, the bastard, kicked us out.  "
 msgstr "JACK нас \"выкинул\".  "
 
-#: src/ui_callbacks.c:473
+#: src/ui_callbacks.c:467
 msgid "You'll have to restart I'm afraid.  Sorry."
 msgstr "Боюсь, вам придётся перезагрузить программу..."
 
@@ -251,22 +251,22 @@ msgstr ""
 msgid "Connected to JACK server"
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/process.c:457
+#: src/process.c:452
 #, c-format
 msgid "Connecting ports '%s' and '%s'"
 msgstr "Соединяются порты '%s' и '%s'"
 
-#: src/process.c:467
+#: src/process.c:462
 #, c-format
 msgid "Connected ports '%s' and '%s'"
 msgstr "Соединены порты '%s' и '%s'"
 
-#: src/process.c:509
+#: src/process.c:504
 #, c-format
 msgid "Creating %s port %s"
 msgstr "Создаётся %s порт %s"
 
-#: src/process.c:528
+#: src/process.c:523
 #, c-format
 msgid "Created %s port %s"
 msgstr "Создан %s порт %s"

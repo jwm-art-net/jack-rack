@@ -416,11 +416,6 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 
   ui_display_splash_text (ui, _("Connected to JACK server"));
 
-#ifdef HAVE_LADCCA
-  /* sort out ladcca stuff */
-  cca_jack_client_name (global_cca_client, jack_client_name);
-#endif
-
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
   jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
                                             
@@ -601,6 +596,11 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   procinfo->process_to_ui = ui->process_to_ui; 
   
   jack_activate (procinfo->jack_client);
+
+#ifdef HAVE_LADCCA
+  /* sort out ladcca stuff */
+  cca_jack_client_name (global_cca_client, jack_client_name);
+#endif
 
   return procinfo;
 }

@@ -151,7 +151,7 @@ if test x$XML_FOUND = xyes; then
   ])
 
   if test "$jr_enable_ladcca" = "yes"; then
-    PKG_CHECK_MODULES(LADCCA, ladcca-1.0, LADCCA_FOUND="yes", LADCCA_FOUND="no")
+    PKG_CHECK_MODULES(LADCCA, ladcca-1.0 >= 0.4.0, LADCCA_FOUND="yes", LADCCA_FOUND="no")
   
     if test "$LADCCA_FOUND" = "yes"; then
       AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])

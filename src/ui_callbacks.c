@@ -30,6 +30,10 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
+#ifdef HAVE_LADCCA
+#include <ladcca/ladcca.h>
+#endif
+
 #ifdef HAVE_GNOME
 #include <libgnomeui/libgnomeui.h>
 #endif
@@ -326,43 +330,47 @@ plugin_button_cb (GtkWidget *widget, GdkEvent *event)
 }
 
 #ifdef HAVE_LADCCA
-static void
-deal_with_cca_event (ui_t * ui, cca_event_t * event)
-{
-  switch (cca_event_get_type (event))
-    {
-    case CCA_Save_File:
-      ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-      cca_send_event (global_cca_client, event);
-      break;
-    case CCA_Restore_File:
-      ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-      cca_send_event (global_cca_client, event);
-      break;
-    case CCA_Quit:
-      quit_cb (NULL, ui);
-      cca_event_destroy (event);
-      break;
-    case CCA_Server_Lost:
-      printf (_("LADCCA server disconnected\n"));
-      gtk_widget_set_sensitive (ui->cca_save, FALSE);
-      gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
-      cca_event_destroy (event);
-      break;
-    default:
-      fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
-      cca_event_destroy (event);
-      break;
-    }
-}
-
-static void
+static int
 cca_idle (ui_t * ui, cca_client_t * client)
 {
   cca_event_t * event;
 
   while ( (event = cca_get_event (client)) )
-    deal_with_cca_event (ui, event);
+    {
+      switch (cca_event_get_type (event))
+	{
+	case CCA_Save_File:
+	  ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+	  cca_send_event (global_cca_client, event);
+	  break;
+	case CCA_Restore_File:
+	  ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+	  cca_send_event (global_cca_client, event);
+	  break;
+	case CCA_Quit:
+	  quit_cb (NULL, ui);
+	  cca_event_destroy (event);
+	  break;
+	case CCA_Server_Lost:
+	  printf ("server lost\n");
+	  printf (_("LADCCA server disconnected\n"));
+	  gtk_widget_set_sensitive (ui->cca_save, FALSE);
+	  gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
+	  cca_event_destroy (event);
+	  return 0;
+	  break;
+	default:
+	  fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
+	  cca_event_destroy (event);
+	  break;
+	}
+    }
+
+  if (!cca_enabled (client))
+    return 0;
+
+
+  return 1;
 }
 #endif /* HAVE_LADCCA */
 
@@ -487,6 +495,9 @@ idle_cb (gpointer data)
   ui_t * ui;
   jack_rack_t * jack_rack;
   gboolean enabled;
+#ifdef HAVE_LADCCA
+  static int call_cca_idle = 1;
+#endif /* HAVE_LADCCA */
 
   ui = (ui_t *) data;
   jack_rack = ui->jack_rack;
@@ -552,8 +563,8 @@ idle_cb (gpointer data)
     }
 
 #ifdef HAVE_LADCCA
-  if (cca_enabled (global_cca_client))
-    cca_idle (ui, global_cca_client);
+  if (call_cca_idle)
+    call_cca_idle = cca_idle (ui, global_cca_client);
 #endif
   
   usleep (1000);

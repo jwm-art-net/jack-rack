@@ -216,7 +216,7 @@ int main (int argc, char ** argv) {
 #ifdef HAVE_LADCCA
   {
     int flags = CCA_Config_File;
-    global_cca_client = cca_init (cca_args, PACKAGE, flags, CCA_PROTOCOL (2,0));
+    global_cca_client = cca_init (cca_args, PACKAGE_NAME, flags, CCA_PROTOCOL (2,0));
  }
 
   if (global_cca_client)
