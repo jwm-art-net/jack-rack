@@ -118,7 +118,6 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
         {
           lock = settings_get_lock (settings, control);
           gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(plugin_slot->port_controls[control].lock), lock);
-          gtk_widget_set_sensitive (plugin_slot->port_controls[control].lock, lock_all ? FALSE : TRUE );
           plugin_slot->port_controls[control].locked = lock_all ? TRUE : lock;
         }
     }

@@ -46,9 +46,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *menubar_handle;
   GtkWidget *menubar;
   GtkWidget *file_menuitem;
-  GtkWidget *add_menuitem;
   GtkWidget *file_menu;
-  GtkWidget *add_menu;
   GtkWidget *new;
   GtkWidget *open;
   GtkWidget *save;
@@ -74,9 +72,9 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_widget_show (file_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), file_menuitem);
   
-  add_menuitem = gtk_menu_item_new_with_label ("Add");
-  gtk_widget_show (add_menuitem);
-  gtk_menu_shell_append (GTK_MENU_SHELL (menubar), add_menuitem);
+  ui->add_menuitem = gtk_menu_item_new_with_label ("Add");
+  gtk_widget_show (ui->add_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (menubar), ui->add_menuitem);
 
 #ifdef HAVE_GNOME  
   help_menuitem = gtk_menu_item_new_with_label ("Help");
@@ -139,8 +137,8 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 
 
   /* add menu */
-  add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM(add_menuitem), add_menu);
+  ui->add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM(ui->add_menuitem), ui->add_menu);
 
 
 #ifdef HAVE_GNOME
@@ -186,7 +184,6 @@ ui_set_default_window_icon ()
 static void
 ui_init_gui (ui_t * ui, unsigned long channels)
 {
-  GtkWidget *menu;
   GtkWidget *main_box;
   GtkWidget *toolbar_handle;
   GtkWidget *toolbar;
@@ -226,10 +223,9 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                                         GTK_STOCK_ADD,
                                         "Add a plugin",
                                         NULL, NULL, NULL, -1);
-  menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
   g_signal_connect_swapped (G_OBJECT (ui->add), "event",
                             G_CALLBACK (plugin_button_cb),
-                            G_OBJECT (menu));
+                            G_OBJECT (ui->add_menu));
                                                          
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
@@ -240,7 +236,13 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (channel_spin), channels);
   g_signal_connect (G_OBJECT (channel_spin), "value-changed",
                     G_CALLBACK (channel_cb), ui);
-  gtk_toolbar_append_element (GTK_TOOLBAR (toolbar),
+  gtk_toolbar_append_widget (GTK_TOOLBAR (toolbar),
+                             channel_spin,
+                             "Change the number of channels the rack has",
+                             NULL);
+                             
+  
+/*  gtk_toolbar_append_element (GTK_TOOLBAR (toolbar),
                               GTK_TOOLBAR_CHILD_WIDGET,
                               channel_spin,
                               "Channels",
@@ -248,7 +250,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                               NULL,
                               NULL,
                               NULL,
-                              NULL);
+                              NULL);*/
 
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
@@ -415,17 +417,37 @@ ui_destroy (ui_t * ui)
 void
 ui_display_error (ui_t * ui, const char * message)
 {
-  static GtkWidget * dialog = NULL;
-  
-  if (!dialog)
-    dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
-                                     GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_ERROR,
-                                     GTK_BUTTONS_OK,
-                                     "%s", message);
+  GtkWidget * dialog = NULL;
+
+  dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
+                                   GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
+                                   GTK_MESSAGE_ERROR,
+                                   GTK_BUTTONS_OK,
+                                   "%s", message);
 
   gtk_dialog_run (GTK_DIALOG(dialog));
-  gtk_widget_hide (dialog);
+  gtk_widget_destroy (dialog);
+}
+
+gboolean
+ui_get_ok (ui_t * ui, const char * message)
+{
+  GtkWidget * dialog = NULL;
+  gint response;
+  
+  dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
+                                   GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
+                                   GTK_MESSAGE_QUESTION,
+                                   GTK_BUTTONS_OK_CANCEL,
+                                   "%s", message);
+
+  response = gtk_dialog_run (GTK_DIALOG(dialog));
+  gtk_widget_destroy (dialog);
+  
+  if (response == GTK_RESPONSE_OK)
+    return TRUE;
+  
+  return FALSE;
 }
 
 void
@@ -463,7 +485,62 @@ ui_get_state (ui_t * ui)
   return ui->state;
 }
 
+void
+ui_set_channels (ui_t * ui, unsigned long channels)
+{
+  gint i;
+  GList * slots, * list;
+  plugin_slot_t * plugin_slot;
+  plugin_t * plugin;
 
+  if (ui->jack_rack->slots)
+    {
+      gboolean ok;
+      
+      ok = ui_get_ok (ui, "Changing the number of channels will clear the current rack.\n\nAre you sure you want to do this?");
+      
+      if (!ok)
+        return;
+    }
+    
+  jack_deactivate (ui->procinfo->jack_client);
+  
+  /* sort out the procinfo */
+  ui->procinfo->chain = NULL;
+  ui->procinfo->chain_end = NULL;
+  
+  /* remove all the slots */
+  slots = g_list_copy (ui->jack_rack->slots);
+  for (list = slots; list; list = g_list_next (list))
+    {
+      plugin_slot = (plugin_slot_t *) list->data;
+      plugin = plugin_slot->plugin;
+      
+      jack_rack_remove_plugin_slot (ui->jack_rack, plugin_slot);
+      plugin_destroy (plugin);
+    }
+  g_list_free (slots);
+  
+  jack_rack_destroy (ui->jack_rack);
+  g_signal_handlers_disconnect_by_func (G_OBJECT (ui->add), G_CALLBACK (plugin_button_cb), G_OBJECT(ui->add_menu));
+  gtk_widget_destroy (ui->add_menu);
+  
+  
+  /* recreate the rack */
+  process_info_set_port_count (ui->procinfo, ui, channels);
+  plugin_mgr_set_plugins (ui->plugin_mgr, channels);
+  ui->jack_rack = jack_rack_new (ui, channels);
+
+  ui->add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM(ui->add_menuitem), ui->add_menu);
+  g_signal_connect_swapped (G_OBJECT (ui->add), "event",
+                            G_CALLBACK (plugin_button_cb),
+                            G_OBJECT (ui->add_menu));
+  
+  
+  
+  jack_activate (ui->procinfo->jack_client);
+}
 
 /* EOF */
 

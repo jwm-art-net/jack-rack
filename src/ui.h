@@ -58,6 +58,8 @@ struct _ui
   GtkWidget *       main_window;
   GtkWidget *       plugin_box;
   GtkWidget *       add;
+  GtkWidget *       add_menuitem;
+  GtkWidget *       add_menu;
 #ifdef HAVE_LADCCA
   GtkWidget *       cca_save;
   GtkWidget *       cca_save_menu_item;
@@ -72,6 +74,7 @@ void   ui_destroy (ui_t * ui);
 
 void ui_set_filename (ui_t * ui, const char * filename);
 void ui_set_state    (ui_t * ui, ui_state_t state);
+void ui_set_channels (ui_t * ui, unsigned long channels);
 
 ui_state_t ui_get_state (ui_t * ui);
 

@@ -77,6 +77,7 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
 void
 channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
 {
+  ui_set_channels ((ui_t *) user_data, (unsigned long) gtk_spin_button_get_value (GTK_SPIN_BUTTON (spinbutton)));
 }
 
 void
@@ -307,7 +308,9 @@ slot_move_cb (GtkButton * button, gpointer user_data)
   
 }
 
-void slot_remove_cb (GtkButton * button, gpointer user_data) {
+void
+slot_remove_cb (GtkButton * button, gpointer user_data)
+{
   ctrlmsg_t ctrlmsg;
   plugin_slot_t * plugin_slot;
   
@@ -321,7 +324,9 @@ void slot_remove_cb (GtkButton * button, gpointer user_data) {
 }
 
 
-gboolean slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data) {
+gboolean
+slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
+{
   if (event->type == GDK_BUTTON_PRESS) {
     plugin_slot_t * plugin_slot; 
     ctrlmsg_t ctrlmsg;
@@ -343,7 +348,9 @@ gboolean slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer use
   return FALSE;
 }
 
-void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data) {
+void
+slot_lock_all_cb (GtkToggleButton * button, gpointer user_data)
+{
   gboolean on;
   plugin_slot_t * plugin_slot;
   unsigned long i;
@@ -357,9 +364,6 @@ void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data) {
 
   for (i = 0; i < plugin_slot->plugin->desc->control_port_count; i++)
     {
-  
-      gtk_widget_set_sensitive (plugin_slot->port_controls[i].lock, on ? FALSE : TRUE);
-      
       if (on)
         {
           plugin_slot->port_controls[i].locked = TRUE;
@@ -460,7 +464,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(range), "jack-rack-plugin-copy"));
     
   /* write to the fifo */
-/*  lff_write (port_controls->controls[copy].control_fifo, &value);  */
+  lff_write (port_controls->controls[copy].control_fifo, &value);
   
   adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
     
@@ -552,8 +556,6 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   gboolean on;
   LADSPA_Data data;
   int copy;
-  
-  printf ("%s: boo\n", __FUNCTION__);
   
   port_controls = (port_controls_t *) user_data;
   

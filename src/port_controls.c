@@ -264,8 +264,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
   for (i = 0; i < copies; i++)
     {
       /* control fifo */
-/*      port_controls->controls[i].control_fifo =
-        plugin_slot->plugin->holders[i].control_fifos + port_controls->control_index; */
+      port_controls->controls[i].control_fifo =
+        plugin_slot->plugin->holders[i].control_fifos + port_controls->control_index;
 
       /* create the control(s) */
       switch (port_controls->type)
