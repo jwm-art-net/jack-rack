@@ -1,6 +1,9 @@
 pixmapdir = $(datadir)/pixmaps
 
-EXTRA_DIST = jack_rack_1.0.dtd
+EXTRA_DIST = jack_rack_1.0.dtd jack_rack_1.1.dtd
+
+dtddir = $(datadir)/dtds
+dtd_DATA = jack_rack_1.0.dtd jack_rack_1.1.dtd 
 
 bin_PROGRAMS = jack-rack
 
@@ -33,6 +36,7 @@ jack_rack_CFLAGS = \
 	$(XML_CFLAGS) \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPIXMAPDIR=\"$(pixmapdir)\" \
+	-DDTDDIR=\"$(dtddir)\" \
 	-DG_DISABLE_DEPRECATED=1 \
 	-DGTK_DISABLE_DEPRECATED=1 \
 	-DGDK_DISABLE_DEPRECATED=1 \

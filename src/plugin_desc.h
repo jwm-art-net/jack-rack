@@ -1,5 +1,5 @@
 /*
- *   jack-rack
+ *   JACK Rack
  *    
  *   Copyright (C) Robert Ham 2002, 2003 (node@users.sourceforge.net)
  *    

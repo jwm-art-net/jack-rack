@@ -9,8 +9,6 @@ In order to save rack configurations, libxml2 is needed.
 It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
 needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn
 needs raptor, available from http://www.redland.opensource.ac.uk/raptor/. 
-As of writing (Jan 2003) only descriptions for Steve Harris's plugins exist,
-and they are included and installed with the latest swh-plugins package. 
 JACK Rack searches for .rdf and .rdfs files in
 /usr/local/share/ladspa/rdf and /usr/share/ladspa/rdf by default.  You can
 change this search path using the LADSPA_RDF_PATH environment variable.

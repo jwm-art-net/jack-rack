@@ -1,7 +1,7 @@
 /*
  *   jack-ladspa-host
  *    
- *   Copyright (C) Robert Ham 2002 (node@users.sourceforge.net)
+ *   Copyright (C) Robert Ham 2002, 2003 (node@users.sourceforge.net)
  *    
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -593,7 +593,7 @@ plugin_destroy (plugin_t * plugin, jack_client_t * jack_client)
               err = jack_port_unregister (jack_client, plugin->holders[i].aux_ports[j]);
           
               if (err)
-                fprintf (stderr, "%s: could not unregister jack port %s\n", __FUNCTION__);
+                fprintf (stderr, "%s: could not unregister jack port\n", __FUNCTION__);
             }
        
           g_free (plugin->holders[i].aux_ports);

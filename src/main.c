@@ -1,7 +1,7 @@
 /*
  *   jack-ladspa-host
  *    
- *   Copyright (C) Robert Ham 2002 (node@users.sourceforge.net)
+ *   Copyright (C) Robert Ham 2002, 2003 (node@users.sourceforge.net)
  *    
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <signal.h>
 
 #ifdef HAVE_LADCCA
 #include <ladcca/ladcca.h>
@@ -65,7 +66,7 @@ cca_client_t * global_cca_client;
 
 void print_help () {
   printf("%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-  printf("Copyright (C) 2002 Robert Ham (node@users.sourceforge.net)\n");
+  printf("Copyright (C) 2002, 2003 Robert Ham (node@users.sourceforge.net)\n");
   printf("\n");
   printf("This program comes with ABSOLUTELY NO WARRANTY.  You are licensed to use it\n");
   printf("under the terms of the GNU General Public License, version 2 or later.  See\n");
@@ -252,6 +253,9 @@ int main (int argc, char ** argv) {
   jack_on_shutdown (global_ui->procinfo->jack_client,
                     jack_shutdown_cb,
                     &global_ui);
+  
+  /* ignore the sighup (the jack client thread needs to deal with it) */
+  signal (SIGHUP, SIG_IGN);
   
   jack_activate (global_ui->procinfo->jack_client);
   

@@ -1,4 +1,15 @@
-1.2:
+1.3.0:
+
+* you can now use plugins with unequal numbers of input and output ports. 
+  any excess ports get exposed as extra jack ports with names like
+  "amplif_1-1_i2", of the form 
+  "<shortened plugin name>_<rack position>-<plugin copy>_{i,o}<port>"
+* wet/dry controls for the output of each plugin
+* logarithmic controls
+* much more resilient file loader
+
+
+1.2.0:
 
 * can now have arbitrary channel numbers.  you can use any plugin that has
   equal numbers of input and output channels where they divide exactly into

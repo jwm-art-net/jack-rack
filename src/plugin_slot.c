@@ -23,6 +23,7 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include <gtk/gtk.h>
 #include <ladspa.h>
@@ -137,6 +138,16 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
   plugin = plugin_slot->plugin;
   desc = plugin->desc;
   copies = plugin->copies;
+
+  /* wet/dry controls */
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
+                                settings_get_wet_dry_locked (settings));
+  for (channel = 0; channel < plugin_slot->jack_rack->channels; channel++)
+    {
+      gtk_range_set_value (GTK_RANGE (plugin_slot->wet_dry_controls->controls[channel]),
+                           settings_get_wet_dry_value (settings, channel));
+    }
+
   
   if (desc->control_port_count == 0)
     return;
@@ -168,9 +179,12 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
             {
             case JR_CTRL_FLOAT:
               {
+                gdouble logval;
                 gchar *str;
+                
+                logval = (port_controls->logarithmic ? log (value) : value);
                 gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
-                                     port_controls->logarithmic ? log (value) : value);
+                                     logval);
               
                 str = g_strdup_printf ("%f", value);
                 gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
@@ -192,12 +206,6 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
     }
     
   
-  /* wet/dry controls */
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
-                                settings_get_wet_dry_locked (settings));
-  for (channel = 0; channel < settings_get_channels (settings); channel++)
-    gtk_range_set_value (GTK_RANGE (plugin_slot->wet_dry_controls->controls[channel]),
-                         settings_get_wet_dry_value (settings, channel));
 }
 
 static void

@@ -37,18 +37,19 @@ xmlDocPtr
 jack_rack_create_doc (jack_rack_t * jack_rack)
 {
   xmlDocPtr doc;
-  xmlNodePtr tree, jackrack, controlrow;
+  xmlNodePtr tree, jackrack, controlrow, wet_dry_values;
   xmlDtdPtr dtd;
-  char num[32];
-  GList * list;
   plugin_slot_t * plugin_slot;
+  GList * list;
   unsigned long control;
+  unsigned long channel;
   gint copy;
+  char num[32];
   
   doc = xmlNewDoc(XML_DEFAULT_VERSION);
 
   /* dtd */
-  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.0.dtd");
+  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.1.dtd");
   doc->intSubset = dtd;
   xmlAddChild ((xmlNodePtr)doc, (xmlNodePtr)dtd);
   
@@ -76,8 +77,20 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
       /* enabled */
       xmlNewChild (tree, NULL, "enabled", settings_get_enabled (plugin_slot->settings) ? "true" : "false");
       
+      /* wet/dry stuff */
+      xmlNewChild (tree, NULL, "wet_dry_enabled", settings_get_wet_dry_enabled (plugin_slot->settings) ? "true" : "false");
+      xmlNewChild (tree, NULL, "wet_dry_locked", settings_get_wet_dry_locked (plugin_slot->settings) ? "true" : "false");
+      
+      /* wet/dry values */
+      wet_dry_values = xmlNewChild (tree, NULL, "wet_dry_values", NULL);
+      for (channel = 0; channel < jack_rack->channels; channel++)
+        {
+          sprintf (num, "%f", settings_get_wet_dry_value (plugin_slot->settings, channel));
+          xmlNewChild (wet_dry_values, NULL, "value", num);
+        }
+      
       /* lockall */
-      if (plugin_slot->plugin->copies > 1)
+      if (plugin_slot->plugin->copies > 1 )
         xmlNewChild (tree, NULL, "lockall", settings_get_lock_all (plugin_slot->settings) ? "true" : "false");
       
       /* control rows */
@@ -92,7 +105,7 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
           /* plugin values */
           for (copy = 0; copy < plugin_slot->plugin->copies; copy++)
             {
-              sprintf (num, "%g", settings_get_control_value (plugin_slot->settings, copy, control));
+              sprintf (num, "%f", settings_get_control_value (plugin_slot->settings, copy, control));
               xmlNewChild (controlrow, NULL, "value", num);
             }
         }
@@ -109,7 +122,7 @@ ui_save_file (ui_t * ui, const char * filename)
   
   doc = jack_rack_create_doc (ui->jack_rack);
   
-  err = xmlSaveFile (filename, doc);
+  err = xmlSaveFormatFile (filename, doc, TRUE);
   if (err == -1)
     ui_display_error (ui, _("Could not save file '%s'"), filename);
   else
@@ -120,113 +133,150 @@ ui_save_file (ui_t * ui, const char * filename)
   return err;
 }
 
+static void
+saved_rack_parse_plugin (saved_rack_t * saved_rack, ui_t * ui, const char * filename, xmlNodePtr plugin)
+{
+  plugin_desc_t * desc;
+  settings_t * settings = NULL;
+  xmlNodePtr controlrow;
+  xmlNodePtr value;
+  xmlNodePtr node;
+  xmlNodePtr sub_node;
+  xmlChar *content;
+  unsigned long num;
+  unsigned long control = 0;
+
+
+  for (node = plugin->children; node; node = node->next)
+    {
+      if (strcmp (node->name, "id") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          num = strtoul (content, NULL, 10);
+          xmlFree (content);
+
+          desc = plugin_mgr_get_any_desc (ui->plugin_mgr, num);
+          if (!desc)
+            {
+              ui_display_error (ui, _("The file '%s' contains an unknown plugin with ID '%ld'; skipping"), filename, num);
+              return;
+            }
+          
+          settings = settings_new (desc, saved_rack->channels, saved_rack->sample_rate);
+        }
+      else if (strcmp (node->name, "enabled") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          settings_set_enabled (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "wet_dry_enabled") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          settings_set_wet_dry_enabled (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "wet_dry_locked") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          settings_set_wet_dry_locked (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "wet_dry_values") == 0)
+        {
+          unsigned long channel = 0;
+          
+          for (sub_node = node->children; sub_node; sub_node = sub_node->next)
+            {
+              if (strcmp (sub_node->name, "value") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  settings_set_wet_dry_value (settings, channel, strtof (content, NULL));
+                  xmlFree (content);
+                  
+                  channel++;
+                }
+            }
+        }
+      else if (strcmp (node->name, "lockall") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          settings_set_lock_all (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "controlrow") == 0)
+        {
+          gint copy = 0;
+
+          for (sub_node = node->children; sub_node; sub_node = sub_node->next)
+            {
+              if (strcmp (sub_node->name, "lock") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  settings_set_lock (settings, control, strcmp (content, "true") == 0 ? TRUE : FALSE);
+                  xmlFree (content);
+                }
+              else if (strcmp (sub_node->name, "value") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  settings_set_control_value (settings, copy, control, strtof (content, NULL));
+                  xmlFree (content);
+                  copy++;
+                }
+            }
+          
+          control++;
+        }
+    }
+  
+  if (settings)
+    saved_rack->settings = g_slist_append (saved_rack->settings, settings);
+}
+
+static void
+saved_rack_parse_jackrack (saved_rack_t * saved_rack, ui_t * ui, const char * filename, xmlNodePtr jackrack)
+{
+  xmlNodePtr node;
+  xmlChar *content;
+
+  for (node = jackrack->children; node; node = node->next)
+    {
+      if (strcmp (node->name, "channels") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          saved_rack->channels = strtoul (content, NULL, 10);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "samplerate") == 0)
+        {
+          content = xmlNodeGetContent (node);
+          saved_rack->sample_rate = strtoul (content, NULL, 10);
+          xmlFree (content);
+        }
+      else if (strcmp (node->name, "plugin") == 0)
+        {
+          saved_rack_parse_plugin (saved_rack, ui, filename, node);
+        }
+    }
+}
+
 static saved_rack_t *
 saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
 {
-  xmlNodePtr jackrack, plugin, controlrow, value;
+  xmlNodePtr node;
   saved_rack_t *saved_rack;
-  xmlChar *content;
-  settings_t * settings;
-  unsigned long num;
-  plugin_desc_t * desc;
-  guint copy;
-  unsigned long control;
   
   /* create the saved rack */
   saved_rack = g_malloc (sizeof (saved_rack_t));
   saved_rack->settings = NULL;
+  saved_rack->sample_rate = 48000;
+  saved_rack->channels = 2;
   
-  jackrack = doc->children->next;
-  
-  content = xmlNodeGetContent (jackrack->children);
-  saved_rack->channels = strtoul (content, NULL, 10);
-  xmlFree (content);
-  
-  content = xmlNodeGetContent (jackrack->children->next);
-  saved_rack->sample_rate = strtoul (content, NULL, 10);
-  xmlFree (content);
-  
-  plugin = jackrack->children->next->next;
-  
-  if (!plugin)
+  for (node = doc->children; node; node = node->next)
     {
-      g_free (saved_rack);
-      return NULL;
+      if (strcmp (node->name, "jackrack") == 0)
+        saved_rack_parse_jackrack (saved_rack, ui, filename, node);
     }
-  
-  do
-    {
-    
-      /* id */
-      content = xmlNodeGetContent (plugin->children);
-      num = strtoul (content, NULL, 10);
-      xmlFree (content);
-      
-      desc = plugin_mgr_get_any_desc (ui->plugin_mgr, num);
-      if (!desc)
-        {
-          ui_display_error (ui, _("The file '%s' contains an unknown plugin with ID '%ld'; skipping"), filename, num);
-          continue;
-        }
-      
-      settings = settings_new (desc, saved_rack->channels, saved_rack->sample_rate);
-      
-      /* enabled */
-      content = xmlNodeGetContent (plugin->children->next);
-      settings_set_enabled (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
-      xmlFree (content);
-      
-      /* lock all */
-      if (settings_get_copies (settings) > 1)
-        {
-          content = xmlNodeGetContent (plugin->children->next->next);
-          settings_set_lock_all (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
-          xmlFree (content);
-          
-          controlrow = plugin->children->next->next->next;
-        }
-      else
-        controlrow = plugin->children->next->next;
-      
-      if (!controlrow)
-        {
-          saved_rack->settings = g_slist_append (saved_rack->settings, settings);
-          continue;
-        }
-      
-      control = 0;
-      do
-        {
-          /* lock */
-          if (settings_get_copies (settings) > 1)
-            {
-              content = xmlNodeGetContent (controlrow->children);
-              settings_set_lock (settings, control, strcmp (content, "true") == 0 ? TRUE : FALSE);
-              xmlFree (content);
-              
-              value = controlrow->children->next;
-            }
-          else
-            value = controlrow->children;
-          
-          copy = 0;
-          do
-            {
-              content = xmlNodeGetContent (value);
-              settings_set_control_value (settings, copy, control, strtof (content, NULL));
-              xmlFree (content);
-              
-              copy++;
-            }
-          while ( (value = value->next) );
-          
-          control++;
-        }
-      while ( (controlrow = controlrow->next) );
-      
-      saved_rack->settings = g_slist_append (saved_rack->settings, settings);
-    }
-  while ( (plugin = plugin->next) );
   
   return saved_rack;
 }
@@ -242,6 +292,7 @@ saved_rack_destroy (saved_rack_t * saved_rack)
   
   g_free (saved_rack);
 }
+
 
 int
 ui_open_file (ui_t * ui, const char * filename)

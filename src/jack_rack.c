@@ -153,6 +153,7 @@ jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
   jack_rack->slots = g_list_append (jack_rack->slots, plugin_slot);
   
   plugin_slot_ablise (plugin_slot, settings_get_enabled (plugin_slot->settings));
+  plugin_slot_ablise_wet_dry (plugin_slot, settings_get_wet_dry_enabled (plugin_slot->settings));
 
   gtk_box_pack_start (GTK_BOX (jack_rack->ui->plugin_box),
                       plugin_slot->main_vbox, FALSE, FALSE, 0);

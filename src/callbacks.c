@@ -1,7 +1,7 @@
 /*
- *   jack-ladspa-host
+ *   JACK Rack
  *    
- *   Copyright (C) Robert Ham 2002 (node@users.sourceforge.net)
+ *   Copyright (C) Robert Ham 2002, 2003 (node@users.sourceforge.net)
  *    
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -231,10 +231,11 @@ quit_cb (GtkButton * button, gpointer user_data)
   ctrlmsg_t ctrlmsg;
   
   ui = user_data;
+
+  ui_set_state (ui, STATE_QUITTING);
   
   if (ui->shutdown)
     {
-      ui_set_state (ui, STATE_QUITTING);
       gtk_main_quit ();
       return;
     }
@@ -423,6 +424,8 @@ slot_wet_dry_control_cb (GtkRange * range, gpointer user_data)
 
   lff_write (wet_dry->fifos + channel, &value);
   
+  settings_set_wet_dry_value (wet_dry->plugin_slot->settings, channel, value);
+  
   /* set peers */
   if (settings_get_wet_dry_locked (wet_dry->plugin_slot->settings))
     {
@@ -561,7 +564,6 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   if (port_controls->logarithmic)
     value = exp (value);
   
-  str = g_strdup_printf ("%f", value);
   
   /* get which copy we're using from the g object data stuff */
   copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(range), "jack-rack-plugin-copy"));
@@ -572,6 +574,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
     
   /* print the value in the text box */
+  str = g_strdup_printf ("%f", value);
   gtk_entry_set_text (GTK_ENTRY(port_controls->controls[copy].text), str);
     
   /* store the value */
@@ -606,22 +609,20 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   GtkAdjustment * adjustment;
   guint copy;
 
-  printf ("%s: boo\n", __FUNCTION__);
-  
   port_controls = (port_controls_t *) user_data;
   copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(entry), "jack-rack-plugin-copy"));
+  adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
 
   str = gtk_entry_get_text (entry);
   value = strtof (str, &endptr);
   
   /* check for errors */
-  adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
 
   if (value == HUGE_VALF ||
       value == -HUGE_VALF ||
       endptr == str ||
-      value < adjustment->lower ||
-      value > adjustment->upper)
+      value < (port_controls->logarithmic ? exp (adjustment->lower) : adjustment->lower) ||
+      value > (port_controls->logarithmic ? exp (adjustment->upper) : adjustment->upper))
     {
       /* set the entry's text colour */
       set_widget_text_colour (GTK_WIDGET(entry), "DarkRed");
@@ -633,19 +634,7 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   gtk_range_set_value (GTK_RANGE(port_controls->controls[copy].control),
                        port_controls->logarithmic ? log (value) : value);
     
-  /* possibly set our peers */
-  /* we shouldn't need to do this as the set_value above will do it */
-/*  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
-    {
-      guint i;
-      for (i = 0; i < copy; i++)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
-                             port_controls->logarithmic ? log (value) : value);
-
-      for (i = copy + 1; i < port_controls->plugin_slot->plugin->copies; i++)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
-                             port_controls->logarithmic ? log (value) : value);
-    } */
+  /* no need to set peers as the set_value above will do it */
   
   set_widget_text_colour (GTK_WIDGET(entry), "Black");
 }
