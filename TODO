@@ -1,0 +1,22 @@
+ To do
+-------
+
+* Sample rate callback
+* Buffer size callback
+* Wet/dry controls for each slot
+* Display of plugins' execution time
+* ladspa.m4
+* Port connecting
+* Logarithmic controls
+* Custom float widget
+* Reload
+* MIDI control
+* Arbitrary channel numbers
+
+
+ In 1.1
+--------
+* LRDF support
+* Don't keep plugin files open
+* Flashy splash screen
+* Load/Save configuration

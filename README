@@ -1,0 +1,51 @@
+
+  JACK Rack README
+====================
+
+JACK Rack is a stereo LADSPA effects rack for the JACK audio API.  It uses
+GTK+ 2 (and optionally GNOME 2) for the gui.  LADSPA version 1.1 is needed.
+
+It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
+needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn
+needs raptor, available from http://www.redland.opensource.ac.uk/raptor/. 
+As of writing (Jan 2003) only descriptions for Steve Harris's plugins exist,
+and they are included and installed with the latest swh-plugins package. 
+JACK Rack searches for .rdf and .rdfs files in
+/usr/local/share/ladspa/rdf and /usr/share/ladspa/rdf by default.  You can
+change this search path using the LADSPA_RDF_PATH environment variable.
+
+
+ Compilation
+-------------
+
+The usual autoconf gibbins; ./configure && make && make install.  A GNOME
+.desktop file (which puts an entry in the gnome menu) and the JACK Rack icon
+are installed in /usr/share/{applications,pixmaps} by default.  You can make
+them be installed under the autoconf prefix with --disable-desktop-inst.
+
+
+ Running
+---------
+
+If you're running jackd as root, you need to run JACK Rack as root as well.
+Assuming you have some ladspa plugins installed, make sure you have your
+LADSPA_PATH environment variable set to include them.  If you don't have any
+ladspa plugins installed, head over to http://plugin.org.uk/ and grab Steve
+Harris's excellent plugin collection.
+
+If you want JACK Rack to register with JACK with a client name different to
+"jack_rack", you can use -p flag to tell it to append the pid, or -s with a
+string to append that string.
+
+JACK Rack doesn't do any port connecting, so you'll need a JACK patchbay,
+only one of which exists atm, QJackConnect, available from
+http://www.suse.de/~mana/jack.html.  Or you can use jack_connect.
+
+
+ Contact
+---------
+
+Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
+(subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
+New versions will be available from http://pkl.net/~node/jack-rack.html and
+http://sf.net/projects/jack-rack.

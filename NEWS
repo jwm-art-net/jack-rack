@@ -1,0 +1,44 @@
+1.1.2:
+
+* build fixes for gcc 2.9x from Fernando Pablo Lopez-Lezcano
+* compiles with gtk 2.0 now (thanks to Fernando again)
+* builds without lrdf now (thanks to Austin Acton)
+
+
+1.1.1:
+
+* fixed control output ports segfault
+* fixed desktop installation prefix stuff
+* fixed dealing with duplicate plugin ids
+* now quits when you close the window
+* added a "New" option to clear the rack
+* rack is now automatically cleared when you load a file
+
+
+1.1:
+
+* proper ladcca support (pays attention to events)
+* added saving/loading rack configurations.  this is a bit of a hack tho as
+  when you open a file, it only adds the plugins to whatever's in the
+  current rack.  in fact, the whole of the file loading/saving is hairy atm.
+* added lrdf support (this is majorly phat.. categorised plugin menus :)
+* proper toolbar with stock buttons
+* added a menu bar
+* added a splash screen
+* added an about box (using gnome 2)
+* nice new icon and logo images, used for the splash screen, the window
+  icons and also a gnome 2 .desktop
+* lots of code separation and cleanups and under-the-hood changes
+* control rows now have no central port label
+
+
+1.0.1:
+
+* jack_set_server_dir is optional
+* LADCCA support
+* fixed bug dealing with LADSPA_PATH
+
+
+1.0:
+
+* initial public release
