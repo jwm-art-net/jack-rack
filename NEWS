@@ -2,7 +2,7 @@
 
 * fixed some segfaults
 * fixed some bad configure script checks
-* i18n support, courtesy of Alexandre Prokoudine
+* i18n support, courtesy of Alexey Voinov
 
 1.4.1:
 
