@@ -23,14 +23,12 @@
 
 #include "ac_config.h"
 
-#ifdef HAVE_XML
+/*
+ * all setups needs this
+ */
 
-#include <jack/jack.h>
 #include <glib.h>
 
-#include "ui.h"
-
-typedef struct _saved_rack   saved_rack_t;
 typedef struct _saved_plugin saved_plugin_t;
 
 struct _saved_plugin
@@ -38,6 +36,16 @@ struct _saved_plugin
   settings_t     *settings;
   GSList *       midi_controls;
 };
+
+
+
+#ifdef HAVE_XML
+
+#include <jack/jack.h>
+
+#include "ui.h"
+
+typedef struct _saved_rack   saved_rack_t;
 
 struct _saved_rack
 {
