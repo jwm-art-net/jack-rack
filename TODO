@@ -3,7 +3,6 @@
 
 * Sample rate callback
 * Wet/dry controls for each slot
-* Display of plugins' execution time
 * ladspa.m4
 * Logarithmic controls
 * Custom float widget
@@ -16,6 +15,7 @@
 * Arbitrary channel numbers
 * Only display one set of widgets for locked controls
 * Port connecting
+* Display of plugins' execution time
 
 
  In 1.1
