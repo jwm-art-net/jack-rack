@@ -282,8 +282,8 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
       unsigned long channel;
       for (channel = 0; channel < procinfo->channels; channel++)
         {
-          memcpy (procinfo->jack_input_buffers[channel],
-                  procinfo->jack_output_buffers[channel],
+          memcpy (procinfo->jack_output_buffers[channel],
+                  procinfo->jack_input_buffers[channel],
                   sizeof(LADSPA_Data) * frames);
         }
       return;
@@ -293,11 +293,11 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
 
   last_enabled = get_last_enabled_plugin (procinfo);
   
-  if (procinfo->time_runs && !time_run_skip)
+/*  if (procinfo->time_runs && !time_run_skip)
     {
       for (plugin = procinfo->chain; plugin != first_enabled; plugin = plugin->next)
         plugin_index++;
-    }
+    }*/ 
   
   for (plugin = first_enabled;
        plugin;

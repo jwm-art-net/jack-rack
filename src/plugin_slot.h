@@ -59,6 +59,7 @@ struct _plugin_slot
 plugin_slot_t * plugin_slot_new     (struct _jack_rack * jack_rack, plugin_t * plugin, settings_t * saved_settings);
 void            plugin_slot_destroy (plugin_slot_t * plugin_slot);
 
+void plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled);
 void plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin);
 void plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show);
 

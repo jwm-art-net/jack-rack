@@ -34,6 +34,7 @@
 #include "process.h"
 #include "ui.h"
 #include "globals.h"
+#include "control_message.h"
 
 #define TEXT_BOX_WIDTH        75
 #define CONTROL_FIFO_SIZE     256
@@ -154,6 +155,9 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
             }
         }
     }
+  
+  /* enable */
+  plugin_slot_ablise (plugin_slot, settings_get_enabled (settings));
 }
 
 static void
@@ -389,6 +393,19 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
                              
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->enable),
                                 FALSE);
+}
+
+void
+plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled)
+{
+  ctrlmsg_t ctrlmsg;
+  
+  ctrlmsg.type = CTRLMSG_ABLE;
+  ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.pointer = GINT_TO_POINTER(enabled);
+  ctrlmsg.second_pointer = plugin_slot;
+  
+  lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
 /* EOF */

@@ -36,7 +36,10 @@ enum _ui_state
   STATE_NORMAL,
   
   /* the gui is waiting for the process callback to do something */
-  STATE_RACK_CHANGE
+  STATE_RACK_CHANGE,
+  
+  /* we're closing down */
+  STATE_QUITTING
 };
 typedef enum _ui_state ui_state_t;
 

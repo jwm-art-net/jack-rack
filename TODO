@@ -8,6 +8,7 @@
 * Custom float widget
 * Reload
 * MIDI control
+* Display of plugins' execution time
 
 
  In 1.2.0
@@ -15,7 +16,6 @@
 * Arbitrary channel numbers
 * Only display one set of widgets for locked controls
 * Port connecting
-* Display of plugins' execution time
 
 
  In 1.1

@@ -231,6 +231,13 @@ quit_cb (GtkButton * button, gpointer user_data)
   
   ui = user_data;
   
+  if (ui->shutdown)
+    {
+      ui_set_state (ui, STATE_QUITTING);
+      gtk_main_quit ();
+      return;
+    }
+  
   ctrlmsg.type = CTRLMSG_CLEAR;
   lff_write (ui->ui_to_process, &ctrlmsg);
 
@@ -370,17 +377,12 @@ slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
   if (event->type == GDK_BUTTON_PRESS) {
     plugin_slot_t * plugin_slot; 
     ctrlmsg_t ctrlmsg;
-    gint ablise;
+    gboolean ablise;
   
     plugin_slot = (plugin_slot_t *) user_data;
     ablise = (plugin_slot->enabled ? FALSE : TRUE);
   
-    ctrlmsg.type = CTRLMSG_ABLE;
-    ctrlmsg.number = g_list_index (global_ui->jack_rack->slots, plugin_slot);
-    ctrlmsg.pointer = GINT_TO_POINTER(ablise);
-    ctrlmsg.second_pointer = plugin_slot;
-  
-    lff_write (global_ui->ui_to_process, &ctrlmsg);
+    plugin_slot_ablise (plugin_slot, ablise);
   
     return TRUE;
   }
@@ -703,7 +705,9 @@ ui_check_kicked (ui_t * ui)
 {
   static gboolean shown_shutdown_msg = FALSE;
   
-  if (ui->shutdown && !shown_shutdown_msg)
+  if (ui->shutdown &&
+      !shown_shutdown_msg &&
+      ui_get_state (ui) != STATE_QUITTING)
     {
       ui_display_error (ui, "%s\n\n%s%s",
                         "JACK client thread shut down by server",
