@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2003-06-25 16:31+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=koi8-r\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/file.c:176
+#, c-format
+msgid "Could not save file '%s'"
+msgstr ""
+
+#: ../src/file.c:214
+#, c-format
+msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
+msgstr ""
+
+#: ../src/file.c:430
+#, c-format
+msgid "Could not parse file '%s'"
+msgstr ""
+
+#: ../src/file.c:436
+#, c-format
+msgid "The file '%s' is not a JACK Rack settings file"
+msgstr ""
+
+#: ../src/file.c:450
+msgid ""
+"The current rack will be cleared.\n"
+"\n"
+"Are you sure you want to continue?"
+msgstr ""
+
+#: ../src/main.c:72
+msgid "Compiled with:\n"
+msgstr ""
+
+#: ../src/main.c:87
+msgid "Display this help info"
+msgstr ""
+
+#: ../src/main.c:89
+msgid "Use the pid in the JACK client name (default)"
+msgstr ""
+
+#: ../src/main.c:90
+msgid "Use <string> in the JACK client name"
+msgstr ""
+
+#: ../src/main.c:91
+msgid "Use just jack_rack as the client name"
+msgstr ""
+
+#: ../src/main.c:93
+msgid "Connected inputs to the first two physical capture ports"
+msgstr ""
+
+#: ../src/main.c:94
+msgid "Connected outputs to the first two physical playback ports"
+msgstr ""
+
+#: ../src/main.c:95
+msgid "How many input and output channels the rack should use (default: 2)"
+msgstr ""
+
+#: ../src/main.c:98
+msgid "Tell JACK to use <dir> for its temporary files"
+msgstr ""
+
+#: ../src/main.c:196
+msgid "there must be at least one channel\n"
+msgstr ""
+
+#: ../src/midi_control.c:233
+msgid "Wet/dry"
+msgstr ""
+
+#: ../src/midi_window.c:68
+msgid "Plugin"
+msgstr ""
+
+#: ../src/midi_window.c:73
+msgid "Control"
+msgstr ""
+
+#: ../src/midi_window.c:78
+msgid "Index"
+msgstr ""
+
+#. the label
+#: ../src/midi_window.c:89 ../src/wet_dry_controls.c:105
+msgid "Channel"
+msgstr ""
+
+#: ../src/midi_window.c:99
+msgid "Controller"
+msgstr ""
+
+#: ../src/midi_window.c:120
+msgid "JACK Rack MIDI Controls"
+msgstr ""
+
+#: ../src/plugin_mgr.c:338
+msgid ", NOT RT"
+msgstr ""
+
+#: ../src/plugin_mgr.c:350
+msgid "ch"
+msgstr ""
+
+#: ../src/plugin_slot.c:248
+msgid "Lock All"
+msgstr ""
+
+#. enable button
+#: ../src/plugin_slot.c:360
+msgid "Enable"
+msgstr ""
+
+#. wet/dry button
+#: ../src/plugin_slot.c:371
+msgid "Wet/Dry"
+msgstr ""
+
+#. lock control
+#: ../src/port_controls.c:247 ../src/wet_dry_controls.c:89
+msgid "Lock"
+msgstr ""
+
+#: ../src/port_controls.c:323
+msgid "On"
+msgstr ""
+
+#: ../src/ui.c:79
+msgid "File"
+msgstr ""
+
+#: ../src/ui.c:83
+msgid "Rack"
+msgstr ""
+
+#: ../src/ui.c:89
+msgid "Help"
+msgstr ""
+
+#: ../src/ui.c:131
+msgid "Save project"
+msgstr ""
+
+#: ../src/ui.c:161 ../src/ui.c:267
+msgid "Channels"
+msgstr ""
+
+#: ../src/ui.c:168
+msgid "MIDI Controls"
+msgstr "ку-ку"
+
+#: ../src/ui.c:255
+msgid "Add a plugin"
+msgstr ""
+
+#: ../src/ui.c:268
+msgid "Change the number of I/O channels the rack has"
+msgstr ""
+
+#: ../src/ui.c:279
+msgid "Clear the rack"
+msgstr ""
+
+#: ../src/ui.c:285
+msgid "Open a rack configuration file"
+msgstr ""
+
+#: ../src/ui.c:290
+msgid "Save the rack configuration to the current file"
+msgstr ""
+
+#: ../src/ui.c:295
+msgid "Save the rack configuration to a file"
+msgstr ""
+
+#: ../src/ui.c:306
+msgid "Save the LADCCA project"
+msgstr ""
+
+#: ../src/ui.c:315
+msgid "Quit JACK Rack"
+msgstr ""
+
+#: ../src/ui.c:345
+msgid "Add MIDI control"
+msgstr ""
+
+#: ../src/ui_callbacks.c:280
+msgid "An LADSPA effects rack for the JACK audio API"
+msgstr "Вот тут что-то типа перевода"
