@@ -46,23 +46,20 @@
 #endif
 
 #include "ui.h"
-#include "ac_config.h"
-#include "callbacks.h"
 #include "globals.h"
 
 ui_t *        global_ui        = NULL;
-unsigned long global_channels  = 2;
 
 gboolean connect_inputs = FALSE;
 gboolean connect_outputs = FALSE;
 gboolean time_runs = TRUE;
+char     client_name[128];
 
 #ifdef HAVE_LADCCA
 cca_client_t * global_cca_client;
 #endif
 
 #define CLIENT_NAME_BASE      "JACK Rack"
-#define JACK_CLIENT_NAME_BASE "jack_rack"
 
 void print_help () {
   printf("%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
@@ -105,7 +102,6 @@ void print_help () {
 }
 
 int main (int argc, char ** argv) {
-  char * client_name = NULL;
   unsigned long channels = 2;
   int opt;
 
@@ -131,7 +127,6 @@ int main (int argc, char ** argv) {
   };
 
 #ifdef HAVE_LADCCA
-  char * ladcca_client_name = NULL;
   cca_args_t * cca_args;
   cca_event_t * cca_event;
 #endif  
@@ -160,6 +155,11 @@ int main (int argc, char ** argv) {
   gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
                       argc, argv, NULL);
 #endif  
+
+
+  /* set the client name */
+  sprintf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
+
   
   while ((opt = getopt_long (argc, argv, options, long_options, NULL)) != -1) {
     switch (opt) {
@@ -170,30 +170,20 @@ int main (int argc, char ** argv) {
         break;
 
       case 's':
-        if (!client_name) client_name = g_strdup_printf ("%s_%s", JACK_CLIENT_NAME_BASE, optarg);
-#ifdef HAVE_LADCCA
-        if (!ladcca_client_name) ladcca_client_name = g_strdup_printf ("%s (%s)", CLIENT_NAME_BASE, optarg);
-#endif
+        sprintf (client_name, "%s (%s)", CLIENT_NAME_BASE, optarg);
         break;
 
       case 'p':
-        if (!client_name) client_name = g_strdup_printf ("%s_%d", JACK_CLIENT_NAME_BASE, getpid());
-#ifdef HAVE_LADCCA
-        if (!ladcca_client_name) ladcca_client_name = g_strdup_printf ("%s (%d)", CLIENT_NAME_BASE, getpid());
-#endif
+        sprintf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
         break;
       
       case 'n':
-        if (!client_name) client_name = g_strdup (JACK_CLIENT_NAME_BASE);
-#ifdef HAVE_LADCCA
-        if (!ladcca_client_name) ladcca_client_name = g_strdup_printf (CLIENT_NAME_BASE);
-#endif
+        sprintf (client_name, CLIENT_NAME_BASE);
+        break;
 
-#ifdef HAVE_JACK_SET_SERVER_DIR
       case 'D':
         jack_set_server_dir (optarg);
         break;
-#endif
 
       case 'i':
         connect_inputs = TRUE;
@@ -226,15 +216,12 @@ int main (int argc, char ** argv) {
   
 
 #ifdef HAVE_LADCCA
-  if (!ladcca_client_name)
-    ladcca_client_name = g_strdup_printf ("%s (%d)", CLIENT_NAME_BASE, getpid());
-
   global_cca_client = cca_init (cca_args, "JACK Rack" , CCA_Use_Jack|CCA_Config_File, CCA_PROTOCOL (1,0));
 
   if (cca_enabled (global_cca_client))
     {
       cca_event = cca_event_new_with_type (CCA_Client_Name);
-      cca_event_set_string (cca_event, ladcca_client_name);
+      cca_event_set_string (cca_event, client_name);
       cca_send_event (global_cca_client, cca_event);
     }
 #endif
@@ -243,16 +230,8 @@ int main (int argc, char ** argv) {
   xmlSetCompressMode (XML_COMPRESSION_LEVEL);
 #endif
 
-  if (!client_name)
-    client_name = g_strdup_printf ("%s_%d", JACK_CLIENT_NAME_BASE, getpid());
-
-  global_ui = ui_new (client_name, channels);
+  global_ui = ui_new (channels);
   g_free (client_name);
-  
-  
-  jack_on_shutdown (global_ui->procinfo->jack_client,
-                    jack_shutdown_cb,
-                    &global_ui);
   
   /* ignore the sighup (the jack client thread needs to deal with it) */
   signal (SIGHUP, SIG_IGN);

@@ -1,4 +1,4 @@
-AC_INIT([JACK Rack], 1.3.0)
+AC_INIT([JACK Rack], 1.4.0)
 AC_CONFIG_SRCDIR(src/lock_free_fifo.h)
 AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/ac_config.h)
@@ -16,43 +16,32 @@ AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([ladspa is required]))
 ############
 ### JACK ###
 ############
-PKG_CHECK_MODULES(JACK, jack, true, AC_MSG_ERROR([you need the jack audio api]))
+PKG_CHECK_MODULES(JACK, jack >= 0.50.0, true,
+                  AC_MSG_ERROR([you need jack >= 0.50.0  see http://sf.net/projects/jackit]))
 JACK_VERSION=$( pkg-config --modversion jack )
 AC_DEFINE_UNQUOTED(JACK_VERSION, "$JACK_VERSION", [The version of jack we're compiling against])
 AC_SUBST(JACK_CFLAGS)
 AC_SUBST(JACK_LIBS)
 
-### optional funcs
-ORIG_LIBS="$LIBS"
-LIBS="$LIBS $JACK_LIBS"
-ORIG_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS $JACK_CFLAGS"
-
-AC_CHECK_FUNCS(jack_set_server_dir)
-
-LIBS="$ORIG_LIBS"
-CFLAGS="$ORIG_CFLAGS"
-
-
 ############
 ### ALSA ###
 ############
-#jr_enable_aseq="yes"
-#AC_ARG_ENABLE(aseq,
-#[  --disable-aseq          disable ALSA sequencer support],[
-#  case "$enableval" in
-#    "yes")
-#      ;;
-#    "no")
-#      jr_enable_aseq="no"
-#      ;;
-#    *)
-#      AC_MSG_ERROR([must use --enable-aseq(=yes/no) or --disable-aseq])
-#      ;;
-#  esac
-#])
+jr_enable_aseq="yes"
+AC_ARG_ENABLE(aseq,
+[  --disable-aseq          disable ALSA sequencer support],[
+  case "$enableval" in
+    "yes")
+      ;;
+    "no")
+      jr_enable_aseq="no"
+      ;;
+    *)
+      AC_MSG_ERROR([must use --enable-aseq(=yes/no) or --disable-aseq])
+      ;;
+  esac
+])
 
-#if test "$jr_enable_aseq" = "yes"; then
+if test "$jr_enable_aseq" = "yes"; then
 #  PKG_CHECK_MODULES(ALSA, alsa >= 0.9, ALSA_FOUND="yes", ALSA_FOUND="no")
 #  AC_SUBST(ALSA_CFLAGS)
 #  AC_SUBST(ALSA_LIBS)
@@ -62,10 +51,23 @@ CFLAGS="$ORIG_CFLAGS"
 #    ALSA_VERSION=$( pkg-config --modversion alsa )
 #    AC_DEFINE_UNQUOTED(ALSA_VERSION, "$ALSA_VERSION", [The version of alsa we're compiling against])
 #  fi
-#else
-#  ALSA_FOUND="no"
-#fi
-#AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
+  AC_CHECK_HEADER(alsa/asoundlib.h,
+    AC_CHECK_LIB(asound, snd_seq_open, ALSA_FOUND="yes", ALSA_FOUND="no"),
+    ALSA_FOUND="no")
+
+  if test x$ALSA_FOUND = xyes; then
+    AC_DEFINE(HAVE_ALSA, 1, [whether or not we are supporting the alsa sequencer])
+    ALSA_VERSION=0.9
+    AC_DEFINE_UNQUOTED(ALSA_VERSION, "$ALSA_VERSION", [The version of alsa we're compiling against])
+    ALSA_CFLAGS=""
+    ALSA_LIBS="-lasound -lm -ldl -lpthread"
+    AC_SUBST(ALSA_CFLAGS)
+    AC_SUBST(ALSA_LIBS)
+  fi
+else
+  ALSA_FOUND="no"
+fi
+AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
 
 
 
@@ -259,6 +261,7 @@ AC_MSG_RESULT([
 
   JACK Rack configured
   
+  ALSA support:            $ALSA_FOUND
   XML support:             $XML_FOUND
   LRDF support:            $LRDF_FOUND
   LADCCA support:          $LADCCA_FOUND

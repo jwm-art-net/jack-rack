@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
+#include "ac_config.h"
 #include "plugin.h"
 #include "port_controls.h"
 #include "wet_dry_controls.h"
@@ -36,37 +37,46 @@ typedef struct _plugin_slot plugin_slot_t;
     the widgets and plugin data for the slot */
 struct _plugin_slot
 {
-  plugin_t * plugin;
-  settings_t * settings;
+  struct _jack_rack  *jack_rack;
+  wet_dry_controls_t *wet_dry_controls;
+  plugin_t           *plugin;
+  settings_t         *settings;
+  /* port controls *array* */
+  port_controls_t    *port_controls; 
+
+#ifdef HAVE_ALSA
+  GSList              *midi_controls;
+#endif
   
+
   /* widgets */
-  GtkWidget * main_vbox;
-  GtkWidget * top_controls;
-  GtkWidget * lock_all;
-  GtkWidget * control_table;
-  GtkWidget * separator;
-  GtkWidget * plugin_selector;
-  GtkWidget * enable;
-  GtkWidget * wet_dry;
-  GtkWidget * plugin_menu;
-/*  GtkWidget * time; */
+  GtkWidget *main_vbox;
+  GtkWidget *top_controls;
+  GtkWidget *lock_all;
+  GtkWidget *control_table;
+  GtkWidget *separator;
+  GtkWidget *plugin_selector;
+  GtkWidget *enable;
+  GtkWidget *wet_dry;
+  GtkWidget *plugin_menu;
   
-  port_controls_t * port_controls; /* port controls array */
-  
-  wet_dry_controls_t * wet_dry_controls;
-  
-  struct _jack_rack * jack_rack;
 };
 
 
-plugin_slot_t * plugin_slot_new     (struct _jack_rack * jack_rack, plugin_t * plugin, settings_t * saved_settings);
-void            plugin_slot_destroy (plugin_slot_t * plugin_slot);
+plugin_slot_t * plugin_slot_new     (struct _jack_rack *jack_rack, plugin_t *plugin, settings_t *saved_settings);
+void            plugin_slot_destroy (plugin_slot_t *plugin_slot);
 
-void plugin_slot_ablise         (plugin_slot_t * plugin_slot, gboolean enabled);
-void plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enabled);
-void plugin_slot_change_plugin  (plugin_slot_t * plugin_slot, plugin_t * plugin);
-void plugin_slot_show_controls  (plugin_slot_t * plugin_slot, guint copy_to_show);
-void plugin_slot_show_wet_dry_controls (plugin_slot_t * plugin_slot);
+void plugin_slot_ablise         (plugin_slot_t *plugin_slot, gboolean enabled);
+void plugin_slot_ablise_wet_dry (plugin_slot_t *plugin_slot, gboolean enabled);
+void plugin_slot_change_plugin  (plugin_slot_t *plugin_slot, plugin_t *plugin);
+void plugin_slot_show_controls  (plugin_slot_t *plugin_slot, guint copy_to_show);
+void plugin_slot_show_wet_dry_controls (plugin_slot_t *plugin_slot);
+
+void plugin_slot_set_wet_dry_controls (plugin_slot_t *plugin_slot, gboolean);
+void plugin_slot_set_port_controls (plugin_slot_t *plugin_slot, port_controls_t *port_controls, gboolean);
+
+void plugin_slot_set_wet_dry_locked (plugin_slot_t *plugin_slot, gboolean locked);
+void plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint lock_copy);
 
 
 #endif /* __JR_PLUGIN_SLOT_H__ */

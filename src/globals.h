@@ -37,8 +37,6 @@ extern cca_client_t * global_cca_client;
 #define JACK_RACK_URL "http://pkl.net/~node/jack-rack.html"
 
 
-extern struct _ui * global_ui;
-
 #define set_string_property(property, value) \
   \
   if (property) \
@@ -51,8 +49,10 @@ extern struct _ui * global_ui;
     
 #define _(x) x
 
-extern gboolean connect_inputs;
-extern gboolean connect_outputs;
-extern gboolean time_runs;
+extern struct _ui *global_ui;
+extern gboolean   connect_inputs;
+extern gboolean   connect_outputs;
+extern gboolean   time_runs;
+extern char       client_name[128];
 
 #endif /* __JLH_GLOBALS_H__ */

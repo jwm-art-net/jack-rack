@@ -29,7 +29,8 @@
 #include <ladspa.h>
 
 #include "plugin_slot.h"
-#include "callbacks.h"
+#include "plugin_slot_callbacks.h"
+#include "ui_callbacks.h"
 #include "plugin_mgr.h"
 #include "jack_rack.h"
 #include "process.h"
@@ -46,29 +47,32 @@ plugin_slot_show_wet_dry_controls (plugin_slot_t * plugin_slot)
 {
   if (settings_get_wet_dry_enabled (plugin_slot->settings))
     {
-      unsigned long channel;
-      gboolean locked;
-      
       gtk_widget_show (plugin_slot->wet_dry_controls->control_box);
       
-      locked = settings_get_wet_dry_locked (plugin_slot->settings);
+      if (plugin_slot->jack_rack->channels > 1)
+        {
+          unsigned long channel;
+          gboolean locked;
       
-      if (locked)
-        gtk_widget_hide (plugin_slot->wet_dry_controls->labels[0]);
-      else
-        gtk_widget_show (plugin_slot->wet_dry_controls->labels[0]);
+          locked = settings_get_wet_dry_locked (plugin_slot->settings);
       
-      for (channel = 1; channel < plugin_slot->jack_rack->channels; channel++)
-        if (locked)
-          {
-            gtk_widget_hide (plugin_slot->wet_dry_controls->controls[channel]);
-            gtk_widget_hide (plugin_slot->wet_dry_controls->labels[channel]);
-          }
-        else
-          {
-            gtk_widget_show (plugin_slot->wet_dry_controls->controls[channel]);
-            gtk_widget_show (plugin_slot->wet_dry_controls->labels[channel]);
-          }
+          if (locked)
+            gtk_widget_hide (plugin_slot->wet_dry_controls->labels[0]);
+          else
+            gtk_widget_show (plugin_slot->wet_dry_controls->labels[0]);
+      
+          for (channel = 1; channel < plugin_slot->jack_rack->channels; channel++)
+            if (locked)
+              {
+                gtk_widget_hide (plugin_slot->wet_dry_controls->controls[channel]);
+                gtk_widget_hide (plugin_slot->wet_dry_controls->labels[channel]);
+              }
+            else
+              {
+                gtk_widget_show (plugin_slot->wet_dry_controls->controls[channel]);
+                gtk_widget_show (plugin_slot->wet_dry_controls->labels[channel]);
+              }
+        }
     }
   else
     gtk_widget_hide (plugin_slot->wet_dry_controls->control_box);
@@ -123,31 +127,93 @@ plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
     }
 }
 
+
+void
+plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
+                               port_controls_t *port_controls,
+                               gboolean block_callbacks)
+{
+  LADSPA_Data value;
+  guint copy;
+  for (copy = 0; copy < plugin_slot->plugin->copies; copy++)
+    {
+      value = settings_get_control_value (plugin_slot->settings, copy, port_controls->control_index);
+      switch (port_controls->type)
+        {
+        case JR_CTRL_FLOAT:
+          {
+            gdouble logval;
+            gchar *str;
+            
+            logval = (port_controls->logarithmic ? log (value) : value);
+            if (block_callbacks)
+              port_controls_block_float_callback (port_controls, copy);
+            gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
+                                 logval);
+            if (block_callbacks)
+              port_controls_unblock_float_callback (port_controls, copy);
+              
+            str = g_strdup_printf ("%f", value);
+            gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
+            g_free (str);
+            break;
+          }
+
+        case JR_CTRL_INT:
+          if (block_callbacks)
+              port_controls_block_int_callback (port_controls, copy);
+          gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control),
+                                     value);
+          if (block_callbacks)
+              port_controls_unblock_int_callback (port_controls, copy);
+          break;
+
+        case JR_CTRL_BOOL:
+          if (block_callbacks)
+              port_controls_block_bool_callback (port_controls, copy);
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (port_controls->controls[copy].control),
+                                        value > 0.0 ? TRUE : FALSE);
+          if (block_callbacks)
+              port_controls_unblock_bool_callback (port_controls, copy);
+          break;
+        }
+    }
+}
+
+void
+plugin_slot_set_wet_dry_controls (plugin_slot_t *plugin_slot, gboolean block_callbacks)
+{
+  unsigned long channel;
+
+  for (channel = 0; channel < plugin_slot->jack_rack->channels; channel++)
+    {
+      if (block_callbacks)
+        wet_dry_controls_block_callback (plugin_slot->wet_dry_controls, channel);
+      gtk_range_set_value (GTK_RANGE (plugin_slot->wet_dry_controls->controls[channel]),
+                           settings_get_wet_dry_value (plugin_slot->settings, channel));
+      if (block_callbacks)
+        wet_dry_controls_unblock_callback (plugin_slot->wet_dry_controls, channel);
+    }
+
+  if (plugin_slot->jack_rack->channels > 1)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
+                                  settings_get_wet_dry_locked (plugin_slot->settings));
+}
+
 static void
 plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
 {
   plugin_t * plugin;
-  port_controls_t * port_controls;
   plugin_desc_t * desc;
   unsigned long control;
-  unsigned long channel;
   guint copies;
-  guint copy;
-  LADSPA_Data value;
   
   plugin = plugin_slot->plugin;
-  desc = plugin->desc;
+  desc   = plugin->desc;
   copies = plugin->copies;
 
   /* wet/dry controls */
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
-                                settings_get_wet_dry_locked (settings));
-  for (channel = 0; channel < plugin_slot->jack_rack->channels; channel++)
-    {
-      gtk_range_set_value (GTK_RANGE (plugin_slot->wet_dry_controls->controls[channel]),
-                           settings_get_wet_dry_value (settings, channel));
-    }
-
+  plugin_slot_set_wet_dry_controls (plugin_slot, FALSE);  
   
   if (desc->control_port_count == 0)
     return;
@@ -170,40 +236,7 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
     }
   
   for (control = 0; control < desc->control_port_count; control++)
-    {
-      port_controls = plugin_slot->port_controls + control;
-      for (copy = 0; copy < copies; copy++)
-        {
-          value = settings_get_control_value (settings, copy, control);
-          switch (port_controls->type)
-            {
-            case JR_CTRL_FLOAT:
-              {
-                gdouble logval;
-                gchar *str;
-                
-                logval = (port_controls->logarithmic ? log (value) : value);
-                gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
-                                     logval);
-              
-                str = g_strdup_printf ("%f", value);
-                gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
-                g_free (str);
-                break;
-              }
-
-            case JR_CTRL_INT:
-              gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control),
-                                         value);
-              break;
-
-            case JR_CTRL_BOOL:
-              gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (port_controls->controls[copy].control),
-                                            value > 0.0 ? TRUE : FALSE);
-              break;
-            }
-        }
-    }
+    plugin_slot_set_port_controls (plugin_slot, plugin_slot->port_controls + control, FALSE);
     
   
 }
@@ -373,8 +406,9 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   
   plugin_slot = g_malloc (sizeof (plugin_slot_t));
 
-  plugin_slot->jack_rack = jack_rack;
-  plugin_slot->plugin = plugin;
+  plugin_slot->jack_rack     = jack_rack;
+  plugin_slot->plugin        = plugin;
+  plugin_slot->midi_controls = NULL;
 
   /* create plugin settings */
   plugin_slot->settings = saved_settings ? settings_dup (saved_settings)
@@ -454,29 +488,77 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
 }
 
 void
-plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled)
+plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enable)
 {
   ctrlmsg_t ctrlmsg;
   
   ctrlmsg.type = CTRLMSG_ABLE;
-  ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
-  ctrlmsg.pointer = GINT_TO_POINTER(enabled ? 1 : 0);
-  ctrlmsg.second_pointer = plugin_slot;
+  ctrlmsg.data.ablise.plugin_index = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.data.ablise.enable = enable;
+  ctrlmsg.data.ablise.plugin_slot = plugin_slot;
   
   lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
 void
-plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enabled)
+plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enable)
 {
   ctrlmsg_t ctrlmsg;
   
   ctrlmsg.type = CTRLMSG_ABLE_WET_DRY;
-  ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
-  ctrlmsg.pointer = GINT_TO_POINTER(enabled ? 1 : 0);
-  ctrlmsg.second_pointer = plugin_slot;
+  ctrlmsg.data.ablise.plugin_index = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.data.ablise.enable = enable;
+  ctrlmsg.data.ablise.plugin_slot = plugin_slot;
   
   lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
+}
+
+void
+plugin_slot_set_wet_dry_locked (plugin_slot_t *plugin_slot, gboolean locked)
+{
+  GSList * list;
+  midi_control_t * midi_ctrl;
+  
+  settings_set_wet_dry_locked (plugin_slot->settings, locked);
+  
+  for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
+    {
+      midi_ctrl = (midi_control_t *) list->data;
+      
+      if (!midi_ctrl->ladspa_control)
+        midi_control_set_locked (midi_ctrl, locked);
+    }
+  
+  plugin_slot_show_wet_dry_controls (plugin_slot);
+}
+
+void
+plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint lock_copy)
+{
+  GSList * list;
+  midi_control_t * midi_ctrl;
+  unsigned long i;
+  
+  settings_set_lock_all (plugin_slot->settings, lock_all);
+  
+  for (i = 0; i < plugin_slot->plugin->desc->control_port_count; i++)
+    if (lock_all)
+      plugin_slot->port_controls[i].locked = TRUE;
+    else
+      plugin_slot->port_controls[i].locked =
+        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(plugin_slot->port_controls[i].lock));
+
+  
+  for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
+    {
+      midi_ctrl = (midi_control_t *) list->data;
+      
+      if (midi_ctrl->ladspa_control)
+        midi_control_set_locked (midi_ctrl,
+          lock_all ? TRUE : plugin_slot->port_controls[midi_ctrl->control.ladspa.control].locked);
+    }
+  
+  plugin_slot_show_controls (plugin_slot, lock_copy);
 }
 
 /* EOF */

@@ -27,8 +27,10 @@
 
 #include "plugin_slot.h"
 #include "port_controls.h"
-#include "callbacks.h"
 #include "globals.h"
+#include "control_callbacks.h"
+#include "midi_control.h"
+#include "jack_rack.h"
 
 #define TEXT_BOX_WIDTH        75
 #define TEXT_BOX_CHARS        -1
@@ -278,7 +280,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
     {
       /* control fifo */
       port_controls->controls[i].control_fifo =
-        plugin_slot->plugin->holders[i].control_fifos + port_controls->control_index;
+        plugin_slot->plugin->holders[i].ui_control_fifos + port_controls->control_index;
 
       /* create the control(s) */
       switch (port_controls->type)
@@ -329,9 +331,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
       g_object_set_data (G_OBJECT (port_controls->controls[i].control),
                          "jack-rack-plugin-copy", GUINT_TO_POINTER (i));
       
-      if (copies > 1)
-        g_signal_connect (G_OBJECT (port_controls->controls[i].control), "button-press-event",
-                          G_CALLBACK (control_button_press_cb), port_controls);
+      g_signal_connect (G_OBJECT (port_controls->controls[i].control), "button-press-event",
+                        G_CALLBACK (control_button_press_cb), port_controls);
       
       gtk_box_pack_start (GTK_BOX (control_box), port_controls->controls[i].control,
                           TRUE, TRUE, 0);
@@ -387,3 +388,103 @@ port_controls_new	(plugin_slot_t * plugin_slot)
   
   return port_controls_array;
 }
+
+void
+port_control_set_locked (port_controls_t *port_controls, gboolean locked)
+{
+  GSList *list;
+  midi_control_t *midi_ctrl;
+  plugin_slot_t *plugin_slot;
+  
+  plugin_slot = port_controls->plugin_slot;
+  
+  port_controls->locked = locked;
+  settings_set_lock (plugin_slot->settings, port_controls->control_index, locked);
+  
+  for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
+    {
+      midi_ctrl = (midi_control_t *) list->data;
+      
+      if (midi_ctrl->ladspa_control &&
+          midi_ctrl->control.ladspa.control == port_controls->control_index)
+        midi_control_set_locked (midi_ctrl, locked);
+    }
+  
+  plugin_slot_show_controls (port_controls->plugin_slot, port_controls->lock_copy);
+}
+
+void
+gtk_widget_block_signal(GtkWidget *widget, const char *signal, GCallback callback)
+{
+  g_signal_handlers_block_matched (
+    widget,
+    G_SIGNAL_MATCH_FUNC,
+    g_signal_lookup (signal, G_TYPE_FROM_INSTANCE (widget)),
+    0,
+    NULL,
+    callback,
+    NULL);
+}
+
+void
+port_controls_block_float_callback (port_controls_t *port_controls, guint copy)
+{
+  gtk_widget_block_signal(port_controls->controls[copy].control, "value-changed",
+            G_CALLBACK (control_float_cb));
+}
+
+void
+port_controls_block_int_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_block_signal(port_controls->controls[copy].control, "value-changed",
+            G_CALLBACK (control_int_cb));
+}
+
+void
+port_controls_block_bool_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_block_signal(port_controls->controls[copy].control, "toggled",
+            G_CALLBACK (control_bool_cb));
+}
+
+void
+gtk_widget_unblock_signal (GtkWidget *widget, const char *signal, GCallback callback)
+{
+  g_signal_handlers_unblock_matched (
+    widget,
+    G_SIGNAL_MATCH_FUNC,
+    g_signal_lookup (signal, G_TYPE_FROM_INSTANCE (widget)),
+    0,
+    NULL,
+    callback,
+    NULL);
+}
+
+void
+port_controls_unblock_float_callback (port_controls_t *port_controls, guint copy)
+{
+  gtk_widget_unblock_signal (port_controls->controls[copy].control, "value-changed",
+            G_CALLBACK (control_float_cb));
+}
+
+void
+port_controls_unblock_int_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_unblock_signal (port_controls->controls[copy].control, "value-changed",
+            G_CALLBACK (control_int_cb));
+}
+
+void
+port_controls_unblock_bool_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_unblock_signal (port_controls->controls[copy].control, "toggled",
+            G_CALLBACK (control_bool_cb));
+}
+
+
+                              
+
+/* EOF */
+
+
+

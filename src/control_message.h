@@ -18,29 +18,95 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __JLH_CONTROL_MESSAGE_H__
-#define __JLH_CONTROL_MESSAGE_H__
+#ifndef __JR_CONTROL_MESSAGE_H__
+#define __JR_CONTROL_MESSAGE_H__
+
+#include "ac_config.h"
 
 #include <glib.h>
+#include <ladspa.h>
 
 /** These are for messages between the gui and the process() callback */
+typedef enum _ctrlmsg_type
+{
+  CTRLMSG_ADD,
+  CTRLMSG_REMOVE,
+  CTRLMSG_ABLE,
+  CTRLMSG_ABLE_WET_DRY,
+  CTRLMSG_MOVE,
+  CTRLMSG_CHANGE,
+  CTRLMSG_CLEAR,
+  CTRLMSG_QUIT,
 
-typedef enum { CTRLMSG_ADD,
-               CTRLMSG_REMOVE,
-               CTRLMSG_ABLE,
-               CTRLMSG_MOVE,
-               CTRLMSG_CHANGE,
-               CTRLMSG_CLEAR,
-               CTRLMSG_QUIT,
-               CTRLMSG_ABLE_WET_DRY
-             } ctrlmsg_type_t;
+#ifdef HAVE_ALSA  
+  CTRLMSG_MIDI_ADD,
+  CTRLMSG_MIDI_REMOVE,
+  CTRLMSG_MIDI_CTRL
+#endif
 
-typedef struct ctrlmsg {
+} ctrlmsg_type_t;
+
+typedef struct _ctrlmsg ctrlmsg_t;
+
+struct _plugin;
+struct _plugin_desc;
+struct _plugin_slot;
+struct _midi_control;
+
+struct _ctrlmsg
+{
   ctrlmsg_type_t type;
-  long number;
-  long second_number;
-  gpointer pointer;
-  gpointer second_pointer;
-} ctrlmsg_t;
+  union
+  {
+    struct
+    {
+      struct _plugin      * plugin;
+    } add;
+    
+    struct
+    {
+      struct _plugin_slot * plugin_slot;
+      unsigned long         plugin_index;
+      struct _plugin      * old_plugin;
+    } remove;
+    
+    struct
+    {
+      struct _plugin_slot * plugin_slot;
+      unsigned long         plugin_index;
+      gboolean              enable;
+    } ablise;
+    
+    struct
+    {
+      struct _plugin_slot * plugin_slot;
+      unsigned long         plugin_index;
+      gboolean              up;
+    } move;
+    
+    struct
+    {
+      struct _plugin_slot * plugin_slot;
+      unsigned long         plugin_index;
+      struct _plugin      * new_plugin;
+      struct _plugin      * old_plugin;
+    } change;
+    
+    struct
+    {
+      struct _plugin      * chain;
+    } clear;
 
-#endif /* __JLH_CONTROL_MESSAGE_H__ */
+
+    
+    struct
+    {
+      struct _midi_control  *midi_control;
+      LADSPA_Data           value;
+    } midi;
+    
+  } data;
+ 
+};
+
+#endif /* __JR_CONTROL_MESSAGE_H__ */

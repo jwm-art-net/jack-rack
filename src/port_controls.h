@@ -40,9 +40,9 @@ typedef enum _control_type control_type_t;
 
 struct _controls
 {
-  GtkWidget * control;
-  GtkWidget * text;
-  lff_t *     control_fifo;
+  GtkWidget    *control;
+  GtkWidget    *text;
+  lff_t        *control_fifo;
 };
 
 /** the widgets for controlling an ladspa control port.  this is what is
@@ -66,5 +66,18 @@ struct _port_controls
 };
 
 port_controls_t * port_controls_new     (struct _plugin_slot * plugin_slot);
+
+void port_control_set_locked (port_controls_t *port_controls, gboolean locked);
+/*void port_control_set_value  (port_controls_t *port_controls, guint copy,
+                              LADSPA_Data value, gboolean block_fifo); */
+
+void gtk_widget_block_signal(GtkWidget *widget, const char *signal, GCallback callback);
+void gtk_widget_unblock_signal(GtkWidget *widget, const char *signal, GCallback callback);
+void port_controls_block_float_callback (port_controls_t * port_controls, guint copy);
+void port_controls_block_int_callback (port_controls_t * port_controls, guint copy);
+void port_controls_block_bool_callback (port_controls_t * port_controls, guint copy);
+void port_controls_unblock_float_callback (port_controls_t * port_controls, guint copy);
+void port_controls_unblock_int_callback (port_controls_t * port_controls, guint copy);
+void port_controls_unblock_bool_callback (port_controls_t * port_controls, guint copy);
 
 #endif /* __JR_PORT_CONTROLS_H__ */

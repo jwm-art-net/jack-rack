@@ -49,7 +49,6 @@ struct _process_info {
   
   lff_t * ui_to_process;
   lff_t * process_to_ui;
-  lff_t * midi_to_process;
   
   gboolean time_runs;
 };
@@ -59,7 +58,7 @@ extern jack_nframes_t buffer_size;
 
 struct _ui;
 
-process_info_t * process_info_new (struct _ui * ui, const char * client_name, unsigned long rack_channels);
+process_info_t * process_info_new (struct _ui * ui, unsigned long rack_channels);
 void             process_info_destroy (process_info_t * procinfo);
 
 void process_info_set_channels (process_info_t * procinfo, struct _ui * ui, unsigned long channels);

@@ -464,18 +464,21 @@ plugin_init_holder (plugin_t * plugin,
   
   if (desc->control_port_count > 0)
     {
-      holder->control_fifos  = g_malloc (sizeof (lff_t) * desc->control_port_count);
+      holder->ui_control_fifos    = g_malloc (sizeof (lff_t) * desc->control_port_count);
+      holder->midi_control_fifos  = g_malloc (sizeof (lff_t) * desc->control_port_count);
       holder->control_memory = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
     }
   else
     {
-      holder->control_fifos  = NULL;
+      holder->ui_control_fifos  = NULL;
+      holder->midi_control_fifos  = NULL;
       holder->control_memory = NULL;
     }
   
   for (i = 0; i < desc->control_port_count; i++)
     {
-      lff_init (holder->control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+      lff_init (holder->ui_control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+      lff_init (holder->midi_control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
       
       holder->control_memory[i] =
         plugin_desc_get_default_control_value (desc, desc->control_port_indicies[i], sample_rate);        
@@ -545,11 +548,13 @@ plugin_new (plugin_desc_t * desc, jack_rack_t * jack_rack)
   plugin->audio_output_memory   = g_malloc (sizeof (LADSPA_Data *) * jack_rack->channels);
   plugin->wet_dry_fifos  = g_malloc (sizeof (lff_t) * jack_rack->channels);
   plugin->wet_dry_values = g_malloc (sizeof (LADSPA_Data) * jack_rack->channels);
+  plugin->wet_dry_midi_fifos  = g_malloc (sizeof (lff_t) * jack_rack->channels);
   
   for (i = 0; i < jack_rack->channels; i++)
     {
       plugin->audio_output_memory[i] = g_malloc (sizeof (LADSPA_Data) * buffer_size);
       lff_init (plugin->wet_dry_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+      lff_init (plugin->wet_dry_midi_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
       plugin->wet_dry_values[i] = 1.0;
     }
   
@@ -563,7 +568,7 @@ plugin_new (plugin_desc_t * desc, jack_rack_t * jack_rack)
 
 
 void
-plugin_destroy (plugin_t * plugin, jack_client_t * jack_client)
+plugin_destroy (plugin_t * plugin, ui_t *ui)
 {
   unsigned long i, j;
   int err;
@@ -580,8 +585,12 @@ plugin_destroy (plugin_t * plugin, jack_client_t * jack_client)
       if (plugin->desc->control_port_count > 0)
         {
           for (j = 0; j < plugin->desc->control_port_count; j++)
-            lff_free (plugin->holders[i].control_fifos + j);
-          g_free (plugin->holders[i].control_fifos);
+            {
+              lff_free (plugin->holders[i].ui_control_fifos + j);
+              lff_free (plugin->holders[i].midi_control_fifos + j);
+            }
+          g_free (plugin->holders[i].ui_control_fifos);
+          g_free (plugin->holders[i].midi_control_fifos);
           g_free (plugin->holders[i].control_memory);
         }
       
@@ -590,7 +599,8 @@ plugin_destroy (plugin_t * plugin, jack_client_t * jack_client)
         {
           for (j = 0; j < plugin->desc->aux_channels; j++)
             {
-              err = jack_port_unregister (jack_client, plugin->holders[i].aux_ports[j]);
+              err = jack_port_unregister (ui->procinfo->jack_client,
+                                          plugin->holders[i].aux_ports[j]);
           
               if (err)
                 fprintf (stderr, "%s: could not unregister jack port\n", __FUNCTION__);
@@ -599,6 +609,20 @@ plugin_destroy (plugin_t * plugin, jack_client_t * jack_client)
           g_free (plugin->holders[i].aux_ports);
         }
     }
+    
+  g_free (plugin->holders);
+  
+  for (i = 0; i < ui->jack_rack->channels; i++)
+    {
+      g_free (plugin->audio_output_memory[i]);
+      lff_free (plugin->wet_dry_fifos + i);
+      lff_free (plugin->wet_dry_midi_fifos + i);
+    }
+    
+  g_free (plugin->audio_output_memory);
+  g_free (plugin->wet_dry_fifos);
+  g_free (plugin->wet_dry_midi_fifos);
+  g_free (plugin->wet_dry_values);
   
   err = dlclose (plugin->dl_handle);
   if (err)

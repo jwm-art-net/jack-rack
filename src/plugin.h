@@ -34,7 +34,8 @@ typedef struct _plugin plugin_t;
 struct _ladspa_holder
 {
   LADSPA_Handle instance;
-  lff_t * control_fifos;
+  lff_t * ui_control_fifos;
+  lff_t * midi_control_fifos;
   LADSPA_Data * control_memory;
 
   jack_port_t **             aux_ports;
@@ -52,6 +53,7 @@ struct _plugin
   
   gboolean                   wet_dry_enabled;
   lff_t *                    wet_dry_fifos;
+  lff_t *                    wet_dry_midi_fifos;
   /* 1.0 = all wet, 0.0 = all dry, 0.5 = 50% wet/50% dry */
   LADSPA_Data *              wet_dry_values;
   
@@ -71,9 +73,10 @@ void       process_move_plugin           (process_info_t *, gint plugin_index, g
 plugin_t * process_change_plugin         (process_info_t *, gint plugin_index, plugin_t * new_plugin);
 
 struct _jack_rack;
+struct _ui;
 
 plugin_t * plugin_new (plugin_desc_t * plugin_desc, struct _jack_rack * jack_rack);
-void       plugin_destroy (plugin_t * plugin, jack_client_t *);
+void       plugin_destroy (plugin_t * plugin, struct _ui *ui);
 
 void plugin_connect_input_ports (plugin_t * plugin, LADSPA_Data ** inputs);
 void plugin_connect_output_ports (plugin_t * plugin);

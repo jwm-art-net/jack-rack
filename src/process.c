@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <sys/time.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "process.h"
 #include "control_message.h"
@@ -34,6 +35,7 @@
 #include "globals.h"
 #include "jack_rack.h"
 #include "ui.h"
+#include "ui_callbacks.h"
 
 #define USEC_PER_SEC         1000000
 #define MSEC_PER_SEC         1000
@@ -42,11 +44,12 @@
 jack_nframes_t sample_rate;
 jack_nframes_t buffer_size;
 
+static char jack_client_name[128];
+
 int process_control_messages (process_info_t * procinfo) {
   static int quitting = 0;
   ctrlmsg_t ctrlmsg;
   int err = 0;
-  plugin_t * plugin;
   
   if (quitting) return quitting;
   
@@ -58,54 +61,56 @@ int process_control_messages (process_info_t * procinfo) {
     
       /* add a link to the end of the plugin chain */
       case CTRLMSG_ADD:
-        plugin = ctrlmsg.pointer;
-        process_add_plugin (procinfo, plugin);
+        process_add_plugin (procinfo, ctrlmsg.data.add.plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
         
       /* remove a link (plugin will be sent back) */
       case CTRLMSG_REMOVE:
-        plugin = process_remove_plugin (procinfo, ctrlmsg.number);
-        ctrlmsg.pointer = plugin;
+        ctrlmsg.data.remove.old_plugin =
+          process_remove_plugin (procinfo, ctrlmsg.data.remove.plugin_index);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
         
       /* enable/disable a plugin */
       case CTRLMSG_ABLE:
-        process_ablise_plugin (procinfo, ctrlmsg.number, GPOINTER_TO_INT(ctrlmsg.pointer) ? TRUE : FALSE);
+        process_ablise_plugin (procinfo,
+                               ctrlmsg.data.ablise.plugin_index,
+                               ctrlmsg.data.ablise.enable);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
       
       /* enable/disable wet/dry controls */
       case CTRLMSG_ABLE_WET_DRY:
-        process_ablise_plugin_wet_dry (procinfo, ctrlmsg.number, GPOINTER_TO_INT(ctrlmsg.pointer) ? TRUE : FALSE);
+        process_ablise_plugin_wet_dry (procinfo,
+                               ctrlmsg.data.ablise.plugin_index,
+                               ctrlmsg.data.ablise.enable);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
         
       /* move a plugin up or down */  
       case CTRLMSG_MOVE:
-/*        printf("%s: moving plugin %d %s\n", __FUNCTION__,
-               ctrlmsg.number, (GPOINTER_TO_INT(ctrlmsg.pointer)) ? "up" : "down");*/
-        process_move_plugin (procinfo, ctrlmsg.number,
-                             GPOINTER_TO_INT(ctrlmsg.pointer));
+        process_move_plugin (procinfo,
+                             ctrlmsg.data.move.plugin_index,
+                             ctrlmsg.data.move.up);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
               
       /* change an existing plugin for a new one (existing plugin
          will be sent back) */
       case CTRLMSG_CHANGE:
-        plugin = ctrlmsg.pointer;
-        plugin = process_change_plugin (procinfo, ctrlmsg.number, plugin);
-        ctrlmsg.pointer = plugin;
+        ctrlmsg.data.change.old_plugin = 
+          process_change_plugin (procinfo,
+                                 ctrlmsg.data.change.plugin_index,
+                                 ctrlmsg.data.change.new_plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
       
       /* remove all the plugins and send them back */
       case CTRLMSG_CLEAR:
-        plugin = procinfo->chain;
+        ctrlmsg.data.clear.chain = procinfo->chain;
         procinfo->chain = NULL;
         procinfo->chain_end = NULL;
-        ctrlmsg.pointer = plugin;
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
         
@@ -141,13 +146,29 @@ void process_control_port_messages (process_info_t * procinfo) {
       if (plugin->desc->control_port_count > 0)
         for (control = 0; control < plugin->desc->control_port_count; control++)
           for (copy = 0; copy < plugin->copies; copy++)
-            while (lff_read (plugin->holders[copy].control_fifos + control,
-                             plugin->holders[copy].control_memory + control) == 0);
+            {
+              while (lff_read (plugin->holders[copy].ui_control_fifos + control,
+                               plugin->holders[copy].control_memory + control) == 0)
+                printf ("%s: set control %ld for copy %d from ui\n", __FUNCTION__,
+                        control, copy);
+              while (lff_read (plugin->holders[copy].midi_control_fifos + control,
+                               plugin->holders[copy].control_memory + control) == 0)
+                printf ("%s: set control %ld for copy %d from midi\n", __FUNCTION__,
+                        control, copy);
+            }
       
       if (plugin->wet_dry_enabled)
         for (channel = 0; channel < procinfo->channels; channel++)
-          while (lff_read (plugin->wet_dry_fifos + channel,
-                           plugin->wet_dry_values + channel) == 0);
+          {
+            while (lff_read (plugin->wet_dry_fifos + channel,
+                             plugin->wet_dry_values + channel) == 0)
+              printf ("%s: set wet/dry for channel %ld from ui\n", __FUNCTION__,
+                      channel);
+            while (lff_read (plugin->wet_dry_midi_fifos + channel,
+                             plugin->wet_dry_values + channel) == 0)
+              printf ("%s: set wet/dry for channel %ld from midi\n", __FUNCTION__,
+                      channel);
+          }
     }
 }
 
@@ -385,11 +406,11 @@ int process (jack_nframes_t frames, void * data) {
  *******************************************/
  
 static int
-process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * client_name)
+process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
-  ui_display_splash_text (ui, "Connecting to JACK server with client name '%s'", client_name);
+  ui_display_splash_text (ui, "Connecting to JACK server with client name '%s'", jack_client_name);
 
-  procinfo->jack_client = jack_client_new (client_name);
+  procinfo->jack_client = jack_client_new (jack_client_name);
 
   if (!procinfo->jack_client)
     {
@@ -402,11 +423,12 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * cl
 
 #ifdef HAVE_LADCCA
   /* sort out ladcca stuff */
-  cca_jack_client_name (global_cca_client, client_name);
+  cca_jack_client_name (global_cca_client, jack_client_name);
 #endif
 
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
-  
+  jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
+                                            
   return 0;
 }
 
@@ -435,7 +457,7 @@ process_info_connect_port (process_info_t * procinfo,
       if (jack_port_index != port_index)
         continue;
         
-      full_port_name = g_strdup_printf ("%s:%s", ui->jack_client_name, port_name);
+      full_port_name = g_strdup_printf ("%s:%s", jack_client_name, port_name);
 
       ui_display_splash_text (ui, "Connecting ports '%s' and '%s'", full_port_name, jack_ports[jack_port_index]);
 
@@ -528,7 +550,7 @@ process_info_set_channels (process_info_t * procinfo, ui_t * ui, unsigned long c
 }
 
 process_info_t *
-process_info_new (ui_t * ui, const char * client_name, unsigned long rack_channels)
+process_info_new (ui_t * ui, unsigned long rack_channels)
 {
   process_info_t * procinfo;
   int err;
@@ -544,8 +566,23 @@ process_info_new (ui_t * ui, const char * client_name, unsigned long rack_channe
   procinfo->channels = rack_channels;
   procinfo->time_runs = time_runs;
   
+  /* sort out the client name */
+  strcpy (jack_client_name, client_name);
+  for (err = 0; err < 128 && jack_client_name[err] != '\0'; err++)
+    {
+      if (jack_client_name[err] == ' ')
+        jack_client_name[err] = '_';
+      else if (!isalnum (jack_client_name[err]))
+        { /* shift all the chars up one (to remove the non-alphanumeric char) */
+          int i;
+          for (i = err; err < 128 && jack_client_name[i] != '\0'; i++)
+            jack_client_name[i] = jack_client_name[i + 1];
+        }
+      else if (isupper (jack_client_name[err]))
+        jack_client_name[err] = tolower (jack_client_name[err]);
+    }
   
-  err = process_info_connect_jack (procinfo, ui, client_name);
+  err = process_info_connect_jack (procinfo, ui);
   if (err)
     {
 /*      g_free (procinfo); */

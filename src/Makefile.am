@@ -8,6 +8,8 @@ dtd_DATA = jack_rack_1.0.dtd jack_rack_1.1.dtd
 bin_PROGRAMS = jack-rack
 
 jack_rack_SOURCES = \
+	midi_window.c midi_window.h \
+	midi_control.c midi_control.h \
 	wet_dry_controls.c wet_dry_controls.h \
 	file.c file.h \
 	midi.c midi.h \
@@ -21,7 +23,9 @@ jack_rack_SOURCES = \
 	plugin_slot.c plugin_slot.h \
 	jack_rack.h jack_rack.c \
 	lock_free_fifo.c lock_free_fifo.h \
-	callbacks.c callbacks.h \
+	ui_callbacks.c ui_callbacks.h \
+	plugin_slot_callbacks.c plugin_slot_callbacks.h \
+	control_callbacks.c control_callbacks.h \
 	control_message.h \
 	main.c \
 	globals.h

@@ -1,7 +1,10 @@
 SUBDIRS = pixmaps src
 
-EXTRA_DIST = autogen.sh BUGS jack-rack.desktop
-
+EXTRA_DIST = \
+	autogen.sh \
+	BUGS \
+	jack-rack.desktop \
+	alsa.pc
 
 desktopdir = $(datadir)/applications
 

@@ -35,9 +35,7 @@
 
 #include "jack_rack.h"
 #include "lock_free_fifo.h"
-#include "callbacks.h"
 #include "control_message.h"
-#include "callbacks.h"
 #include "globals.h"
 #include "ui.h"
 
@@ -47,10 +45,10 @@ jack_rack_new (ui_t * ui, unsigned long channels)
   jack_rack_t *rack;
 
   rack = g_malloc (sizeof (jack_rack_t));
-  rack->slots = NULL;
+  rack->slots          = NULL;
   rack->saved_settings = NULL;
-  rack->ui = ui;
-  rack->channels = channels;
+  rack->ui             = ui;
+  rack->channels       = channels;
 
   return rack;
 }
@@ -119,8 +117,7 @@ jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   
   /* send the chain link off to the process() callback */
   ctrlmsg.type = CTRLMSG_ADD;
-  ctrlmsg.pointer = plugin;
-  ctrlmsg.second_pointer = desc;
+  ctrlmsg.data.add.plugin = plugin;
   lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
@@ -278,7 +275,7 @@ jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin)
             }
         }
       
-      plugin_destroy (plugin, jack_rack->ui->procinfo->jack_client);
+      plugin_destroy (plugin, jack_rack->ui);
     }
 }
 
@@ -287,6 +284,69 @@ jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index)
 {
   return (plugin_slot_t *) g_list_nth_data (jack_rack->slots, plugin_index);
 }
+
+#ifdef HAVE_ALSA
+                                                                                                               
+static unsigned int
+jack_rack_get_next_param (jack_rack_t * jack_rack)
+{
+  plugin_slot_t *plugin_slot;
+  midi_control_t *midi_ctrl;
+  GList *slot;
+  GList *next_slot;
+  GSList *control;
+  unsigned int param = 1;
+  
+  for (slot = jack_rack->slots; slot; slot = next_slot)
+    {
+      next_slot = g_list_next (slot);
+      plugin_slot = slot->data;
+      
+      for (control = plugin_slot->midi_controls; control; control = g_slist_next (control))
+        {
+          midi_ctrl = control->data;
+      
+          if (midi_control_get_midi_param (midi_ctrl) == param)
+            {
+              param++;
+              next_slot = jack_rack->slots;
+              break;
+            }
+       }
+    }
+  
+  g_assert (param < 129);
+  
+  return param;
+}
+                                                                                                               
+void
+jack_rack_add_port_controller    (plugin_slot_t *plugin_slot, guint copy, unsigned long control)
+{
+  midi_control_t * midi_ctrl;
+                                                                                                               
+  midi_ctrl = ladspa_midi_control_new (plugin_slot, copy, control);
+  
+  midi_control_set_midi_channel (midi_ctrl, 1);
+  midi_control_set_midi_param (midi_ctrl, jack_rack_get_next_param (plugin_slot->jack_rack));
+  
+  midi_info_add_control (plugin_slot->jack_rack->ui->midi_info, midi_ctrl);
+}
+                                                                                                               
+void
+jack_rack_add_wet_dry_controller (plugin_slot_t *plugin_slot, unsigned long channel)
+{
+  midi_control_t * midi_ctrl;
+
+  midi_ctrl = wet_dry_midi_control_new (plugin_slot, channel);
+  
+  midi_control_set_midi_channel (midi_ctrl, 1);
+  midi_control_set_midi_param (midi_ctrl, jack_rack_get_next_param (plugin_slot->jack_rack));
+  
+  midi_info_add_control (plugin_slot->jack_rack->ui->midi_info, midi_ctrl);
+}
+                                                                                                               
+#endif /* HAVE_ALSA */
 
 
 

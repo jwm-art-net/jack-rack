@@ -40,6 +40,7 @@ struct _jack_rack
   GList *           slots;
   
   GSList *          saved_settings;
+  
 };
 
 jack_rack_t * jack_rack_new     (struct _ui * ui, unsigned long channels);
@@ -52,9 +53,13 @@ void jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin
 void jack_rack_change_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, plugin_t * plugin);
 void jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin);
 
-
 plugin_slot_t * jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index);
-
 plugin_t * jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc);
+
+#ifdef HAVE_ALSA
+void jack_rack_add_port_controller    (plugin_slot_t *plugin_slot, guint copy, unsigned long control);
+void jack_rack_add_wet_dry_controller (plugin_slot_t *plugin_slot, unsigned long channel);
+#endif
+
 
 #endif /* __JR_JACK_RACK_H__ */

@@ -27,6 +27,8 @@
 
 #include "jack_rack.h"
 #include "plugin_mgr.h"
+#include "midi.h"
+#include "midi_window.h"
 
 typedef struct _ui ui_t;
 
@@ -45,13 +47,19 @@ typedef enum _ui_state ui_state_t;
 
 struct _ui
 {
-  char *            jack_client_name;
   plugin_mgr_t *    plugin_mgr;
   process_info_t *  procinfo;
   jack_rack_t *     jack_rack;
+#ifdef HAVE_ALSA
+  midi_info_t       *midi_info;
+  midi_window_t     *midi_window;
+#endif
 
   lff_t *           ui_to_process;
   lff_t *           process_to_ui;
+  
+  lff_t             *ui_to_midi;
+  lff_t             *midi_to_ui;
 
   char *            filename;
   
@@ -69,10 +77,14 @@ struct _ui
 #endif
   GtkWidget *       splash_screen;
   GtkWidget *       splash_screen_text;
+#ifdef HAVE_ALSA
+  GtkWidget         *midi_menu;
+  GtkWidget         *midi_menu_item;
+#endif
   
 };
 
-ui_t * ui_new     (const char * jack_client_name, unsigned long channels);
+ui_t * ui_new     (unsigned long channels);
 void   ui_destroy (ui_t * ui);
 
 void ui_set_filename (ui_t * ui, const char * filename);

@@ -5,8 +5,13 @@
 * ladspa.m4
 * Custom float widget
 * Reload
-* MIDI control
 * Display of plugins' execution time
+
+
+ In 1.4.0
+----------
+* MIDI control
+
 
  In 1.3.0
 ----------
