@@ -1,6 +1,2 @@
-* vcf plugin doesn't seem to want to work at all; problems with control port
-  memory pointers or port indicies afaict (not sure if this is still the
-  case 04/02/03)
 * the gnome about box generates warnings on closing if you don't open the
   Credits box
-* get SIGHUP when closing for some reason
