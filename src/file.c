@@ -37,19 +37,23 @@ xmlDocPtr
 jack_rack_create_doc (jack_rack_t * jack_rack)
 {
   xmlDocPtr doc;
-  xmlNodePtr tree, jackrack, controlrow, wet_dry_values;
+  xmlNodePtr tree, jackrack, controlrow, wet_dry_values, midi_control;
   xmlDtdPtr dtd;
   plugin_slot_t * plugin_slot;
   GList * list;
+  GSList *mlist;
   unsigned long control;
   unsigned long channel;
   gint copy;
   char num[32];
+#ifdef HAVE_ALSA
+  midi_control_t *midi_ctrl;
+#endif
   
   doc = xmlNewDoc(XML_DEFAULT_VERSION);
 
   /* dtd */
-  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.1.dtd");
+  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.2.dtd");
   doc->intSubset = dtd;
   xmlAddChild ((xmlNodePtr)doc, (xmlNodePtr)dtd);
   
@@ -79,7 +83,8 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
       
       /* wet/dry stuff */
       xmlNewChild (tree, NULL, "wet_dry_enabled", settings_get_wet_dry_enabled (plugin_slot->settings) ? "true" : "false");
-      xmlNewChild (tree, NULL, "wet_dry_locked", settings_get_wet_dry_locked (plugin_slot->settings) ? "true" : "false");
+      if (jack_rack->channels > 1)
+        xmlNewChild (tree, NULL, "wet_dry_locked", settings_get_wet_dry_locked (plugin_slot->settings) ? "true" : "false");
       
       /* wet/dry values */
       wet_dry_values = xmlNewChild (tree, NULL, "wet_dry_values", NULL);
@@ -109,6 +114,50 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
               xmlNewChild (controlrow, NULL, "value", num);
             }
         }
+      
+      /* midi control */
+#ifdef HAVE_ALSA
+      for (mlist = plugin_slot->midi_controls; mlist; mlist = g_slist_next (mlist))
+        {
+          midi_ctrl = mlist->data;
+          
+          midi_control = xmlNewChild (tree, NULL, "midi_control", NULL);
+          
+          /* channel */
+          sprintf (num, "%d", midi_control_get_midi_channel (midi_ctrl));
+          xmlNewChild (midi_control, NULL, "midi_channel", num);
+
+          /* param */
+          sprintf (num, "%d", midi_control_get_midi_param (midi_ctrl));
+          xmlNewChild (midi_control, NULL, "midi_param", num);
+          
+          if (midi_ctrl->ladspa_control)
+            {
+              xmlNodePtr ladspa;
+              
+              ladspa = xmlNewChild (midi_control, NULL, "ladspa", NULL);
+              
+              /* copy */
+              sprintf (num, "%d", midi_ctrl->control.ladspa.copy);
+              xmlNewChild (ladspa, NULL, "copy", num);
+
+              /* control */
+              sprintf (num, "%ld", midi_ctrl->control.ladspa.control);
+              xmlNewChild (ladspa, NULL, "control", num);
+            }
+          else
+            {
+              xmlNodePtr wet_dry;
+              
+              wet_dry = xmlNewChild (midi_control, NULL, "wet_dry", NULL);
+              
+              /* channel */
+              sprintf (num, "%ld", midi_ctrl->control.wet_dry.channel);
+              xmlNewChild (wet_dry, NULL, "channel", num);
+            }
+        }
+#endif /* HAVE_ALSA */
+
     }
   
   return doc;
@@ -134,7 +183,8 @@ ui_save_file (ui_t * ui, const char * filename)
 }
 
 static void
-saved_rack_parse_plugin (saved_rack_t * saved_rack, ui_t * ui, const char * filename, xmlNodePtr plugin)
+saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugin,
+                         ui_t * ui, const char * filename, xmlNodePtr plugin)
 {
   plugin_desc_t * desc;
   settings_t * settings = NULL;
@@ -145,6 +195,9 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, ui_t * ui, const char * file
   xmlChar *content;
   unsigned long num;
   unsigned long control = 0;
+#ifdef HAVE_ALSA
+  midi_control_t * midi_ctrl;
+#endif
 
 
   for (node = plugin->children; node; node = node->next)
@@ -227,10 +280,75 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, ui_t * ui, const char * file
           
           control++;
         }
+
+#ifdef HAVE_ALSA
+      else if (strcmp (node->name, "midi_control") == 0)
+        {
+          xmlNodePtr control_node;
+          
+          midi_ctrl = g_malloc (sizeof (midi_control_t));
+          
+          for (sub_node = node->children; sub_node; sub_node = sub_node->next)
+            {
+              if (strcmp (sub_node->name, "midi_channel") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  midi_ctrl->midi_channel = atoi (content);
+                  xmlFree (content);
+                }
+              else if (strcmp (sub_node->name, "midi_param") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  midi_ctrl->midi_param = atoi (content);
+                  xmlFree (content);
+                }
+              else if (strcmp (sub_node->name, "ladspa") == 0)
+                {
+                  midi_ctrl->ladspa_control = TRUE;
+                  for (control_node = sub_node->children;
+                       control_node;
+                       control_node = control_node->next)
+                    {
+                      if (strcmp (control_node->name, "copy") == 0)
+                        {
+                          content = xmlNodeGetContent (control_node);
+                          midi_ctrl->control.ladspa.copy = atoi (content);
+                          xmlFree (content);
+                        }
+                      else if (strcmp (control_node->name, "control") == 0)
+                        {
+                          content = xmlNodeGetContent (control_node);
+                          midi_ctrl->control.ladspa.control = strtoul (content, NULL, 10);
+                          xmlFree (content);
+                        }
+                    }
+                }
+              else if (strcmp (sub_node->name, "wet_dry") == 0)
+                {
+                  midi_ctrl->ladspa_control = FALSE;
+                  for (control_node = sub_node->children;
+                       control_node;
+                       control_node = control_node->next)
+                    {
+                      if (strcmp (control_node->name, "channel") == 0)
+                        {
+                          content = xmlNodeGetContent (control_node);
+                          midi_ctrl->control.wet_dry.channel = strtoul (content, NULL, 10);
+                          xmlFree (content);
+                        }
+                    }
+                }
+            }
+          
+          saved_plugin->midi_controls =
+            g_slist_append (saved_plugin->midi_controls, midi_ctrl);
+        }
+#endif /* HAVE_ALSA */
+
     }
   
   if (settings)
-    saved_rack->settings = g_slist_append (saved_rack->settings, settings);
+    saved_plugin->settings = settings;
 }
 
 static void
@@ -238,6 +356,7 @@ saved_rack_parse_jackrack (saved_rack_t * saved_rack, ui_t * ui, const char * fi
 {
   xmlNodePtr node;
   xmlChar *content;
+  saved_plugin_t * saved_plugin;
 
   for (node = jackrack->children; node; node = node->next)
     {
@@ -255,7 +374,9 @@ saved_rack_parse_jackrack (saved_rack_t * saved_rack, ui_t * ui, const char * fi
         }
       else if (strcmp (node->name, "plugin") == 0)
         {
-          saved_rack_parse_plugin (saved_rack, ui, filename, node);
+          saved_plugin = g_malloc0 (sizeof (saved_plugin_t));
+          saved_rack->plugins = g_slist_append (saved_rack->plugins, saved_plugin);
+          saved_rack_parse_plugin (saved_rack, saved_plugin, ui, filename, node);
         }
     }
 }
@@ -268,7 +389,7 @@ saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
   
   /* create the saved rack */
   saved_rack = g_malloc (sizeof (saved_rack_t));
-  saved_rack->settings = NULL;
+  saved_rack->plugins = NULL;
   saved_rack->sample_rate = 48000;
   saved_rack->channels = 2;
   
@@ -286,9 +407,9 @@ saved_rack_destroy (saved_rack_t * saved_rack)
 {
   GSList * list;
   
-  for (list = saved_rack->settings; list; list = g_slist_next (list))
-    settings_destroy ((settings_t *) list->data);
-  g_slist_free (saved_rack->settings);
+/*  for (list = saved_rack->settings; list; list = g_slist_next (list))
+    settings_destroy ((settings_t *) list->data); */
+/*  g_slist_free (saved_rack->settings); */
   
   g_free (saved_rack);
 }
@@ -301,7 +422,7 @@ ui_open_file (ui_t * ui, const char * filename)
   saved_rack_t * saved_rack;
   ctrlmsg_t ctrlmsg;
   GSList * list;
-  settings_t * settings;
+  saved_plugin_t * saved_plugin;
 
   doc = xmlParseFile (filename);
   if (!doc)
@@ -338,20 +459,18 @@ ui_open_file (ui_t * ui, const char * filename)
   if (saved_rack->channels != ui->jack_rack->channels)
     ui_set_channels (ui, saved_rack->channels);
   
-  ctrlmsg.type = CTRLMSG_CLEAR;
-  lff_write (ui->ui_to_process, &ctrlmsg);
+  jack_rack_send_clear_plugins (ui->jack_rack);
   
-  for (list = saved_rack->settings; list; list = g_slist_next (list))
+  for (list = saved_rack->plugins; list; list = g_slist_next (list))
     {
-      settings = (settings_t *) list->data;
+      saved_plugin = list->data;
       
-      settings_set_sample_rate (settings, sample_rate);
+      settings_set_sample_rate (saved_plugin->settings, sample_rate);
       
-      jack_rack_add_plugin (ui->jack_rack, settings->desc);
+      jack_rack_add_saved_plugin (ui->jack_rack, saved_plugin);
     }
   
-  ui->jack_rack->saved_settings = saved_rack->settings;
-  
+  g_slist_free (saved_rack->plugins);  
   g_free (saved_rack);
   
   return 0;

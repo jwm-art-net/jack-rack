@@ -42,6 +42,7 @@
 #include "globals.h"
 
 #define PROCESS_FIFO_SIZE 64
+#define MIDI_FIFO_SIZE 256
 
 static void
 ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
@@ -51,21 +52,14 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *file_menuitem;
   
   GtkWidget *file_menu;
-  GtkWidget *new;
 #ifdef HAVE_XML
-  GtkWidget *open;
   GtkWidget *save;
   GtkWidget *save_as;
 #endif /* HAVE_XML */
   GtkWidget *separator;
   GtkWidget *quit;
-  
   GtkWidget *rack_menuitem;
   GtkWidget *rack_menu;
-  GtkWidget *channels_menuitem;  
-#ifdef HAVE_ALSA
-  GtkWidget *midi_menuitem;
-#endif
   
 #ifdef HAVE_GNOME
   GtkWidget *help_menuitem;
@@ -101,17 +95,17 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   file_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_menuitem), file_menu);
   
-  new = gtk_image_menu_item_new_from_stock (GTK_STOCK_NEW, NULL);
-  gtk_widget_show (new);
-  gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), new);
-  g_signal_connect (G_OBJECT (new), "activate",
+  ui->new_menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_NEW, NULL);
+  gtk_widget_show (ui->new_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->new_menuitem);
+  g_signal_connect (G_OBJECT (ui->new_menuitem), "activate",
                     G_CALLBACK (new_cb), ui);
 
 #ifdef HAVE_XML
-  open = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
-  gtk_widget_show (open);
-  gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), open);
-  g_signal_connect (G_OBJECT (open), "activate",
+  ui->open_menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
+  gtk_widget_show (ui->open_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->open_menuitem);
+  g_signal_connect (G_OBJECT (ui->open_menuitem), "activate",
                     G_CALLBACK (open_cb), ui);
 
   save = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE, NULL);
@@ -164,17 +158,17 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   ui->add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(ui->add_menuitem), ui->add_menu);
 
-  channels_menuitem = gtk_menu_item_new_with_label (_("Channels"));
-  gtk_widget_show (channels_menuitem);
-  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), channels_menuitem);
-  g_signal_connect (G_OBJECT (channels_menuitem), "activate",
+  ui->channels_menuitem = gtk_menu_item_new_with_label (_("Channels"));
+  gtk_widget_show (ui->channels_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), ui->channels_menuitem);
+  g_signal_connect (G_OBJECT (ui->channels_menuitem), "activate",
                     G_CALLBACK (channel_cb), ui);
 
 #ifdef HAVE_ALSA  
-  midi_menuitem = gtk_menu_item_new_with_label (_("MIDI Controls"));  
-  gtk_widget_show (midi_menuitem);
-  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), midi_menuitem);
-  g_signal_connect (G_OBJECT (midi_menuitem), "activate",
+  ui->midi_menuitem = gtk_menu_item_new_with_label (_("MIDI Controls"));  
+  gtk_widget_show (ui->midi_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), ui->midi_menuitem);
+  g_signal_connect (G_OBJECT (ui->midi_menuitem), "activate",
                     G_CALLBACK (midi_cb), ui);
 #endif /* HAVE_ALSA */
 
@@ -232,7 +226,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
   /* main window */
   ui->main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (ui->main_window), client_name);
+  gtk_window_set_title (GTK_WINDOW (ui->main_window), client_name->str);
   gtk_window_set_default_size (GTK_WINDOW (ui->main_window), 620, 460);
   g_signal_connect (G_OBJECT (ui->main_window), "delete_event",
                         G_CALLBACK (window_destroy_cb), ui);  
@@ -269,7 +263,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   channel_icon_file = g_strdup_printf ("%s/%s", PKGDATADIR, JACK_RACK_CHANNELS_ICON_FILE);
   channel_icon = gtk_image_new_from_file (channel_icon_file);
   g_free (channel_icon_file);
-  gtk_toolbar_append_item (GTK_TOOLBAR (toolbar),
+  ui->channels = gtk_toolbar_append_item (GTK_TOOLBAR (toolbar),
                            _("Channels"),
                            _("Change the number of I/O channels the rack has"),
                            NULL,
@@ -280,13 +274,13 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
 
-  gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
+  ui->new = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_NEW,
                             _("Clear the rack"),
                             NULL, G_CALLBACK (new_cb), ui, -1);
 
 #ifdef HAVE_XML
-  gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
+  ui->open = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_OPEN,
                             _("Open a rack configuration file"),
                             NULL, G_CALLBACK (open_cb), ui, -1);
@@ -423,19 +417,19 @@ ui_new (unsigned long channels)
   ui->ui_to_process = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
   ui->process_to_ui = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
 #ifdef HAVE_ALSA
-  ui->ui_to_midi    = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
-  ui->midi_to_ui    = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
+  ui->ui_to_midi    = lff_new (MIDI_FIFO_SIZE, sizeof (ctrlmsg_t));
+  ui->midi_to_ui    = lff_new (MIDI_FIFO_SIZE, sizeof (ctrlmsg_t));
 #endif
 
   ui_init_splash_screen (ui);
   
   ui->procinfo = process_info_new (ui, channels);
-  ui->plugin_mgr = plugin_mgr_new (ui);
-  plugin_mgr_set_plugins (ui->plugin_mgr, channels);
-  ui->jack_rack = jack_rack_new (ui, channels);
 #ifdef HAVE_ALSA
   ui->midi_info   = midi_info_new (ui);
 #endif
+  ui->plugin_mgr = plugin_mgr_new (ui);
+  plugin_mgr_set_plugins (ui->plugin_mgr, channels);
+  ui->jack_rack = jack_rack_new (ui, channels);
 
   gtk_idle_add (idle_cb, ui);
 
@@ -561,14 +555,12 @@ ui_set_filename (ui_t * ui, const char * filename)
       else
         base_filename = filename;
       
-      window_title = g_strdup_printf ("%s - %s", client_name, base_filename);
-      printf ("%s: client_name: --%s--, window_title: --%s--\n",
-              __FUNCTION__, client_name, window_title);
+      window_title = g_strdup_printf ("%s - %s", client_name->str, base_filename);
       gtk_window_set_title (GTK_WINDOW (ui->main_window), window_title);
       g_free (window_title);
     }
   else
-    gtk_window_set_title (GTK_WINDOW (ui->main_window), client_name);
+    gtk_window_set_title (GTK_WINDOW (ui->main_window), client_name->str);
 }
 
 
@@ -603,7 +595,11 @@ ui_set_channels (ui_t * ui, unsigned long channels)
     {
       plugin_slot = (plugin_slot_t *) list->data;
       plugin = plugin_slot->plugin;
-      
+
+#ifdef HAVE_ALSA      
+      plugin_slot_remove_midi_controls (plugin_slot);
+#endif
+
       jack_rack_remove_plugin_slot (ui->jack_rack, plugin_slot);
       plugin_destroy (plugin, ui);
     }

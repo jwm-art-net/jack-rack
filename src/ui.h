@@ -68,20 +68,35 @@ struct _ui
 
   GtkWidget *       main_window;
   GtkWidget *       plugin_box;
+  GtkWidget *       add_menu;
+
+/* all the widgets that can be desensitised */
   GtkWidget *       add;
   GtkWidget *       add_menuitem;
-  GtkWidget *       add_menu;
+  GtkWidget *       channels_menuitem;
+  GtkWidget *       channels;
+#ifdef HAVE_ALSA
+  GtkWidget         *midi_menuitem;
+#endif
+  GtkWidget *       new_menuitem;
+  GtkWidget *       new;
+#ifdef HAVE_XML
+  GtkWidget *       open_menuitem;
+  GtkWidget *       open;
+#endif
+
 #ifdef HAVE_LADCCA
   GtkWidget *       cca_save;
   GtkWidget *       cca_save_menu_item;
 #endif
+
   GtkWidget *       splash_screen;
   GtkWidget *       splash_screen_text;
+  
 #ifdef HAVE_ALSA
   GtkWidget         *midi_menu;
   GtkWidget         *midi_menu_item;
 #endif
-  
 };
 
 ui_t * ui_new     (unsigned long channels);
@@ -95,9 +110,9 @@ ui_state_t ui_get_state (ui_t * ui);
 
 plugin_t * ui_instantiate_plugin (ui_t * ui, plugin_desc_t * desc);
 
-void ui_display_error       (ui_t * ui, const char * format, ...);
-void ui_display_splash_text (ui_t * ui, const char * format, ...);
-gboolean ui_get_ok (ui_t * ui, const char * format, ...);
+void     ui_display_error       (ui_t * ui, const char * format, ...);
+void     ui_display_splash_text (ui_t * ui, const char * format, ...);
+gboolean ui_get_ok              (ui_t * ui, const char * format, ...);
 
 
 #endif /* __JR_UI_H__ */

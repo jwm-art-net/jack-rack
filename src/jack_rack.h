@@ -39,27 +39,27 @@ struct _jack_rack
   unsigned long     channels;
   GList *           slots;
   
-  GSList *          saved_settings;
-  
+  GSList *          saved_plugins;
 };
 
 jack_rack_t * jack_rack_new     (struct _ui * ui, unsigned long channels);
 void          jack_rack_destroy (jack_rack_t * jack_rack);
 
-void jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * plugin);
-void jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin);
+void jack_rack_send_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * plugin);
+void jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_t * plugin);
+void jack_rack_add_saved_plugin (jack_rack_t * jack_rack, struct _saved_plugin * saved_plugin);
+void jack_rack_send_remove_plugin_slot (jack_rack_t *jack_rack, plugin_slot_t *plugin_slot);
 void jack_rack_remove_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot);
+void jack_rack_send_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up);
 void jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up);
 void jack_rack_change_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, plugin_t * plugin);
-void jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin);
+void jack_rack_send_clear_plugins (jack_rack_t * jack_rack);
 
 plugin_slot_t * jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index);
 plugin_t * jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc);
 
 #ifdef HAVE_ALSA
-void jack_rack_add_port_controller    (plugin_slot_t *plugin_slot, guint copy, unsigned long control);
-void jack_rack_add_wet_dry_controller (plugin_slot_t *plugin_slot, unsigned long channel);
+unsigned int jack_rack_get_next_midi_param (jack_rack_t * jack_rack, unsigned char channel);
 #endif
-
 
 #endif /* __JR_JACK_RACK_H__ */

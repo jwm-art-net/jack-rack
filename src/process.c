@@ -44,7 +44,7 @@
 jack_nframes_t sample_rate;
 jack_nframes_t buffer_size;
 
-static char jack_client_name[128];
+static char * jack_client_name;
 
 int process_control_messages (process_info_t * procinfo) {
   static int quitting = 0;
@@ -67,15 +67,15 @@ int process_control_messages (process_info_t * procinfo) {
         
       /* remove a link (plugin will be sent back) */
       case CTRLMSG_REMOVE:
-        ctrlmsg.data.remove.old_plugin =
-          process_remove_plugin (procinfo, ctrlmsg.data.remove.plugin_index);
+        ctrlmsg.data.remove.plugin =
+          process_remove_plugin (procinfo, ctrlmsg.data.remove.plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
         
       /* enable/disable a plugin */
       case CTRLMSG_ABLE:
         process_ablise_plugin (procinfo,
-                               ctrlmsg.data.ablise.plugin_index,
+                               ctrlmsg.data.ablise.plugin,
                                ctrlmsg.data.ablise.enable);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
@@ -83,7 +83,7 @@ int process_control_messages (process_info_t * procinfo) {
       /* enable/disable wet/dry controls */
       case CTRLMSG_ABLE_WET_DRY:
         process_ablise_plugin_wet_dry (procinfo,
-                               ctrlmsg.data.ablise.plugin_index,
+                               ctrlmsg.data.ablise.plugin,
                                ctrlmsg.data.ablise.enable);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
@@ -91,7 +91,7 @@ int process_control_messages (process_info_t * procinfo) {
       /* move a plugin up or down */  
       case CTRLMSG_MOVE:
         process_move_plugin (procinfo,
-                             ctrlmsg.data.move.plugin_index,
+                             ctrlmsg.data.move.plugin,
                              ctrlmsg.data.move.up);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
@@ -101,24 +101,23 @@ int process_control_messages (process_info_t * procinfo) {
       case CTRLMSG_CHANGE:
         ctrlmsg.data.change.old_plugin = 
           process_change_plugin (procinfo,
-                                 ctrlmsg.data.change.plugin_index,
+                                 ctrlmsg.data.change.old_plugin,
                                  ctrlmsg.data.change.new_plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
       
       /* remove all the plugins and send them back */
-      case CTRLMSG_CLEAR:
+/*      case CTRLMSG_CLEAR:
         ctrlmsg.data.clear.chain = procinfo->chain;
         procinfo->chain = NULL;
         procinfo->chain_end = NULL;
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
-        break;
+        break; */
         
       case CTRLMSG_QUIT:
         quitting = 1;
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         return 1;
-      
       }
     
     if (err)
@@ -148,26 +147,22 @@ void process_control_port_messages (process_info_t * procinfo) {
           for (copy = 0; copy < plugin->copies; copy++)
             {
               while (lff_read (plugin->holders[copy].ui_control_fifos + control,
-                               plugin->holders[copy].control_memory + control) == 0)
-                printf ("%s: set control %ld for copy %d from ui\n", __FUNCTION__,
-                        control, copy);
+                               plugin->holders[copy].control_memory + control) == 0);
+#ifdef HAVE_ALSA
               while (lff_read (plugin->holders[copy].midi_control_fifos + control,
-                               plugin->holders[copy].control_memory + control) == 0)
-                printf ("%s: set control %ld for copy %d from midi\n", __FUNCTION__,
-                        control, copy);
+                               plugin->holders[copy].control_memory + control) == 0);
+#endif
             }
       
       if (plugin->wet_dry_enabled)
         for (channel = 0; channel < procinfo->channels; channel++)
           {
             while (lff_read (plugin->wet_dry_fifos + channel,
-                             plugin->wet_dry_values + channel) == 0)
-              printf ("%s: set wet/dry for channel %ld from ui\n", __FUNCTION__,
-                      channel);
+                             plugin->wet_dry_values + channel) == 0);
+#ifdef HAVE_ALSA
             while (lff_read (plugin->wet_dry_midi_fifos + channel,
-                             plugin->wet_dry_values + channel) == 0)
-              printf ("%s: set wet/dry for channel %ld from midi\n", __FUNCTION__,
-                      channel);
+                             plugin->wet_dry_values + channel) == 0);
+#endif
           }
     }
 }
@@ -567,15 +562,15 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   procinfo->time_runs = time_runs;
   
   /* sort out the client name */
-  strcpy (jack_client_name, client_name);
-  for (err = 0; err < 128 && jack_client_name[err] != '\0'; err++)
+  jack_client_name = strdup (client_name->str);
+  for (err = 0; jack_client_name[err] != '\0'; err++)
     {
       if (jack_client_name[err] == ' ')
         jack_client_name[err] = '_';
       else if (!isalnum (jack_client_name[err]))
         { /* shift all the chars up one (to remove the non-alphanumeric char) */
           int i;
-          for (i = err; err < 128 && jack_client_name[i] != '\0'; i++)
+          for (i = err; jack_client_name[i] != '\0'; i++)
             jack_client_name[i] = jack_client_name[i + 1];
         }
       else if (isupper (jack_client_name[err]))
@@ -596,15 +591,19 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   buffer_size = jack_get_sample_rate (procinfo->jack_client);
   
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
+  jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
   
   procinfo->ui_to_process = ui->ui_to_process; 
   procinfo->process_to_ui = ui->process_to_ui; 
+  
+  jack_activate (procinfo->jack_client);
 
   return procinfo;
 }
 
 void
 process_info_destroy (process_info_t * procinfo) {
+  jack_deactivate (procinfo->jack_client);
   jack_client_close (procinfo->jack_client);
   g_free (procinfo);
 }

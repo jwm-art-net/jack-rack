@@ -31,6 +31,8 @@
 #include "control_callbacks.h"
 #include "midi_control.h"
 #include "jack_rack.h"
+#include "control_message.h"
+#include "ui.h"
 
 #define TEXT_BOX_WIDTH        75
 #define TEXT_BOX_CHARS        -1
@@ -393,14 +395,17 @@ void
 port_control_set_locked (port_controls_t *port_controls, gboolean locked)
 {
   GSList *list;
-  midi_control_t *midi_ctrl;
   plugin_slot_t *plugin_slot;
+#ifdef HAVE_ALSA
+  midi_control_t *midi_ctrl;
+#endif
   
   plugin_slot = port_controls->plugin_slot;
   
   port_controls->locked = locked;
   settings_set_lock (plugin_slot->settings, port_controls->control_index, locked);
-  
+
+#ifdef HAVE_ALSA  
   for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
     {
       midi_ctrl = (midi_control_t *) list->data;
@@ -409,7 +414,7 @@ port_control_set_locked (port_controls_t *port_controls, gboolean locked)
           midi_ctrl->control.ladspa.control == port_controls->control_index)
         midi_control_set_locked (midi_ctrl, locked);
     }
-  
+#endif
   plugin_slot_show_controls (port_controls->plugin_slot, port_controls->lock_copy);
 }
 
@@ -482,6 +487,50 @@ port_controls_unblock_bool_callback (port_controls_t * port_controls, guint copy
 }
 
 
+#ifdef HAVE_ALSA
+static void
+port_control_send_midi_value (port_controls_t *port_controls, guint copy, LADSPA_Data value)
+{
+  midi_control_t *midi_ctrl;
+  GSList *list;
+  ctrlmsg_t ctrlmsg;
+
+  ctrlmsg.type = CTRLMSG_MIDI_CTRL;
+  ctrlmsg.data.midi.value = value;
+
+  for (list = port_controls->plugin_slot->midi_controls; list; list = g_slist_next (list))
+    {
+      midi_ctrl = list->data;
+      
+      if (midi_ctrl->ladspa_control &&
+          midi_ctrl->control.ladspa.control == port_controls->control_index &&
+          midi_ctrl->control.ladspa.copy == copy)
+        {
+          ctrlmsg.data.midi.midi_control = midi_ctrl;
+          
+          lff_write (port_controls->plugin_slot->jack_rack->ui->ui_to_midi, &ctrlmsg);
+        }
+    }
+}
+#endif /* HAVE_ALSA */
+
+void
+port_control_send_value (port_controls_t *port_controls, guint copy, LADSPA_Data value)
+{
+  /* write to the fifo */
+  lff_write (port_controls->controls[copy].control_fifo, &value);
+
+  /* store the value */
+  settings_set_control_value (port_controls->plugin_slot->settings,
+                              copy,
+                              port_controls->control_index,
+                              value);
+                                                                                                               
+  /* send the midi controls */
+#ifdef HAVE_ALSA
+  port_control_send_midi_value (port_controls, copy, value);
+#endif
+}
                               
 
 /* EOF */

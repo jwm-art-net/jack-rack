@@ -18,6 +18,8 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "ac_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ladspa.h>
@@ -121,31 +123,11 @@ process_add_plugin (process_info_t * procinfo, plugin_t * plugin)
 
 }
 
-/** find a plugin given its index in the chain */
-static plugin_t *
-process_get_plugin (process_info_t * procinfo, gint plugin_index)
-{
-  gint i = 0;
-  plugin_t * plugin = procinfo->chain;
-
-  while (i < plugin_index && plugin)
-    {
-      plugin = plugin->next;
-      i++;
-    }
-
-  return plugin;
-}
 
 /** remove a plugin from the chain */
 plugin_t *
-process_remove_plugin (process_info_t * procinfo, gint plugin_index)
+process_remove_plugin (process_info_t * procinfo, plugin_t *plugin)
 {
-  plugin_t * plugin;
-
-  /* find the plugin in the chain */
-  plugin = process_get_plugin (procinfo, plugin_index);
-
   /* sort out chain pointers */
   if (plugin->prev)
     plugin->prev->next = plugin->next;
@@ -172,37 +154,24 @@ process_remove_plugin (process_info_t * procinfo, gint plugin_index)
 
 /** enable/disable a plugin */
 void
-process_ablise_plugin (process_info_t * procinfo, gint plugin_index, gboolean enable)
+process_ablise_plugin (process_info_t * procinfo, plugin_t *plugin, gboolean enable)
 {
-  plugin_t * plugin;
-
-  plugin = process_get_plugin (procinfo, plugin_index);
-
   plugin->enabled = enable;
 }
 
 /** enable/disable a plugin */
 void
-process_ablise_plugin_wet_dry (process_info_t * procinfo, gint plugin_index, gboolean enable)
+process_ablise_plugin_wet_dry (process_info_t * procinfo, plugin_t *plugin, gboolean enable)
 {
-  plugin_t * plugin;
-
-  plugin = process_get_plugin (procinfo, plugin_index);
-
   plugin->wet_dry_enabled = enable;
 }
 
 /** move a plugin up or down one place in the chain */
 void
-process_move_plugin (process_info_t * procinfo, gint plugin_index, gint up)
+process_move_plugin (process_info_t * procinfo, plugin_t *plugin, gint up)
 {
-
-  /* specified plugin */
-  plugin_t *plugin;
   /* other plugins in the chain */
   plugin_t *pp = NULL, *p, *n, *nn = NULL;
-
-  plugin = process_get_plugin (procinfo, plugin_index);
 
   /* note that we should never recieve an illogical move request
      ie, there will always be at least 1 plugin before for an up
@@ -274,13 +243,8 @@ process_move_plugin (process_info_t * procinfo, gint plugin_index, gint up)
 /** exchange an existing plugin for a newly created one */
 plugin_t *
 process_change_plugin (process_info_t * procinfo,
-	               gint plugin_index, plugin_t * new_plugin)
+	               plugin_t *plugin, plugin_t * new_plugin)
 {
-
-  plugin_t *plugin;
-
-  plugin = process_get_plugin (procinfo, plugin_index);
-
   new_plugin->next = plugin->next;
   new_plugin->prev = plugin->prev;
 
@@ -465,20 +429,26 @@ plugin_init_holder (plugin_t * plugin,
   if (desc->control_port_count > 0)
     {
       holder->ui_control_fifos    = g_malloc (sizeof (lff_t) * desc->control_port_count);
+#ifdef HAVE_ALSA
       holder->midi_control_fifos  = g_malloc (sizeof (lff_t) * desc->control_port_count);
+#endif
       holder->control_memory = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
     }
   else
     {
       holder->ui_control_fifos  = NULL;
+#ifdef HAVE_ALSA
       holder->midi_control_fifos  = NULL;
+#endif
       holder->control_memory = NULL;
     }
   
   for (i = 0; i < desc->control_port_count; i++)
     {
       lff_init (holder->ui_control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+#ifdef HAVE_ALSA
       lff_init (holder->midi_control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+#endif
       
       holder->control_memory[i] =
         plugin_desc_get_default_control_value (desc, desc->control_port_indicies[i], sample_rate);        
@@ -548,13 +518,17 @@ plugin_new (plugin_desc_t * desc, jack_rack_t * jack_rack)
   plugin->audio_output_memory   = g_malloc (sizeof (LADSPA_Data *) * jack_rack->channels);
   plugin->wet_dry_fifos  = g_malloc (sizeof (lff_t) * jack_rack->channels);
   plugin->wet_dry_values = g_malloc (sizeof (LADSPA_Data) * jack_rack->channels);
+#ifdef HAVE_ALSA
   plugin->wet_dry_midi_fifos  = g_malloc (sizeof (lff_t) * jack_rack->channels);
+#endif
   
   for (i = 0; i < jack_rack->channels; i++)
     {
       plugin->audio_output_memory[i] = g_malloc (sizeof (LADSPA_Data) * buffer_size);
       lff_init (plugin->wet_dry_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+#ifdef HAVE_ALSA
       lff_init (plugin->wet_dry_midi_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
+#endif
       plugin->wet_dry_values[i] = 1.0;
     }
   
@@ -587,10 +561,14 @@ plugin_destroy (plugin_t * plugin, ui_t *ui)
           for (j = 0; j < plugin->desc->control_port_count; j++)
             {
               lff_free (plugin->holders[i].ui_control_fifos + j);
+#ifdef HAVE_ALSA
               lff_free (plugin->holders[i].midi_control_fifos + j);
+#endif
             }
           g_free (plugin->holders[i].ui_control_fifos);
+#ifdef HAVE_ALSA
           g_free (plugin->holders[i].midi_control_fifos);
+#endif
           g_free (plugin->holders[i].control_memory);
         }
       
@@ -616,12 +594,16 @@ plugin_destroy (plugin_t * plugin, ui_t *ui)
     {
       g_free (plugin->audio_output_memory[i]);
       lff_free (plugin->wet_dry_fifos + i);
+#ifdef HAVE_ALSA
       lff_free (plugin->wet_dry_midi_fifos + i);
+#endif
     }
     
   g_free (plugin->audio_output_memory);
   g_free (plugin->wet_dry_fifos);
+#ifdef HAVE_ALSA
   g_free (plugin->wet_dry_midi_fifos);
+#endif
   g_free (plugin->wet_dry_values);
   
   err = dlclose (plugin->dl_handle);

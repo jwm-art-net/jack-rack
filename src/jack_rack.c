@@ -38,6 +38,7 @@
 #include "control_message.h"
 #include "globals.h"
 #include "ui.h"
+#include "file.h"
 
 jack_rack_t *
 jack_rack_new (ui_t * ui, unsigned long channels)
@@ -46,7 +47,7 @@ jack_rack_new (ui_t * ui, unsigned long channels)
 
   rack = g_malloc (sizeof (jack_rack_t));
   rack->slots          = NULL;
-  rack->saved_settings = NULL;
+  rack->saved_plugins  = NULL;
   rack->ui             = ui;
   rack->channels       = channels;
 
@@ -105,7 +106,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
 }
 
 void
-jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
+jack_rack_send_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
 {
   plugin_t * plugin;
   ctrlmsg_t ctrlmsg;
@@ -121,39 +122,61 @@ jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
+void
+jack_rack_add_saved_plugin (jack_rack_t * jack_rack, saved_plugin_t * saved_plugin)
+{
+  jack_rack->saved_plugins = g_slist_append (jack_rack->saved_plugins, saved_plugin);
+  
+  jack_rack_send_add_plugin (jack_rack, saved_plugin->settings->desc);
+}
+
 
 void
-jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
+jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_t * plugin)
 {
   plugin_slot_t *plugin_slot;
-  settings_t * settings = NULL;
+  saved_plugin_t * saved_plugin = NULL;
   GSList * list;
   
   /* see if there's any saved settings that match the plugin id */
-  for (list = jack_rack->saved_settings; list; list = g_slist_next (list))
+  for (list = jack_rack->saved_plugins; list; list = g_slist_next (list))
     {
-      settings = (settings_t *) list->data;
-      if (settings->desc->id == plugin->desc->id)
+      saved_plugin = list->data;
+      
+      if (saved_plugin->settings->desc->id == plugin->desc->id)
         {
-          jack_rack->saved_settings = g_slist_remove (jack_rack->saved_settings, settings);
+          jack_rack->saved_plugins = g_slist_remove (jack_rack->saved_plugins, saved_plugin);
           break;
         }
-      settings = NULL;
+      saved_plugin = NULL;
     }
 
   /* create the plugin_slot */
-  plugin_slot = plugin_slot_new (jack_rack, plugin, settings);
-  
-  if (settings)
-    settings_destroy (settings);
+  plugin_slot = plugin_slot_new (jack_rack, plugin, saved_plugin);
 
   jack_rack->slots = g_list_append (jack_rack->slots, plugin_slot);
   
-  plugin_slot_ablise (plugin_slot, settings_get_enabled (plugin_slot->settings));
-  plugin_slot_ablise_wet_dry (plugin_slot, settings_get_wet_dry_enabled (plugin_slot->settings));
+  plugin_slot_send_ablise (plugin_slot, settings_get_enabled (plugin_slot->settings));
+  plugin_slot_send_ablise_wet_dry (plugin_slot, settings_get_wet_dry_enabled (plugin_slot->settings));
 
   gtk_box_pack_start (GTK_BOX (jack_rack->ui->plugin_box),
                       plugin_slot->main_vbox, FALSE, FALSE, 0);
+}
+
+void
+jack_rack_send_remove_plugin_slot (jack_rack_t *jack_rack, plugin_slot_t *plugin_slot)
+{
+  ctrlmsg_t ctrlmsg;
+
+#ifdef HAVE_ALSA
+  plugin_slot_remove_midi_controls (plugin_slot);
+#endif
+
+  ctrlmsg.type = CTRLMSG_REMOVE;
+  ctrlmsg.data.remove.plugin = plugin_slot->plugin;
+  ctrlmsg.data.remove.plugin_slot = plugin_slot;
+                                                                                                               
+  lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
 void
@@ -165,71 +188,34 @@ jack_rack_remove_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_sl
 }
 
 void
+jack_rack_send_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up)
+{
+  ctrlmsg_t ctrlmsg;
+  GList * slot_list_data;
+
+  /* this is because we use indicies */
+  if (ui_get_state (jack_rack->ui)  == STATE_RACK_CHANGE)
+    return;
+                                                                                                               
+  slot_list_data = g_list_find (global_ui->jack_rack->slots, plugin_slot);
+  /* check the logic of what we're doing */
+  if ((up && !g_list_previous (slot_list_data)) ||
+      (!up && !g_list_next (slot_list_data)))
+    return;
+                                                                                                               
+  ui_set_state (global_ui, STATE_RACK_CHANGE);
+                                                                                                               
+  ctrlmsg.type = CTRLMSG_MOVE;
+  ctrlmsg.data.move.plugin = plugin_slot->plugin;
+  ctrlmsg.data.move.up = up;
+  ctrlmsg.data.move.plugin_slot = plugin_slot;
+                                                                                                               
+  lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
+}
+
+void
 jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up)
 {
-/*  plugin_slot_t *tmpslot;
-  if (up)
-    {
-      if (!plugin_slot->prev)
-        return;
-
-      plugin_slot->index--;
-      plugin_slot->prev->index++;
-
-      if (plugin_slot->next)
-        {
-          plugin_slot->next->prev = plugin_slot->prev;
-        }
-      else
-        {
-          jack_rack->slots_end = plugin_slot->prev;
-        }
-      tmpslot = plugin_slot->prev->prev;
-      if (tmpslot)
-        {
-          tmpslot->next = plugin_slot;
-        }
-      else
-        {
-          jack_rack->slots = plugin_slot;
-        }
-      plugin_slot->prev->next = plugin_slot->next;
-      plugin_slot->prev->prev = plugin_slot;
-      plugin_slot->next = plugin_slot->prev;
-      plugin_slot->prev = tmpslot;
-
-    }
-  else
-    {
-      if (!plugin_slot->next)
-        return;
-
-      plugin_slot->index++;
-      plugin_slot->next->index--;
-
-      if (plugin_slot->prev)
-        {
-          plugin_slot->prev->next = plugin_slot->next;
-        }
-      else
-        {
-          jack_rack->slots = plugin_slot->next;
-        }
-      tmpslot = plugin_slot->next->next;
-      if (tmpslot)
-        {
-          tmpslot->prev = plugin_slot;
-        }
-      else
-        {
-          jack_rack->slots_end = plugin_slot;
-        }
-      plugin_slot->next->prev = plugin_slot->prev;
-      plugin_slot->next->next = plugin_slot;
-      plugin_slot->prev = plugin_slot->next;
-      plugin_slot->next = tmpslot;
-    }*/
-  
   gint index;
   
   index = g_list_index (jack_rack->slots, plugin_slot);
@@ -246,6 +232,8 @@ jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot
                          plugin_slot->main_vbox, index);
 }
 
+
+
 void
 jack_rack_change_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, plugin_t * plugin)
 {
@@ -253,30 +241,12 @@ jack_rack_change_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_sl
 }
 
 void
-jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin)
+jack_rack_send_clear_plugins (jack_rack_t * jack_rack)
 {
-  plugin_slot_t * slot;
-  plugin_t * next_plugin;
-  GList * slot_list;
+  GList * slot;
   
-  
-  for (; plugin; plugin = next_plugin)
-    {
-      next_plugin = plugin->next;
-      
-      for (slot_list = jack_rack->slots; slot_list; slot_list = g_list_next (slot_list))
-        {
-          slot = (plugin_slot_t *) slot_list->data;
-  
-          if (slot->plugin == plugin)
-            {
-              jack_rack_remove_plugin_slot (jack_rack, slot);
-              break;
-            }
-        }
-      
-      plugin_destroy (plugin, jack_rack->ui);
-    }
+  for (slot = jack_rack->slots; slot; slot = g_list_next (slot))
+    jack_rack_send_remove_plugin_slot (jack_rack, (plugin_slot_t *) slot->data);
 }
 
 plugin_slot_t *
@@ -286,9 +256,8 @@ jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index)
 }
 
 #ifdef HAVE_ALSA
-                                                                                                               
-static unsigned int
-jack_rack_get_next_param (jack_rack_t * jack_rack)
+unsigned int
+jack_rack_get_next_midi_param (jack_rack_t * jack_rack, unsigned char channel)
 {
   plugin_slot_t *plugin_slot;
   midi_control_t *midi_ctrl;
@@ -296,17 +265,18 @@ jack_rack_get_next_param (jack_rack_t * jack_rack)
   GList *next_slot;
   GSList *control;
   unsigned int param = 1;
-  
+                                                                                                               
   for (slot = jack_rack->slots; slot; slot = next_slot)
     {
       next_slot = g_list_next (slot);
       plugin_slot = slot->data;
-      
+                                                                                                               
       for (control = plugin_slot->midi_controls; control; control = g_slist_next (control))
         {
           midi_ctrl = control->data;
-      
-          if (midi_control_get_midi_param (midi_ctrl) == param)
+                                                                                                               
+          if (midi_control_get_midi_channel (midi_ctrl) == channel &&
+              midi_control_get_midi_param (midi_ctrl) == param)
             {
               param++;
               next_slot = jack_rack->slots;
@@ -314,40 +284,12 @@ jack_rack_get_next_param (jack_rack_t * jack_rack)
             }
        }
     }
-  
+                                                                                                               
   g_assert (param < 129);
-  
+                                                                                                               
   return param;
 }
-                                                                                                               
-void
-jack_rack_add_port_controller    (plugin_slot_t *plugin_slot, guint copy, unsigned long control)
-{
-  midi_control_t * midi_ctrl;
-                                                                                                               
-  midi_ctrl = ladspa_midi_control_new (plugin_slot, copy, control);
-  
-  midi_control_set_midi_channel (midi_ctrl, 1);
-  midi_control_set_midi_param (midi_ctrl, jack_rack_get_next_param (plugin_slot->jack_rack));
-  
-  midi_info_add_control (plugin_slot->jack_rack->ui->midi_info, midi_ctrl);
-}
-                                                                                                               
-void
-jack_rack_add_wet_dry_controller (plugin_slot_t *plugin_slot, unsigned long channel)
-{
-  midi_control_t * midi_ctrl;
-
-  midi_ctrl = wet_dry_midi_control_new (plugin_slot, channel);
-  
-  midi_control_set_midi_channel (midi_ctrl, 1);
-  midi_control_set_midi_param (midi_ctrl, jack_rack_get_next_param (plugin_slot->jack_rack));
-  
-  midi_info_add_control (plugin_slot->jack_rack->ui->midi_info, midi_ctrl);
-}
-                                                                                                               
 #endif /* HAVE_ALSA */
-
 
 
 /* EOF */

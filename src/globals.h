@@ -53,6 +53,6 @@ extern struct _ui *global_ui;
 extern gboolean   connect_inputs;
 extern gboolean   connect_outputs;
 extern gboolean   time_runs;
-extern char       client_name[128];
+extern GString    *client_name;
 
 #endif /* __JLH_GLOBALS_H__ */

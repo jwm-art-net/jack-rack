@@ -21,6 +21,8 @@
 #ifndef __JR_PLUGIN_H__
 #define __JR_PLUGIN_H__
 
+#include "ac_config.h"
+
 #include <glib-2.0/glib.h>
 #include <ladspa.h>
 #include <jack/jack.h>
@@ -35,7 +37,9 @@ struct _ladspa_holder
 {
   LADSPA_Handle instance;
   lff_t * ui_control_fifos;
+#ifdef HAVE_ALSA
   lff_t * midi_control_fifos;
+#endif
   LADSPA_Data * control_memory;
 
   jack_port_t **             aux_ports;
@@ -52,10 +56,12 @@ struct _plugin
   LADSPA_Data **             audio_output_memory;
   
   gboolean                   wet_dry_enabled;
-  lff_t *                    wet_dry_fifos;
-  lff_t *                    wet_dry_midi_fifos;
   /* 1.0 = all wet, 0.0 = all dry, 0.5 = 50% wet/50% dry */
   LADSPA_Data *              wet_dry_values;
+  lff_t *                    wet_dry_fifos;
+#ifdef HAVE_ALSA
+  lff_t *                    wet_dry_midi_fifos;
+#endif
   
   plugin_t *                 next;
   plugin_t *                 prev;
@@ -65,12 +71,12 @@ struct _plugin
   
 };
 
-void       process_add_plugin            (process_info_t *, plugin_t * plugin);
-plugin_t * process_remove_plugin         (process_info_t *, gint plugin_index);
-void       process_ablise_plugin         (process_info_t *, gint plugin_index, gboolean able);
-void       process_ablise_plugin_wet_dry (process_info_t *, gint plugin_index, gboolean enable);
-void       process_move_plugin           (process_info_t *, gint plugin_index, gint up);
-plugin_t * process_change_plugin         (process_info_t *, gint plugin_index, plugin_t * new_plugin);
+void       process_add_plugin            (process_info_t *, plugin_t *plugin);
+plugin_t * process_remove_plugin         (process_info_t *, plugin_t *plugin);
+void       process_ablise_plugin         (process_info_t *, plugin_t *plugin, gboolean able);
+void       process_ablise_plugin_wet_dry (process_info_t *, plugin_t *plugin, gboolean enable);
+void       process_move_plugin           (process_info_t *, plugin_t *plugin, gint up);
+plugin_t * process_change_plugin         (process_info_t *, plugin_t *plugin, plugin_t * new_plugin);
 
 struct _jack_rack;
 struct _ui;

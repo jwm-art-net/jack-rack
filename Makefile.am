@@ -6,6 +6,6 @@ EXTRA_DIST = \
 	jack-rack.desktop \
 	alsa.pc
 
-desktopdir = $(datadir)/applications
+desktopdir = $(JR_DESKTOP_PREFIX)/applications
 
 desktop_DATA = jack-rack.desktop

@@ -53,7 +53,7 @@ ui_t *        global_ui        = NULL;
 gboolean connect_inputs = FALSE;
 gboolean connect_outputs = FALSE;
 gboolean time_runs = TRUE;
-char     client_name[128];
+GString  *client_name = NULL;
 
 #ifdef HAVE_LADCCA
 cca_client_t * global_cca_client;
@@ -95,21 +95,15 @@ void print_help () {
   printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
 /*  printf(" -t, --no-time               %s\n", _("Do not display plugins' execution time")); */
   printf("\n");
-#ifdef HAVE_JACK_SET_SERVER_DIR
   printf(" -D, --tmpdir <dir>          %s\n", _("Tell JACK to use <dir> for its temporary files"));
   printf("\n");
-#endif
 }
 
 int main (int argc, char ** argv) {
   unsigned long channels = 2;
   int opt;
 
-#ifdef HAVE_JACK_SET_SERVER_DIR
   const char * options = "hps:ionc:tD:";
-#else
-  const char * options = "hps:ionc:t";
-#endif /* HAVE_JACK_SET_SERVER_DIR */
 
   struct option long_options[] = {
     { "help", 0, NULL, 'h' },
@@ -117,9 +111,7 @@ int main (int argc, char ** argv) {
     { "string-name", 1, NULL, 's' },
     { "name", 1, NULL, 'n' },
     { "channels", 1, NULL, 'c' },
-#ifdef HAVE_JACK_SET_SERVER_DIR
     { "tmpdir", 1, NULL, 'D' },
-#endif
     { "input", 1, NULL, 'i' },
     { "output", 1, NULL, 'o' },
     { "no-time", 0, NULL, 't' },
@@ -158,8 +150,8 @@ int main (int argc, char ** argv) {
 
 
   /* set the client name */
-  sprintf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
-
+  client_name = g_string_new ("");
+  g_string_printf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
   
   while ((opt = getopt_long (argc, argv, options, long_options, NULL)) != -1) {
     switch (opt) {
@@ -170,15 +162,15 @@ int main (int argc, char ** argv) {
         break;
 
       case 's':
-        sprintf (client_name, "%s (%s)", CLIENT_NAME_BASE, optarg);
+        g_string_printf (client_name, "%s (%s)", CLIENT_NAME_BASE, optarg);
         break;
 
       case 'p':
-        sprintf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
+        g_string_printf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
         break;
       
       case 'n':
-        sprintf (client_name, CLIENT_NAME_BASE);
+        g_string_printf (client_name, CLIENT_NAME_BASE);
         break;
 
       case 'D':
@@ -216,27 +208,32 @@ int main (int argc, char ** argv) {
   
 
 #ifdef HAVE_LADCCA
-  global_cca_client = cca_init (cca_args, "JACK Rack" , CCA_Use_Jack|CCA_Config_File, CCA_PROTOCOL (1,0));
+  {
+    int flags = CCA_Use_Jack|CCA_Config_File;
+#ifdef HAVE_ALSA
+    flags |= CCA_Use_Alsa;
+#endif
+    global_cca_client = cca_init (cca_args, "JACK Rack", flags, CCA_PROTOCOL (1,0));
+ }
 
   if (cca_enabled (global_cca_client))
     {
       cca_event = cca_event_new_with_type (CCA_Client_Name);
-      cca_event_set_string (cca_event, client_name);
+      cca_event_set_string (cca_event, client_name->str);
       cca_send_event (global_cca_client, cca_event);
     }
-#endif
+#endif /* HAVE_LADCCA */
 
 #ifdef HAVE_XML
   xmlSetCompressMode (XML_COMPRESSION_LEVEL);
 #endif
 
   global_ui = ui_new (channels);
-  g_free (client_name);
   
   /* ignore the sighup (the jack client thread needs to deal with it) */
   signal (SIGHUP, SIG_IGN);
   
-  jack_activate (global_ui->procinfo->jack_client);
+/*  jack_activate (global_ui->procinfo->jack_client); */
   
   gtk_main ();
 

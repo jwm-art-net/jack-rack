@@ -30,13 +30,20 @@
 
 #include "ui.h"
 
-typedef struct _saved_rack saved_rack_t;
+typedef struct _saved_rack   saved_rack_t;
+typedef struct _saved_plugin saved_plugin_t;
+
+struct _saved_plugin
+{
+  settings_t     *settings;
+  GSList *       midi_controls;
+};
 
 struct _saved_rack
 {
   unsigned long  channels;
   jack_nframes_t sample_rate;
-  GSList *       settings;
+  GSList *       plugins;
 };
 
 int ui_save_file (ui_t * ui, const char * filename);

@@ -37,6 +37,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "control_message.h"
+#include "file.h"
 
 #define TEXT_BOX_WIDTH        75
 #define CONTROL_FIFO_SIZE     256
@@ -400,7 +401,7 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
 }
 
 plugin_slot_t *
-plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * saved_settings)
+plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, saved_plugin_t * saved_plugin)
 {
   plugin_slot_t * plugin_slot;
   
@@ -408,11 +409,14 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
 
   plugin_slot->jack_rack     = jack_rack;
   plugin_slot->plugin        = plugin;
+#ifdef HAVE_ALSA
   plugin_slot->midi_controls = NULL;
+#endif
 
   /* create plugin settings */
-  plugin_slot->settings = saved_settings ? settings_dup (saved_settings)
-                                         : settings_new (plugin->desc, jack_rack->channels, sample_rate);
+  plugin_slot->settings = saved_plugin
+                            ? saved_plugin->settings
+                            : settings_new (plugin->desc, jack_rack->channels, sample_rate);
 
   /* create the gui */
   plugin_slot_init_gui (plugin_slot);
@@ -422,6 +426,41 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   
   plugin_slot_show_controls (plugin_slot, 0);
   plugin_slot_show_wet_dry_controls (plugin_slot);
+  
+  /* add the midi controls */
+  if (saved_plugin)
+  {
+#ifdef HAVE_ALSA
+    GSList *list;
+    midi_control_t *midi_ctrl;
+    midi_control_t *new_midi_ctrl;
+    
+    for (list = saved_plugin->midi_controls; list; list = g_slist_next (list))
+      {
+        midi_ctrl = list->data;
+        
+        if (midi_ctrl->ladspa_control)
+          new_midi_ctrl =
+            ladspa_midi_control_new (plugin_slot,
+                                     midi_ctrl->control.ladspa.copy,
+                                     midi_ctrl->control.ladspa.control);
+        else
+          new_midi_ctrl =
+            wet_dry_midi_control_new (plugin_slot, midi_ctrl->control.wet_dry.channel);
+        
+        midi_control_set_midi_channel (new_midi_ctrl, midi_ctrl->midi_channel);
+        midi_control_set_midi_param   (new_midi_ctrl, midi_ctrl->midi_param);
+        
+        plugin_slot_add_midi_control (plugin_slot, new_midi_ctrl);
+        
+        g_free (midi_ctrl);
+      }
+    
+    g_slist_free (saved_plugin->midi_controls);
+#endif /* HAVE_ALSA */
+
+    g_free (saved_plugin);
+  }
   
   return plugin_slot;
 }
@@ -488,12 +527,12 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
 }
 
 void
-plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enable)
+plugin_slot_send_ablise        (plugin_slot_t * plugin_slot, gboolean enable)
 {
   ctrlmsg_t ctrlmsg;
   
   ctrlmsg.type = CTRLMSG_ABLE;
-  ctrlmsg.data.ablise.plugin_index = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.data.ablise.plugin = plugin_slot->plugin;
   ctrlmsg.data.ablise.enable = enable;
   ctrlmsg.data.ablise.plugin_slot = plugin_slot;
   
@@ -501,15 +540,34 @@ plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enable)
 }
 
 void
-plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enable)
+plugin_slot_send_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enable)
 {
   ctrlmsg_t ctrlmsg;
   
   ctrlmsg.type = CTRLMSG_ABLE_WET_DRY;
-  ctrlmsg.data.ablise.plugin_index = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.data.ablise.plugin = plugin_slot->plugin;
   ctrlmsg.data.ablise.enable = enable;
   ctrlmsg.data.ablise.plugin_slot = plugin_slot;
   
+  lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
+}
+
+void
+plugin_slot_send_change_plugin   (plugin_slot_t *plugin_slot, plugin_desc_t *desc)
+{
+  plugin_t *plugin;
+  ctrlmsg_t ctrlmsg;
+                                                                                                               
+  plugin = jack_rack_instantiate_plugin (global_ui->jack_rack, desc);
+                                                                                                               
+  if (!plugin)
+    return;
+                                                                                                               
+  ctrlmsg.type = CTRLMSG_CHANGE;
+  ctrlmsg.data.change.old_plugin = plugin_slot->plugin;
+  ctrlmsg.data.change.new_plugin = plugin;
+  ctrlmsg.data.change.plugin_slot = plugin_slot;
+                                                                                                               
   lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
@@ -517,10 +575,13 @@ void
 plugin_slot_set_wet_dry_locked (plugin_slot_t *plugin_slot, gboolean locked)
 {
   GSList * list;
+#ifdef HAVE_ALSA
   midi_control_t * midi_ctrl;
+#endif
   
   settings_set_wet_dry_locked (plugin_slot->settings, locked);
-  
+
+#ifdef HAVE_ALSA  
   for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
     {
       midi_ctrl = (midi_control_t *) list->data;
@@ -528,6 +589,7 @@ plugin_slot_set_wet_dry_locked (plugin_slot_t *plugin_slot, gboolean locked)
       if (!midi_ctrl->ladspa_control)
         midi_control_set_locked (midi_ctrl, locked);
     }
+#endif
   
   plugin_slot_show_wet_dry_controls (plugin_slot);
 }
@@ -536,8 +598,10 @@ void
 plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint lock_copy)
 {
   GSList * list;
-  midi_control_t * midi_ctrl;
   unsigned long i;
+#ifdef HAVE_ALSA
+  midi_control_t * midi_ctrl;
+#endif
   
   settings_set_lock_all (plugin_slot->settings, lock_all);
   
@@ -548,7 +612,7 @@ plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint l
       plugin_slot->port_controls[i].locked =
         gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(plugin_slot->port_controls[i].lock));
 
-  
+#ifdef HAVE_ALSA  
   for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
     {
       midi_ctrl = (midi_control_t *) list->data;
@@ -557,9 +621,45 @@ plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint l
         midi_control_set_locked (midi_ctrl,
           lock_all ? TRUE : plugin_slot->port_controls[midi_ctrl->control.ladspa.control].locked);
     }
+#endif /* HAVE_ALSA */
   
   plugin_slot_show_controls (plugin_slot, lock_copy);
 }
+
+#ifdef HAVE_ALSA
+void
+plugin_slot_add_midi_control (plugin_slot_t *plugin_slot, midi_control_t *midi_ctrl)
+{
+  ctrlmsg_t ctrlmsg;
+                                                                                                               
+  ctrlmsg.type = CTRLMSG_MIDI_ADD;
+  ctrlmsg.data.midi.midi_control = midi_ctrl;
+                                                                                                               
+  lff_write (plugin_slot->jack_rack->ui->ui_to_midi, &ctrlmsg);
+}
+                                                                                                               
+void
+plugin_slot_remove_midi_controls (plugin_slot_t *plugin_slot)
+{
+  GSList * list;
+  midi_control_t *midi_ctrl;
+  ctrlmsg_t ctrlmsg;
+
+  for (list = plugin_slot->midi_controls; list; list = g_slist_next (list))
+    {
+      midi_ctrl = list->data;
+                                                                                                               
+      ctrlmsg.type = CTRLMSG_MIDI_REMOVE;
+      ctrlmsg.data.midi.midi_control = midi_ctrl;
+                                                                                                               
+      lff_write (plugin_slot->jack_rack->ui->ui_to_midi, &ctrlmsg);
+    }
+                                                                                                               
+  g_slist_free (plugin_slot->midi_controls);
+  plugin_slot->midi_controls = NULL;
+}
+                                                                                                               
+#endif /* HAVE_ALSA */
 
 /* EOF */
 

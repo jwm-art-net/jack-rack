@@ -30,7 +30,6 @@ typedef struct _port_controls port_controls_t;
 enum _control_type
 {
   JR_CTRL_FLOAT,
-  /* JR_CTRL_LOG, */
   JR_CTRL_INT,
   JR_CTRL_BOOL
 };
@@ -68,8 +67,7 @@ struct _port_controls
 port_controls_t * port_controls_new     (struct _plugin_slot * plugin_slot);
 
 void port_control_set_locked (port_controls_t *port_controls, gboolean locked);
-/*void port_control_set_value  (port_controls_t *port_controls, guint copy,
-                              LADSPA_Data value, gboolean block_fifo); */
+void port_control_send_value  (port_controls_t *port_controls, guint copy, LADSPA_Data value);
 
 void gtk_widget_block_signal(GtkWidget *widget, const char *signal, GCallback callback);
 void gtk_widget_unblock_signal(GtkWidget *widget, const char *signal, GCallback callback);

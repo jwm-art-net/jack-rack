@@ -35,7 +35,6 @@ typedef enum _ctrlmsg_type
   CTRLMSG_ABLE_WET_DRY,
   CTRLMSG_MOVE,
   CTRLMSG_CHANGE,
-  CTRLMSG_CLEAR,
   CTRLMSG_QUIT,
 
 #ifdef HAVE_ALSA  
@@ -66,36 +65,34 @@ struct _ctrlmsg
     struct
     {
       struct _plugin_slot * plugin_slot;
-      unsigned long         plugin_index;
-      struct _plugin      * old_plugin;
+      struct _plugin      * plugin;
     } remove;
     
     struct
     {
       struct _plugin_slot * plugin_slot;
-      unsigned long         plugin_index;
+      struct _plugin      * plugin;
       gboolean              enable;
     } ablise;
     
     struct
     {
       struct _plugin_slot * plugin_slot;
-      unsigned long         plugin_index;
+      struct _plugin      * plugin;
       gboolean              up;
     } move;
     
     struct
     {
       struct _plugin_slot * plugin_slot;
-      unsigned long         plugin_index;
-      struct _plugin      * new_plugin;
       struct _plugin      * old_plugin;
+      struct _plugin      * new_plugin;
     } change;
     
-    struct
+/*    struct
     {
       struct _plugin      * chain;
-    } clear;
+    } clear;*/
 
 
     
