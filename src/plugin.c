@@ -172,13 +172,24 @@ process_remove_plugin (process_info_t * procinfo, gint plugin_index)
 
 /** enable/disable a plugin */
 void
-process_ablise_plugin (process_info_t * procinfo, gint plugin_index, gint enable)
+process_ablise_plugin (process_info_t * procinfo, gint plugin_index, gboolean enable)
 {
   plugin_t * plugin;
 
   plugin = process_get_plugin (procinfo, plugin_index);
 
   plugin->enabled = enable;
+}
+
+/** enable/disable a plugin */
+void
+process_ablise_plugin_wet_dry (process_info_t * procinfo, gint plugin_index, gboolean enable)
+{
+  plugin_t * plugin;
+
+  plugin = process_get_plugin (procinfo, plugin_index);
+
+  plugin->wet_dry_enabled = enable;
 }
 
 /** move a plugin up or down one place in the chain */
@@ -528,7 +539,7 @@ plugin_new (plugin_desc_t * desc, jack_rack_t * jack_rack)
   plugin->enabled = FALSE;
   plugin->next = NULL;
   plugin->prev = NULL;
-  plugin->wet_dry_enable = FALSE;
+  plugin->wet_dry_enabled = FALSE;
   
   /* create audio memory and wet/dry stuff */
   plugin->audio_output_memory   = g_malloc (sizeof (LADSPA_Data *) * jack_rack->channels);

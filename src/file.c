@@ -74,7 +74,7 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
       xmlNewChild (tree, NULL, "id", num);
       
       /* enabled */
-      xmlNewChild (tree, NULL, "enabled", plugin_slot->enabled ? "true" : "false");
+      xmlNewChild (tree, NULL, "enabled", settings_get_enabled (plugin_slot->settings) ? "true" : "false");
       
       /* lockall */
       if (plugin_slot->plugin->copies > 1)
@@ -169,7 +169,7 @@ saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
           continue;
         }
       
-      settings = settings_new (desc, plugin_desc_get_copies (desc, saved_rack->channels), saved_rack->sample_rate);
+      settings = settings_new (desc, saved_rack->channels, saved_rack->sample_rate);
       
       /* enabled */
       content = xmlNodeGetContent (plugin->children->next);

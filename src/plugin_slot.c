@@ -41,11 +41,44 @@
 #define TEXT_BOX_CHARS        -1
 
 void
+plugin_slot_show_wet_dry_controls (plugin_slot_t * plugin_slot)
+{
+  if (settings_get_wet_dry_enabled (plugin_slot->settings))
+    {
+      unsigned long channel;
+      gboolean locked;
+      
+      gtk_widget_show (plugin_slot->wet_dry_controls->control_box);
+      
+      locked = settings_get_wet_dry_locked (plugin_slot->settings);
+      
+      if (locked)
+        gtk_widget_hide (plugin_slot->wet_dry_controls->labels[0]);
+      else
+        gtk_widget_show (plugin_slot->wet_dry_controls->labels[0]);
+      
+      for (channel = 1; channel < plugin_slot->jack_rack->channels; channel++)
+        if (locked)
+          {
+            gtk_widget_hide (plugin_slot->wet_dry_controls->controls[channel]);
+            gtk_widget_hide (plugin_slot->wet_dry_controls->labels[channel]);
+          }
+        else
+          {
+            gtk_widget_show (plugin_slot->wet_dry_controls->controls[channel]);
+            gtk_widget_show (plugin_slot->wet_dry_controls->labels[channel]);
+          }
+    }
+  else
+    gtk_widget_hide (plugin_slot->wet_dry_controls->control_box);
+}
+
+void
 plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
 {
+  port_controls_t * port_controls;
   unsigned long control;
   guint copy;
-  port_controls_t * port_controls;
   gboolean lock_all;
   
   
@@ -92,12 +125,14 @@ plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
 static void
 plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
 {
-  unsigned long control;
-  LADSPA_Data value;
-  guint copies, copy;
   plugin_t * plugin;
   port_controls_t * port_controls;
   plugin_desc_t * desc;
+  unsigned long control;
+  unsigned long channel;
+  guint copies;
+  guint copy;
+  LADSPA_Data value;
   
   plugin = plugin_slot->plugin;
   desc = plugin->desc;
@@ -135,7 +170,7 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
               {
                 gchar *str;
                 gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
-                                     value);
+                                     port_controls->logarithmic ? log (value) : value);
               
                 str = g_strdup_printf ("%f", value);
                 gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
@@ -155,6 +190,14 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
             }
         }
     }
+    
+  
+  /* wet/dry controls */
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
+                                settings_get_wet_dry_locked (settings));
+  for (channel = 0; channel < settings_get_channels (settings); channel++)
+    gtk_range_set_value (GTK_RANGE (plugin_slot->wet_dry_controls->controls[channel]),
+                         settings_get_wet_dry_value (settings, channel));
 }
 
 static void
@@ -282,12 +325,14 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
                       plugin_slot->enable, FALSE, FALSE, 0);
 
 
-  /* time output */
-/*  plugin_slot->time = gtk_label_new (NULL);
-  gtk_widget_show (plugin_slot->time);
+  /* wet/dry button */
+  plugin_slot->wet_dry = gtk_toggle_button_new_with_label (_("Wet/Dry"));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry), FALSE);
+  g_signal_connect (G_OBJECT (plugin_slot->wet_dry), "button-press-event",
+                      G_CALLBACK (slot_wet_dry_cb), plugin_slot);
+  gtk_widget_show (plugin_slot->wet_dry);
   gtk_box_pack_start (GTK_BOX (plugin_slot->top_controls),
-                      plugin_slot->time, FALSE, FALSE, 6); */
-  
+                      plugin_slot->wet_dry, FALSE, FALSE, 0);
   
 
   /* sort out the port controls */
@@ -300,6 +345,11 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
   /* control table */
   plugin_slot_create_control_table (plugin_slot);
 
+  /* wet/dry controls */
+  plugin_slot->wet_dry_controls = wet_dry_controls_new (plugin_slot);
+  gtk_box_pack_start (GTK_BOX (plugin_slot->main_vbox),
+                      plugin_slot->wet_dry_controls->control_box,
+                      TRUE, FALSE, 0);
    
   /* final seperator bar */
   plugin_slot->separator = gtk_hseparator_new ();
@@ -317,11 +367,10 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
 
   plugin_slot->jack_rack = jack_rack;
   plugin_slot->plugin = plugin;
-  plugin_slot->enabled = FALSE;
 
   /* create plugin settings */
   plugin_slot->settings = saved_settings ? settings_dup (saved_settings)
-                                         : settings_new (plugin->desc, plugin->copies, sample_rate);
+                                         : settings_new (plugin->desc, jack_rack->channels, sample_rate);
 
   /* create the gui */
   plugin_slot_init_gui (plugin_slot);
@@ -330,6 +379,7 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
   
   plugin_slot_show_controls (plugin_slot, 0);
+  plugin_slot_show_wet_dry_controls (plugin_slot);
   
   return plugin_slot;
 }
@@ -340,6 +390,8 @@ plugin_slot_destroy (plugin_slot_t * plugin_slot)
   gtk_widget_destroy (plugin_slot->plugin_menu);
   gtk_widget_destroy (plugin_slot->main_vbox);
   g_free (plugin_slot->port_controls);
+  wet_dry_controls_destroy (plugin_slot->wet_dry_controls);
+  g_free (plugin_slot);
 }
 
 void
@@ -373,9 +425,8 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
   gtk_button_set_label (GTK_BUTTON (plugin_slot->plugin_selector), plugin->desc->name);
 
   plugin_slot->plugin = plugin;
-  plugin_slot->enabled = FALSE;
   settings_destroy (plugin_slot->settings);
-  plugin_slot->settings = settings_new (plugin->desc, plugin->copies, sample_rate);
+  plugin_slot->settings = settings_new (plugin->desc, plugin_slot->jack_rack->channels, sample_rate);
   
   /* create the new port controls */
   if (plugin->desc->control_port_count > 0)
@@ -383,6 +434,8 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
       plugin_slot_create_control_table (plugin_slot);
       plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
     }
+  
+  plugin_slot_show_wet_dry_controls (plugin_slot);
 
   /* move the separator */
   gtk_box_reorder_child (GTK_BOX (plugin_slot->main_vbox),
@@ -398,6 +451,19 @@ plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled)
   ctrlmsg_t ctrlmsg;
   
   ctrlmsg.type = CTRLMSG_ABLE;
+  ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
+  ctrlmsg.pointer = GINT_TO_POINTER(enabled ? 1 : 0);
+  ctrlmsg.second_pointer = plugin_slot;
+  
+  lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);
+}
+
+void
+plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enabled)
+{
+  ctrlmsg_t ctrlmsg;
+  
+  ctrlmsg.type = CTRLMSG_ABLE_WET_DRY;
   ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
   ctrlmsg.pointer = GINT_TO_POINTER(enabled ? 1 : 0);
   ctrlmsg.second_pointer = plugin_slot;

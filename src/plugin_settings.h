@@ -39,22 +39,33 @@ struct _settings
   gboolean *       locks;
   gboolean         lock_all;
   gboolean         enabled;
+  unsigned long    channels;
+  gboolean         wet_dry_enabled;
+  gboolean         wet_dry_locked;
+  LADSPA_Data *    wet_dry_values;
 };
 
-settings_t * settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate);
+settings_t * settings_new     (plugin_desc_t * desc, unsigned long channels, jack_nframes_t sample_rate);
 settings_t * settings_dup     (settings_t * settings);
 void         settings_destroy (settings_t * settings);
 
-void settings_set_control_value (settings_t * settings, guint copy, unsigned long control_index, LADSPA_Data value);
-void settings_set_lock          (settings_t * settings, unsigned long control_index, gboolean locked);
-void settings_set_lock_all      (settings_t * settings, gboolean lock_all);
-void settings_set_enabled       (settings_t * settings, gboolean enabled);
+void settings_set_control_value   (settings_t * settings, guint copy, unsigned long control_index, LADSPA_Data value);
+void settings_set_lock            (settings_t * settings, unsigned long control_index, gboolean locked);
+void settings_set_lock_all        (settings_t * settings, gboolean lock_all);
+void settings_set_enabled         (settings_t * settings, gboolean enabled);
+void settings_set_wet_dry_enabled (settings_t * settings, gboolean enabled);
+void settings_set_wet_dry_locked  (settings_t * settings, gboolean locked);
+void settings_set_wet_dry_value   (settings_t * settings, unsigned long channel, LADSPA_Data value);
 
-LADSPA_Data settings_get_control_value (settings_t * settings, guint copy, unsigned long control_index);
-gboolean    settings_get_lock          (const settings_t * settings, unsigned long control_index);
-gboolean    settings_get_lock_all      (const settings_t * settings);
-gboolean    settings_get_enabled       (const settings_t * settings);
-guint       settings_get_copies        (const settings_t * settings);
+LADSPA_Data   settings_get_control_value   (settings_t * settings, guint copy, unsigned long control_index);
+gboolean      settings_get_lock            (const settings_t * settings, unsigned long control_index);
+gboolean      settings_get_lock_all        (const settings_t * settings);
+gboolean      settings_get_enabled         (const settings_t * settings);
+guint         settings_get_copies          (const settings_t * settings);
+unsigned long settings_get_channels        (const settings_t * settings);
+gboolean      settings_get_wet_dry_enabled (const settings_t * settings);
+gboolean      settings_get_wet_dry_locked  (const settings_t * settings);
+LADSPA_Data   settings_get_wet_dry_value   (settings_t * settings, unsigned long channel);
 
 void settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate);
 

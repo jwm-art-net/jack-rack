@@ -72,10 +72,16 @@ int process_control_messages (process_info_t * procinfo) {
         
       /* enable/disable a plugin */
       case CTRLMSG_ABLE:
-        process_ablise_plugin (procinfo, ctrlmsg.number, GPOINTER_TO_INT(ctrlmsg.pointer));
+        process_ablise_plugin (procinfo, ctrlmsg.number, GPOINTER_TO_INT(ctrlmsg.pointer) ? TRUE : FALSE);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         break;
       
+      /* enable/disable wet/dry controls */
+      case CTRLMSG_ABLE_WET_DRY:
+        process_ablise_plugin_wet_dry (procinfo, ctrlmsg.number, GPOINTER_TO_INT(ctrlmsg.pointer) ? TRUE : FALSE);
+        err = lff_write (procinfo->process_to_ui, &ctrlmsg);
+        break;
+        
       /* move a plugin up or down */  
       case CTRLMSG_MOVE:
 /*        printf("%s: moving plugin %d %s\n", __FUNCTION__,
@@ -108,8 +114,6 @@ int process_control_messages (process_info_t * procinfo) {
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         return 1;
       
-      case CTRLMSG_TIME:
-        break;
       }
     
     if (err)
@@ -140,7 +144,7 @@ void process_control_port_messages (process_info_t * procinfo) {
             while (lff_read (plugin->holders[copy].control_fifos + control,
                              plugin->holders[copy].control_memory + control) == 0);
       
-      if (plugin->wet_dry_enable)
+      if (plugin->wet_dry_enabled)
         for (channel = 0; channel < procinfo->channels; channel++)
           while (lff_read (plugin->wet_dry_fifos + channel,
                            plugin->wet_dry_values + channel) == 0);
@@ -294,7 +298,7 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
           for (i = 0; i < plugin->copies; i++)
             plugin->descriptor->run (plugin->holders[i].instance, frames);
           
-          if (plugin->wet_dry_enable)
+          if (plugin->wet_dry_enabled)
             for (channel = 0; channel < procinfo->channels; channel++)
               for (i = 0; i < frames; i++)
                 {
@@ -318,8 +322,8 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
   
   /* copy the last enabled data to the jack ports */
   for (i = 0; i < procinfo->channels; i++)
-    memcpy (last_enabled->audio_output_memory[i],
-            procinfo->jack_output_ports[i],
+    memcpy (procinfo->jack_output_buffers[i],
+            last_enabled->audio_output_memory[i],
             sizeof(LADSPA_Data) * frames);
 }
 

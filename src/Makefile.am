@@ -5,6 +5,7 @@ EXTRA_DIST = jack_rack_1.0.dtd
 bin_PROGRAMS = jack-rack
 
 jack_rack_SOURCES = \
+	wet_dry_controls.c wet_dry_controls.h \
 	file.c file.h \
 	midi.c midi.h \
 	plugin_settings.c plugin_settings.h \

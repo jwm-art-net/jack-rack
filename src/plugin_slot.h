@@ -26,6 +26,7 @@
 
 #include "plugin.h"
 #include "port_controls.h"
+#include "wet_dry_controls.h"
 #include "plugin_settings.h"
 
 typedef struct _plugin_slot plugin_slot_t;
@@ -37,7 +38,6 @@ struct _plugin_slot
 {
   plugin_t * plugin;
   settings_t * settings;
-  gint enabled;
   
   /* widgets */
   GtkWidget * main_vbox;
@@ -47,10 +47,13 @@ struct _plugin_slot
   GtkWidget * separator;
   GtkWidget * plugin_selector;
   GtkWidget * enable;
+  GtkWidget * wet_dry;
   GtkWidget * plugin_menu;
 /*  GtkWidget * time; */
   
   port_controls_t * port_controls; /* port controls array */
+  
+  wet_dry_controls_t * wet_dry_controls;
   
   struct _jack_rack * jack_rack;
 };
@@ -59,8 +62,11 @@ struct _plugin_slot
 plugin_slot_t * plugin_slot_new     (struct _jack_rack * jack_rack, plugin_t * plugin, settings_t * saved_settings);
 void            plugin_slot_destroy (plugin_slot_t * plugin_slot);
 
-void plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled);
-void plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin);
-void plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show);
+void plugin_slot_ablise         (plugin_slot_t * plugin_slot, gboolean enabled);
+void plugin_slot_ablise_wet_dry (plugin_slot_t * plugin_slot, gboolean enabled);
+void plugin_slot_change_plugin  (plugin_slot_t * plugin_slot, plugin_t * plugin);
+void plugin_slot_show_controls  (plugin_slot_t * plugin_slot, guint copy_to_show);
+void plugin_slot_show_wet_dry_controls (plugin_slot_t * plugin_slot);
+
 
 #endif /* __JR_PLUGIN_SLOT_H__ */

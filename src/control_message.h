@@ -32,7 +32,7 @@ typedef enum { CTRLMSG_ADD,
                CTRLMSG_CHANGE,
                CTRLMSG_CLEAR,
                CTRLMSG_QUIT,
-               CTRLMSG_TIME
+               CTRLMSG_ABLE_WET_DRY
              } ctrlmsg_type_t;
 
 typedef struct ctrlmsg {

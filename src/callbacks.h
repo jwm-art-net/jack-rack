@@ -26,36 +26,42 @@
 #include <gtk/gtk.h>
 
 void     add_cb            (GtkMenuItem * menuitem, gpointer user_data);
-/*void     channel_cb        (GtkSpinButton *spinbutton, gpointer user_data); */
 void     channel_cb        (GtkWidget * button, gpointer user_data);
 void     new_cb            (GtkWidget * button, gpointer user_data);
+void     quit_cb           (GtkButton * button, gpointer user_data);
+gboolean window_destroy_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data);                                                  
+
 #ifdef HAVE_XML
 void     open_cb           (GtkButton * button, gpointer user_data);
 void     save_cb           (GtkButton * button, gpointer user_data);
 void     save_as_cb        (GtkButton * button, gpointer user_data);
-#endif /* HAVE_XML */
+#endif
+
 #ifdef HAVE_LADCCA
 void     cca_save_cb       (GtkButton * button, gpointer user_data);
 #endif
-void     quit_cb           (GtkButton * button, gpointer user_data);
-gboolean window_destroy_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data);                                                  
+
 #ifdef HAVE_GNOME
 void     about_cb          (GtkWidget * widget, gpointer user_data);
 #endif
 
-void slot_change_cb (GtkMenuItem * menuitem, gpointer user_data);
-void slot_move_cb (GtkButton * button, gpointer user_data);
-void slot_remove_cb (GtkButton * button, gpointer user_data);
-gboolean slot_ablise_cb (GtkWidget * button, GdkEventButton *event,
-                                      gpointer user_data);
-void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data);
+
+void     slot_change_cb          (GtkMenuItem * menuitem, gpointer user_data);
+void     slot_move_cb            (GtkButton * button, gpointer user_data);
+void     slot_remove_cb          (GtkButton * button, gpointer user_data);
+gboolean slot_ablise_cb          (GtkWidget * button, GdkEventButton *event, gpointer user_data);
+void     slot_lock_all_cb        (GtkToggleButton * button, gpointer user_data);
+gboolean slot_wet_dry_cb         (GtkWidget * button, GdkEventButton *event, gpointer user_data);
+void     slot_wet_dry_lock_cb    (GtkToggleButton * button, gpointer user_data);
+void     slot_wet_dry_control_cb (GtkRange * range, gpointer user_data);
+
 
 gboolean control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
-void control_lock_cb (GtkToggleButton * button, gpointer user_data);
-void control_float_cb (GtkRange * range, gpointer user_data);
-void control_float_text_cb (GtkEntry * entry, gpointer user_data);
-void control_bool_cb (GtkToggleButton * button, gpointer user_data);
-void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data);
+void     control_lock_cb (GtkToggleButton * button, gpointer user_data);
+void     control_float_cb (GtkRange * range, gpointer user_data);
+void     control_float_text_cb (GtkEntry * entry, gpointer user_data);
+void     control_bool_cb (GtkToggleButton * button, gpointer user_data);
+void     control_int_cb (GtkSpinButton * spinbutton, gpointer user_data);
 
 gint plugin_button_cb (GtkWidget *widget, GdkEvent *event);
 

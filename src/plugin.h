@@ -50,7 +50,7 @@ struct _plugin
   LADSPA_Data **             audio_input_memory;
   LADSPA_Data **             audio_output_memory;
   
-  gboolean                   wet_dry_enable;
+  gboolean                   wet_dry_enabled;
   lff_t *                    wet_dry_fifos;
   /* 1.0 = all wet, 0.0 = all dry, 0.5 = 50% wet/50% dry */
   LADSPA_Data *              wet_dry_values;
@@ -63,11 +63,12 @@ struct _plugin
   
 };
 
-void       process_add_plugin    (process_info_t *, plugin_t * plugin);
-plugin_t * process_remove_plugin (process_info_t *, gint plugin_index);
-void       process_ablise_plugin (process_info_t *, gint plugin_index, gint able);
-void       process_move_plugin   (process_info_t *, gint plugin_index, gint up);
-plugin_t * process_change_plugin (process_info_t *, gint plugin_index, plugin_t * new_plugin);
+void       process_add_plugin            (process_info_t *, plugin_t * plugin);
+plugin_t * process_remove_plugin         (process_info_t *, gint plugin_index);
+void       process_ablise_plugin         (process_info_t *, gint plugin_index, gboolean able);
+void       process_ablise_plugin_wet_dry (process_info_t *, gint plugin_index, gboolean enable);
+void       process_move_plugin           (process_info_t *, gint plugin_index, gint up);
+plugin_t * process_change_plugin         (process_info_t *, gint plugin_index, plugin_t * new_plugin);
 
 struct _jack_rack;
 

@@ -41,6 +41,7 @@
 #include "globals.h"
 #include "file.h"
 #include "ui.h"
+#include "wet_dry_controls.h"
 
 void
 add_cb (GtkMenuItem * menuitem, gpointer user_data)
@@ -376,11 +377,10 @@ slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
 {
   if (event->type == GDK_BUTTON_PRESS) {
     plugin_slot_t * plugin_slot; 
-    ctrlmsg_t ctrlmsg;
     gboolean ablise;
   
     plugin_slot = (plugin_slot_t *) user_data;
-    ablise = (plugin_slot->enabled ? FALSE : TRUE);
+    ablise = settings_get_enabled (plugin_slot->settings) ? FALSE : TRUE;
   
     plugin_slot_ablise (plugin_slot, ablise);
   
@@ -388,6 +388,63 @@ slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
   }
   
   return FALSE;
+}
+
+gboolean
+slot_wet_dry_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
+{
+  if (event->type == GDK_BUTTON_PRESS)
+    {
+      plugin_slot_t * plugin_slot; 
+      gboolean ablise;
+    
+      plugin_slot = (plugin_slot_t *) user_data;
+      ablise = settings_get_wet_dry_enabled (plugin_slot->settings) ? FALSE : TRUE;
+  
+      plugin_slot_ablise_wet_dry (plugin_slot, ablise);
+  
+      return TRUE;
+  }
+  
+  return FALSE;
+}
+    	                              
+
+void
+slot_wet_dry_control_cb (GtkRange * range, gpointer user_data)
+{
+  LADSPA_Data value;
+  wet_dry_controls_t * wet_dry;
+  unsigned long channel;
+  
+  wet_dry = (wet_dry_controls_t *) user_data;
+  channel = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(range), "jack-rack-wet-dry-channel"));
+  value = gtk_range_get_value (range);
+
+  lff_write (wet_dry->fifos + channel, &value);
+  
+  /* set peers */
+  if (settings_get_wet_dry_locked (wet_dry->plugin_slot->settings))
+    {
+      unsigned long c;
+      for (c = 0; c < wet_dry->plugin_slot->jack_rack->channels ; c++)
+        if (c != channel)
+          gtk_range_set_value (GTK_RANGE(wet_dry->controls[c]),
+                               gtk_range_get_value (range));
+    }
+}
+
+void
+slot_wet_dry_lock_cb    (GtkToggleButton * button, gpointer user_data)
+{
+  wet_dry_controls_t * wet_dry;
+  
+  wet_dry = (wet_dry_controls_t *) user_data;
+  
+  settings_set_wet_dry_locked (wet_dry->plugin_slot->settings,
+                               gtk_toggle_button_get_active (button));
+  
+  plugin_slot_show_wet_dry_controls (wet_dry->plugin_slot);
 }
 
 void
@@ -732,7 +789,7 @@ gboolean idle_cb (gpointer data) {
   jack_rack_t * jack_rack;
   plugin_t * plugin;
   plugin_slot_t * plugin_slot;
-  int enabled;
+  gboolean enabled;
 
 #ifdef HAVE_LADCCA
   static int ladcca_enabled_at_start = -10;
@@ -780,7 +837,16 @@ gboolean idle_cb (gpointer data) {
         enabled = GPOINTER_TO_INT(ctrlmsg.pointer);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(plugin_slot->enable),
                                       enabled);
-        plugin_slot->enabled = enabled;
+        settings_set_enabled (plugin_slot->settings, enabled);
+        break;
+
+      case CTRLMSG_ABLE_WET_DRY:
+        plugin_slot = ctrlmsg.second_pointer;
+        enabled = GPOINTER_TO_INT(ctrlmsg.pointer);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(plugin_slot->wet_dry),
+                                      enabled);
+        settings_set_wet_dry_enabled (plugin_slot->settings, enabled);
+        plugin_slot_show_wet_dry_controls (plugin_slot);
         break;
       
       case CTRLMSG_CLEAR:

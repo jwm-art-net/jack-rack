@@ -46,20 +46,27 @@ settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
 }
 
 settings_t *
-settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate)
+settings_new     (plugin_desc_t * desc, unsigned long channels, jack_nframes_t sample_rate)
 {
   settings_t * settings;
+  unsigned long channel;
+  guint copies;
   
   settings = g_malloc (sizeof (settings_t));
+  copies = plugin_desc_get_copies (desc, channels);
   
   settings->sample_rate = sample_rate;
   settings->desc = desc;
   settings->copies = copies;
+  settings->channels = channels;
   settings->lock_all = TRUE;
   settings->enabled = FALSE;
   settings->locks = NULL;
   settings->control_values = NULL;
+  settings->wet_dry_enabled = FALSE;
+  settings->wet_dry_locked = TRUE;
   
+  /* control settings */  
   if (desc->control_port_count > 0)
     {
       guint copy;
@@ -75,6 +82,11 @@ settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate
       settings_set_to_default (settings, sample_rate);
     }
   
+  /* wet/dry settings */
+  settings->wet_dry_values = g_malloc (sizeof (LADSPA_Data) * channels);
+  for (channel = 0; channel < channels; channel++)
+    settings->wet_dry_values[channel] = 1.0;
+  
   return settings;
 }
 
@@ -83,16 +95,20 @@ settings_dup     (settings_t * other)
 {
   settings_t * settings;
   plugin_desc_t * desc;
+  unsigned long channel;
   
   settings = g_malloc (sizeof (settings_t));
   
-  settings->sample_rate = other->sample_rate;
-  settings->desc = other->desc;
-  settings->copies = settings_get_copies (other);
-  settings->lock_all = settings_get_lock_all (other);
-  settings->enabled = settings_get_enabled (other);
-  settings->locks = NULL;
-  settings->control_values = NULL;
+  settings->sample_rate     = other->sample_rate;
+  settings->desc            = other->desc;
+  settings->copies          = settings_get_copies (other);
+  settings->channels        = settings_get_channels (other);
+  settings->wet_dry_enabled = settings_get_wet_dry_enabled (other);
+  settings->wet_dry_locked  = settings_get_wet_dry_locked (other);
+  settings->lock_all        = settings_get_lock_all (other);
+  settings->enabled         = settings_get_enabled (other);
+  settings->locks           = NULL;
+  settings->control_values  = NULL;
   
   desc = other->desc;
   
@@ -114,6 +130,10 @@ settings_dup     (settings_t * other)
             settings_set_control_value (settings, copy, control, settings_get_control_value (other, copy, control));
         }
     }
+  
+  settings->wet_dry_values = g_malloc (sizeof (LADSPA_Data) * settings->channels);
+  for (channel = 0; channel < settings->channels; channel++)
+    settings_set_wet_dry_value (settings, channel, settings_get_wet_dry_value (other, channel));
   
   return settings;
 }
@@ -141,7 +161,8 @@ settings_set_copies (settings_t * settings, guint copies)
   guint last_copy;
   unsigned long control;
   
-  g_return_if_fail (copies <= settings->copies);
+  if (copies <= settings->copies)
+    return;
   
   last_copy = settings->copies - 1;
   
@@ -159,6 +180,60 @@ settings_set_copies (settings_t * settings, guint copies)
     }
   
   settings->copies = copies;
+}
+
+static void
+settings_set_channels (settings_t * settings, unsigned long channels)
+{
+  unsigned long channel;
+  LADSPA_Data last_value;
+      
+  if (channels <= settings->channels)
+    return;
+  
+  settings->wet_dry_values = g_realloc (settings->wet_dry_values, sizeof (LADSPA_Data) * channels);
+  
+  last_value = settings->wet_dry_values[settings->channels - 1];
+  
+  for (channel = settings->channels; channel < channels; channel++)
+    settings->wet_dry_values[channel] = last_value;
+  
+  settings->channels = channels;
+}
+
+void
+settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
+{
+  LADSPA_Data old_sample_rate;
+  LADSPA_Data new_sample_rate;
+
+  g_return_if_fail (settings != NULL);
+  
+  if (settings->sample_rate == sample_rate)
+    return;
+
+  if (settings->desc->control_port_count > 0)
+    {
+      unsigned long control;
+      guint copy;
+      
+      new_sample_rate = (LADSPA_Data) sample_rate;
+      old_sample_rate = (LADSPA_Data) settings->sample_rate;
+
+      for (control = 0; control < settings->desc->control_port_count; control++)
+        {
+          for (copy = 0; copy < settings->copies; copy++)
+            {
+              if (LADSPA_IS_HINT_SAMPLE_RATE (settings->desc->port_range_hints[control].HintDescriptor))
+                {
+                  settings->control_values[copy][control] =
+                    (settings->control_values[copy][control] / old_sample_rate) * new_sample_rate;
+                }
+            }
+        }
+    }
+  
+  settings->sample_rate = sample_rate;
 }
 
 void
@@ -198,6 +273,28 @@ settings_set_enabled (settings_t * settings, gboolean enabled)
   settings->enabled = enabled;
 }
 
+void
+settings_set_wet_dry_enabled (settings_t * settings, gboolean enabled)
+{
+  settings->wet_dry_enabled = enabled;
+}
+
+void
+settings_set_wet_dry_locked  (settings_t * settings, gboolean locked)
+{
+  settings->wet_dry_locked = locked;
+}
+
+void
+settings_set_wet_dry_value   (settings_t * settings, unsigned long channel, LADSPA_Data value)
+{
+  if (channel >= settings->channels)
+    settings_set_channels (settings, channel + 1);
+  
+  settings->wet_dry_values[channel] = value;
+}
+
+
 LADSPA_Data
 settings_get_control_value (settings_t * settings, guint copy, unsigned long control_index)
 {
@@ -234,40 +331,35 @@ settings_get_copies        (const settings_t * settings)
   return settings->copies;
 }
 
-void
-settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
+
+unsigned long
+settings_get_channels        (const settings_t * settings)
 {
-  LADSPA_Data old_sample_rate;
-  LADSPA_Data new_sample_rate;
-
-  g_return_if_fail (settings != NULL);
-  
-  if (settings->sample_rate == sample_rate)
-    return;
-
-  if (settings->desc->control_port_count > 0)
-    {
-      unsigned long control;
-      guint copy;
-      
-      new_sample_rate = (LADSPA_Data) sample_rate;
-      old_sample_rate = (LADSPA_Data) settings->sample_rate;
-
-      for (control = 0; control < settings->desc->control_port_count; control++)
-        {
-          for (copy = 0; copy < settings->copies; copy++)
-            {
-              if (LADSPA_IS_HINT_SAMPLE_RATE (settings->desc->port_range_hints[control].HintDescriptor))
-                {
-                  settings->control_values[copy][control] =
-                    (settings->control_values[copy][control] / old_sample_rate) * new_sample_rate;
-                }
-            }
-        }
-    }
-  
-  settings->sample_rate = sample_rate;
+  return settings->channels;
 }
+
+gboolean
+settings_get_wet_dry_enabled (const settings_t * settings)
+{
+  return settings->wet_dry_enabled;
+}
+
+gboolean
+settings_get_wet_dry_locked  (const settings_t * settings)
+{
+  return settings->wet_dry_locked;
+}
+
+LADSPA_Data
+settings_get_wet_dry_value   (settings_t * settings, unsigned long channel)
+{
+  if (channel >= settings->channels)
+    settings_set_channels (settings, channel + 1);
+  
+  return settings->wet_dry_values[channel];
+}
+
+
 
 /* EOF */
 
