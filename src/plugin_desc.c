@@ -317,10 +317,10 @@ plugin_desc_change_control_value (plugin_desc_t * pd,
   return value;
 }
 
-unsigned long
+gint
 plugin_desc_get_copies (plugin_desc_t * pd, unsigned long rack_channels)
 {
-  unsigned long copies = 1;
+  gint copies = 1;
   
   if (pd->channels > rack_channels)
     return 0;

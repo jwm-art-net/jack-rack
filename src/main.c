@@ -62,23 +62,23 @@ void print_help () {
   printf("the COPYING file that came with this software for details.\n");
   printf("\n");
 #ifdef HAVE_LADCCA
-  printf("Compiled with JACK %s, LADCCA %s\n", JACK_VERSION, LADCCA_VERSION);
+  printf(_("Compiled with JACK %s, LADCCA %s\n"), JACK_VERSION, LADCCA_VERSION);
 #else
-  printf("Compiled with JACK %s\n", JACK_VERSION);
+  printf(_("Compiled with JACK %s\n"), JACK_VERSION);
 #endif
   printf("\n");
-  printf(" -h, --help                  Display this help info\n");
+  printf(" -h, --help                  %s\n", _("Display this help info"));
   printf("\n");
-  printf(" -p, --pid-name              Use the pid in the JACK client name (default)\n");
-  printf(" -s, --string-name <string>  Use <string> in the JACK client name\n");
-  printf(" -n, --name                  Use just jack_rack as the client name\n");
+  printf(" -p, --pid-name              %s\n", _("Use the pid in the JACK client name (default)"));
+  printf(" -s, --string-name <string>  %s\n", _("Use <string> in the JACK client name"));
+  printf(" -n, --name                  %s\n", _("Use just jack_rack as the client name"));
   printf("\n");
 /*  printf(" -i, --input                 Connected inputs to the first two physical capture ports\n");
   printf(" -o, --output                Connected outputs to the first two physical playback ports\n"); */
-  printf(" -c, --channels <int>        How many input and output channels the rack should use (default: 2)\n");
+  printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
   printf("\n");
 #ifdef HAVE_JACK_SET_SERVER_DIR
-  printf(" -D, --tmpdir <dir>          Tell JACK to use <dir> for its temporary files\n");
+  printf(" -D, --tmpdir <dir>          %s\n", _("Tell JACK to use <dir> for its temporary files"));
   printf("\n");
 #endif
 }
@@ -173,6 +173,11 @@ int main (int argc, char ** argv) {
       
       case 'c':
         channels = atof (optarg);
+        if (channels < 1)
+          {
+            fprintf (stderr, _("there must be at least one channel\n"));
+            exit (1);
+          }
         break;
 
       case ':':

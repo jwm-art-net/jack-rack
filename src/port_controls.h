@@ -24,7 +24,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-typedef enum _control_type control_type_t;
 typedef struct _controls controls_t;
 typedef struct _port_controls port_controls_t;
 
@@ -35,6 +34,8 @@ enum _control_type
   JR_CTRL_INT,
   JR_CTRL_BOOL
 };
+
+typedef enum _control_type control_type_t;
 
 
 struct _controls

@@ -44,9 +44,11 @@ int process_control_messages (process_info_t * procinfo) {
   
   if (quitting) return quitting;
   
-  while (lff_read (procinfo->ui_to_process, &ctrlmsg) == 0) {
+  while (lff_read (procinfo->ui_to_process, &ctrlmsg) == 0)
+    {
   
-    switch (ctrlmsg.type) {
+    switch (ctrlmsg.type)
+      {
     
       /* add a link to the end of the plugin chain */
       case CTRLMSG_ADD:
@@ -98,15 +100,18 @@ int process_control_messages (process_info_t * procinfo) {
         
       case CTRLMSG_QUIT:
         quitting = 1;
+        err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         return 1;
-        break;
+      }
+    
+    if (err)
+      {
+        fprintf (stderr, "%s: gui fifo is out of space\n", __FUNCTION__);
+        return err;
+      }
+      
     }
     
-    if (err) {
-      fprintf (stderr, "%s: gui fifo is out of space\n", __FUNCTION__);
-      return err;
-    }
-  }
   return 0;
 }
 
@@ -118,11 +123,19 @@ void process_control_port_messages (process_info_t * procinfo) {
   if (!procinfo->chain) return;
   
   for (plugin = procinfo->chain; plugin; plugin = plugin->next)
-    if (plugin->desc->control_port_count > 0)
-      for (control = 0; control < plugin->desc->control_port_count; control++)
-        for (copy = 0; copy < plugin->copies; copy++)
-          while (lff_read (plugin->holders[copy].control_fifos + control,
-                           plugin->holders[copy].control_memory + control) == 0);
+    {
+      if (plugin->desc->control_port_count > 0)
+        {
+          for (control = 0; control < plugin->desc->control_port_count; control++)
+            {
+              for (copy = 0; copy < plugin->copies; copy++)
+                {
+                  while (lff_read (plugin->holders[copy].control_fifos + control,
+                                   plugin->holders[copy].control_memory + control) == 0);
+                }
+            }
+        }
+    }
 }
 
 int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames) {
@@ -168,35 +181,43 @@ int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames) {
   return 0;
 }
 
-plugin_t * get_first_enabled_plugin (process_info_t * procinfo) {
+plugin_t *
+get_first_enabled_plugin (process_info_t * procinfo)
+{
   plugin_t * first_enabled;
   
   if (!procinfo->chain) return NULL;
 
   for (first_enabled = procinfo->chain;
        first_enabled;
-       first_enabled = first_enabled->next) {
-    if (first_enabled->enabled) return first_enabled;
-  }
+       first_enabled = first_enabled->next)
+    {
+      if (first_enabled->enabled) return first_enabled;
+    }
  
   return NULL;
 }
 
-plugin_t * get_last_enabled_plugin (process_info_t * procinfo) {
+plugin_t *
+get_last_enabled_plugin (process_info_t * procinfo)
+{
   plugin_t * last_enabled;
   
   if (!procinfo->chain) return NULL;
 
   for (last_enabled = procinfo->chain_end;
        last_enabled;
-       last_enabled = last_enabled->prev) {
-    if (last_enabled->enabled) return last_enabled;
-  }
+       last_enabled = last_enabled->prev)
+    {
+      if (last_enabled->enabled) return last_enabled;
+    }
   
   return NULL;
 }
 
-void connect_chain (process_info_t * procinfo, jack_nframes_t frames) {
+void
+connect_chain (process_info_t * procinfo, jack_nframes_t frames)
+{
   plugin_t * first_enabled, * last_enabled, * plugin;
   unsigned long copy;
   unsigned long channel;
@@ -210,56 +231,70 @@ void connect_chain (process_info_t * procinfo, jack_nframes_t frames) {
   last_enabled = get_last_enabled_plugin (procinfo);
 
   /* ensure that all the of the enabled plugins are connected to their memory */
-  if (first_enabled != last_enabled) {
-    plugin_connect_output_ports (first_enabled);
-    plugin_connect_input_ports (last_enabled);
-    for (plugin = first_enabled->next;
-         plugin && (plugin != last_enabled);
-         plugin = plugin->next) {
-      plugin_connect_input_ports (plugin);
-      plugin_connect_output_ports (plugin);
+  if (first_enabled != last_enabled)
+    {
+      plugin_connect_output_ports (first_enabled);
+      plugin_connect_input_ports (last_enabled);
+      
+      for (plugin = first_enabled->next;
+           plugin && (plugin != last_enabled);
+           plugin = plugin->next)
+        {
+          plugin_connect_input_ports (plugin);
+          plugin_connect_output_ports (plugin);
+        }
     }
-  }
 
   /* input buffers for first plugin */
   rack_channel = 0;
   for (copy = 0; copy < first_enabled->copies; copy++)
-    for (channel = 0; channel < first_enabled->desc->channels; channel++)
-      {
-        first_enabled->descriptor->
-          connect_port (first_enabled->holders[copy].instance,
-                        first_enabled->desc->audio_input_port_indicies[channel],
-                        procinfo->jack_input_buffers[rack_channel]);
-        rack_channel++;
-      }
+    {
+      for (channel = 0; channel < first_enabled->desc->channels; channel++)
+        {
+          first_enabled->descriptor->
+            connect_port (first_enabled->holders[copy].instance,
+                          first_enabled->desc->audio_input_port_indicies[channel],
+                          procinfo->jack_input_buffers[rack_channel]);
+          rack_channel++;
+        }
+    }
   
   /* output buffers for last plugin */
   rack_channel = 0;
   for (copy = 0; copy < last_enabled->copies; copy++)
-    for (channel = 0; channel < last_enabled->desc->channels; channel++)
-      {
-        last_enabled->descriptor->
-          connect_port (last_enabled->holders[copy].instance,
-                        last_enabled->desc->audio_output_port_indicies[channel],
-                        procinfo->jack_output_buffers[rack_channel]);
-        rack_channel++;
-      }
+    {
+      for (channel = 0; channel < last_enabled->desc->channels; channel++)
+        {
+          last_enabled->descriptor->
+            connect_port (last_enabled->holders[copy].instance,
+                          last_enabled->desc->audio_output_port_indicies[channel],
+                          procinfo->jack_output_buffers[rack_channel]);
+          rack_channel++;
+        }
+    }
       
 }
 
-void process_chain (process_info_t * procinfo, jack_nframes_t frames) {
+void
+process_chain (process_info_t * procinfo, jack_nframes_t frames)
+{
   plugin_t * first_enabled, * last_enabled = 0, * plugin;
   unsigned long i;
 
   first_enabled = get_first_enabled_plugin (procinfo);
   
   /* no chain; just copy input to output */
-  if (!procinfo->chain || !first_enabled) {
-    unsigned long channel;
-    for (channel = 0; channel < procinfo->channels; channel++)
-      memcpy (procinfo->jack_input_buffers[channel], procinfo->jack_output_buffers[channel], sizeof(LADSPA_Data) * frames);
-    return;
-  }
+  if (!procinfo->chain || !first_enabled)
+    {
+      unsigned long channel;
+      for (channel = 0; channel < procinfo->channels; channel++)
+        {
+          memcpy (procinfo->jack_input_buffers[channel],
+                  procinfo->jack_output_buffers[channel],
+                  sizeof(LADSPA_Data) * frames);
+        }
+      return;
+    }
   
   /* all past here is guaranteed to have at least 1 enabled plugin */
 
@@ -267,23 +302,31 @@ void process_chain (process_info_t * procinfo, jack_nframes_t frames) {
   
   for (plugin = first_enabled;
        plugin;
-       plugin = plugin->next) {
-    if (plugin->enabled) {
+       plugin = plugin->next)
+    {
+      if (plugin->enabled)
+        {
 
-      for (i = 0; i < plugin->copies; i++)
-        plugin->descriptor->run (plugin->holders[i].instance, frames);
+          for (i = 0; i < plugin->copies; i++)
+            {
+              plugin->descriptor->run (plugin->holders[i].instance, frames);
+            }
+  
+          if (plugin == last_enabled) break;
 
-      if (plugin == last_enabled) break;
-
-    } else {
+        }
+      else
+        {
     
-      /* copy the data through */
-      for (i = 0; i < procinfo->channels; i++)
-        memcpy (plugin->audio_memory[i],
-                plugin->prev->audio_memory[i],
-                sizeof(LADSPA_Data) * frames);
+          /* copy the data through */
+          for (i = 0; i < procinfo->channels; i++)
+            {
+              memcpy (plugin->audio_memory[i],
+                      plugin->prev->audio_memory[i],
+                      sizeof(LADSPA_Data) * frames);
+            }
+        }
     }
-  }
 }
 
 int process (jack_nframes_t frames, void * data) {
@@ -292,10 +335,11 @@ int process (jack_nframes_t frames, void * data) {
   
   procinfo = (process_info_t *) data;
   
-  if (!procinfo) {
-    fprintf (stderr, "%s: no process_info from jack!\n", __FUNCTION__);
-    return 1;
-  }
+  if (!procinfo)
+    {
+      fprintf (stderr, "%s: no process_info from jack!\n", __FUNCTION__);
+      return 1;
+    }
   
   quitting = process_control_messages (procinfo);
   
@@ -304,10 +348,11 @@ int process (jack_nframes_t frames, void * data) {
   process_control_port_messages (procinfo);
   
   err = get_jack_buffers (procinfo, frames);
-  if (err) {
-    fprintf(stderr, "%s: failed to get jack ports, not processing\n", __FUNCTION__);
-    return 1;
-  }
+  if (err)
+    {
+      fprintf(stderr, "%s: failed to get jack ports, not processing\n", __FUNCTION__);
+      return 1;
+    }
   
   connect_chain (procinfo, frames);
   
@@ -392,6 +437,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
     }
   
   for (i = procinfo->port_count; i < port_count; i++)
+    {
     for (io = 0; io < 2; io++)
       {
         port_name = g_strdup_printf ("%s_%ld", io == 0 ? "in" : "out", i);
@@ -437,6 +483,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
         
         g_free (port_name);
       }
+    }
   
   procinfo->port_count = port_count;
 }

@@ -381,7 +381,7 @@ ui_new (const char * jack_client_name, unsigned long channels)
   plugin_mgr_set_plugins (ui->plugin_mgr, channels);
   ui->jack_rack = jack_rack_new (ui, channels);
 
-  gtk_idle_add (idle_cb, ui->jack_rack);
+  gtk_idle_add (idle_cb, ui);
 
   ui_init_gui (ui, channels);
   

@@ -55,10 +55,10 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
   /* get the selected plugin out of the gobject data thing */
   desc = g_object_get_data (G_OBJECT(menuitem), "jack-rack-plugin-desc");
   if (!desc)
-  {
-    fprintf (stderr, "%s: no plugin description!\n", __FUNCTION__);
-    return;
-  }
+    {
+      fprintf (stderr, "%s: no plugin description!\n", __FUNCTION__);
+      return;
+    }
   
   plugin = jack_rack_instantiate_plugin (ui->jack_rack, desc);
 
@@ -383,8 +383,9 @@ void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
     locks[port_controls_holder->port_index] = port_controls_holder->locked; */
 }
 
-void set_widget_text_colour (GtkWidget * widget,
-                         const char * colour_str) {
+static void
+set_widget_text_colour (GtkWidget * widget, const char * colour_str)
+{
   GdkColor colour;
   GdkColormap * colourmap;
   
@@ -399,7 +400,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   port_controls_t * port_controls;
   gchar * str;
   LADSPA_Data value;
-  int copy;
+  gint copy;
   
   port_controls = (port_controls_t *) user_data;
   
@@ -414,6 +415,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   lff_write (port_controls->controls[copy].control_fifo, &value);
     
   /* print the value in the text box */
+  printf ("%s: text: %p\n", __FUNCTION__, port_controls->controls[copy].text);
   gtk_entry_set_text (GTK_ENTRY(port_controls->controls[copy].text), str);
     
   /* store the value */
@@ -421,13 +423,20 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
               
     
   /* possibly set our peers */
-  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked) {
-    unsigned long i;
-    for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
-      if (i != copy)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
-                             gtk_range_get_value (range));
-  }
+  if (port_controls->plugin_slot->plugin->copies > 1
+      && port_controls->locked)
+    {
+      gint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+        {
+          if (i != copy)
+            {
+              printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
+              gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
+                                   gtk_range_get_value (range));
+            }
+        }
+    }
     
     
   set_widget_text_colour (port_controls->controls[copy].text, "Black");
@@ -457,23 +466,30 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
       value == -HUGE_VALF ||
       endptr == str ||
       value < adjustment->lower ||
-      value > adjustment->upper) {
-    /* set the entry's text colour */
-    set_widget_text_colour (GTK_WIDGET(entry), "DarkRed");
-    return;
-  }
+      value > adjustment->upper)
+    {
+      /* set the entry's text colour */
+      set_widget_text_colour (GTK_WIDGET(entry), "DarkRed");
+      return;
+    }
   
   
   /* set the value in range */
   gtk_range_set_value (GTK_RANGE(port_controls->controls[copy].control), value);
     
   /* possibly set our peers */
-  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked) {
-    unsigned long i;
-    for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
-      if (i != copy)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
-  }
+  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
+    {
+      gint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+        {
+          if (i != copy)
+            {
+              printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
+              gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
+            }
+        }
+    }
   
   set_widget_text_colour (GTK_WIDGET(entry), "Black");
 }
@@ -500,11 +516,14 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, data);
   
   /* possibly set other controls */
-  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked) {
-    unsigned long i;
-    for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
-      if (i != copy)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(port_controls->controls[i].control), on);
+  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
+    {
+      gint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+        {
+          if (i != copy)
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(port_controls->controls[i].control), on);
+        }
     }
 }
 
@@ -530,12 +549,15 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, data);
       
   /* possibly set other controls */
-  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked) {
-    unsigned long i;
-    for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
-      if (i != copy)
+  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
+    {
+      gint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {
-          gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control), value);
+          if (i != copy)
+            {
+              gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control), value);
+            }
         }
     }
 }
@@ -543,14 +565,15 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
 /** callback for plugin menu buttons (Add and the plugin slots' change buttons) */
 gint plugin_button_cb (GtkWidget *widget, GdkEvent *event) {
 
-  if (event->type == GDK_BUTTON_PRESS) {
-    GdkEventButton * bevent = (GdkEventButton *) event;
-    gtk_menu_popup (GTK_MENU (widget), NULL, NULL, NULL, NULL,
-                    bevent->button, bevent->time);
-    /* Tell calling code that we have handled this event; the buck
-     * stops here. */
-    return TRUE;
-  }
+  if (event->type == GDK_BUTTON_PRESS)
+    {
+      GdkEventButton * bevent = (GdkEventButton *) event;
+      gtk_menu_popup (GTK_MENU (widget), NULL, NULL, NULL, NULL,
+                      bevent->button, bevent->time);
+      /* Tell calling code that we have handled this event; the buck
+       * stops here. */
+      return TRUE;
+    }
   
   /* Tell calling code that we have not handled this event; pass it on. */
   return FALSE;
@@ -600,6 +623,7 @@ jack_rack_check_kicked (jack_rack_t * jack_rack)
 /* do the process->gui message processing */
 gboolean idle_cb (gpointer data) {
   ctrlmsg_t ctrlmsg;
+  ui_t * ui;
   jack_rack_t * jack_rack;
   plugin_t * plugin;
   plugin_slot_t * plugin_slot;
@@ -612,12 +636,12 @@ gboolean idle_cb (gpointer data) {
     ladcca_enabled_at_start = cca_enabled (global_cca_client);
 #endif
 
-
-  jack_rack = (jack_rack_t *) data;
+  ui = (ui_t *) data;
+  jack_rack = ui->jack_rack;
   
   jack_rack_check_kicked (jack_rack);
   
-  while (lff_read (jack_rack->ui->process_to_ui, &ctrlmsg) == 0)
+  while (lff_read (ui->process_to_ui, &ctrlmsg) == 0)
     {
     switch (ctrlmsg.type)
       {
@@ -636,7 +660,7 @@ gboolean idle_cb (gpointer data) {
       case CTRLMSG_MOVE:
         plugin_slot = ctrlmsg.second_pointer;
         jack_rack_move_plugin_slot (jack_rack, plugin_slot, GPOINTER_TO_INT (ctrlmsg.pointer));
-        ui_set_state (jack_rack->ui, STATE_NORMAL);
+        ui_set_state (ui, STATE_NORMAL);
         break;
 
       case CTRLMSG_CHANGE:
@@ -659,7 +683,7 @@ gboolean idle_cb (gpointer data) {
         jack_rack_clear_plugins (jack_rack, plugin);
         break;
 
-      case CTRLMSG_QUIT: /* we'll never get a QUIT */
+      case CTRLMSG_QUIT:
         gtk_main_quit ();
         break;
       }

@@ -78,6 +78,7 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
   widget =
     gtk_hscale_new_with_range ((gdouble) lower, (gdouble) upper,
                                (upper - lower) / 10.0);
+  printf ("%s: range: %p\n", __FUNCTION__, widget);
   gtk_scale_set_draw_value (GTK_SCALE (widget), FALSE);
   gtk_scale_set_digits (GTK_SCALE (widget), 8);
   gtk_range_set_increments (GTK_RANGE (widget), (upper - lower) / 1000.0,
@@ -212,11 +213,10 @@ create_port_label (const char *port_name)
 static void
 plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls_t * port_controls)
 {
-  gint i;
+  gint i, copies;
   plugin_desc_t * desc;
   const LADSPA_Descriptor * descriptor;
   GtkWidget * label;
-  unsigned long copies;
   
   desc = plugin_slot->plugin->desc;
   descriptor = plugin_slot->plugin->descriptor;
@@ -232,7 +232,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
                         G_CALLBACK (control_lock_cb), port_controls);
       gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                         port_controls->lock,
-                        copies * 2 + 1,  copies * 2 + 2,
+                        copies * 2 + 2,  copies * 2 + 3,
                         port_controls->control_index, port_controls->control_index + 1,
                         GTK_FILL, GTK_FILL,
                         0, 0);
@@ -255,8 +255,6 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
       /* control fifo */
       port_controls->controls[i].control_fifo =
         plugin_slot->plugin->holders[i].control_fifos + port_controls->control_index;
-      printf ("%s: fifo is at %p, port controls: %p\n",
-              __FUNCTION__, port_controls->controls[i].control_fifo, port_controls);
 
       /* create the controls */
       switch (port_controls->type)
@@ -268,6 +266,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
                             G_CALLBACK (control_float_cb), port_controls);
 
           port_controls->controls[i].text = gtk_entry_new ();
+          printf ("%s: text: %p\n", __FUNCTION__, port_controls->controls[i].text);
           gtk_entry_set_max_length (GTK_ENTRY (port_controls->controls[i].text), TEXT_BOX_CHARS);
           gtk_widget_set_size_request (port_controls->controls[i].
                                        text, TEXT_BOX_WIDTH, -1);
@@ -315,8 +314,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
         case JR_CTRL_FLOAT:
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].control,
-                            /* left-most column */ (i * 3) + 1,
-                            /* right-most column */ (i * 3) + 2,
+                            /* left-most column */ (i * 2 + 1) + 1,
+                            /* right-most column */ (i * 2 + 1) + 2,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_EXPAND | GTK_FILL,
@@ -325,8 +324,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
                             /* y padding */ 0);
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].text,
-                            /* left-most column */ (i * 3) + 2,
-                            /* right-most column */ (i * 3) + 3,
+                            /* left-most column */ (i * 2 + 1) + 2,
+                            /* right-most column */ (i * 2 + 1) + 3,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_FILL,
@@ -339,8 +338,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
         case JR_CTRL_BOOL:
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].control,
-                            /* left-most column */ (i * 3) + 1,
-                            /* right-most column */ (i * 3) + 3,
+                            /* left-most column */ (i * 2 + 1) + 1,
+                            /* right-most column */ (i * 2 + 1) + 3,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_EXPAND | GTK_FILL,
@@ -375,9 +374,9 @@ port_controls_new	(plugin_slot_t * plugin_slot)
       port_controls->port_index = desc->control_port_indicies[i];
 
       /* get the port control type from the hints */
-      if (LADSPA_IS_HINT_TOGGLED (desc->port_range_hints[desc->control_port_indicies[i]].HintDescriptor))
+      if (LADSPA_IS_HINT_TOGGLED (desc->port_range_hints[port_controls->port_index].HintDescriptor))
         port_controls->type = JR_CTRL_BOOL;
-      else if (LADSPA_IS_HINT_INTEGER (desc->port_range_hints[desc->control_port_indicies[i]].HintDescriptor))
+      else if (LADSPA_IS_HINT_INTEGER (desc->port_range_hints[port_controls->port_index].HintDescriptor))
         port_controls->type = JR_CTRL_INT;
       else
         port_controls->type = JR_CTRL_FLOAT;

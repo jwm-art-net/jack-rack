@@ -43,10 +43,11 @@
 static void
 plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
 {
-  unsigned long control, copy;
+  unsigned long control;
   LADSPA_Data value;
-  unsigned long copies;
+  gint copies, copy;
   plugin_t * plugin;
+  port_controls_t * port_controls;
   plugin_desc_t * desc;
   
   plugin = plugin_slot->plugin;
@@ -73,34 +74,38 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
     }
   
   for (control = 0; control < desc->control_port_count; control++)
-    for (copy = 0; copy < copies; copy++)
-      {
-        value = settings_get_control_value (settings, control, copy);
-        switch (plugin_slot->port_controls[control].type)
-          {
-          case JR_CTRL_FLOAT:
+    {
+      port_controls = plugin_slot->port_controls + control;
+      for (copy = 0; copy < copies; copy++)
+        {
+          value = settings_get_control_value (settings, control, copy);
+          switch (port_controls->type)
             {
-              gchar *str;
-              gtk_range_set_value (GTK_RANGE (plugin_slot->port_controls[control].controls[copy].control),
-                                   value);
+            case JR_CTRL_FLOAT:
+              {
+                gchar *str;
+                gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
+                                     value);
               
-              str = g_strdup_printf ("%f", value);
-              gtk_entry_set_text (GTK_ENTRY (plugin_slot->port_controls[control].controls[copy].text), str);
-              g_free (str);
+                str = g_strdup_printf ("%f", value);
+                printf ("%s: text: %p\n", __FUNCTION__, port_controls->controls[copy].text);
+                gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
+                g_free (str);
+                break;
+              }
+
+            case JR_CTRL_INT:
+              gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control),
+                                         value);
+              break;
+
+            case JR_CTRL_BOOL:
+              gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (port_controls->controls[copy].control),
+                                            value > 0.0 ? TRUE : FALSE);
               break;
             }
-
-          case JR_CTRL_INT:
-            gtk_spin_button_set_value (GTK_SPIN_BUTTON (plugin_slot->port_controls[control].controls[copy].control),
-                                       value);
-            break;
-
-          case JR_CTRL_BOOL:
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->port_controls[control].controls[copy].control),
-                                          value > 0.0 ? TRUE : FALSE);
-            break;
-          }
-      }
+        }
+    }
 }
 
 static void
@@ -143,7 +148,6 @@ static void
 plugin_slot_init_gui (plugin_slot_t * plugin_slot)
 {
   gchar *str;
-  GtkWidget * plugin_menu; /* menu */
   GtkWidget * slot_up; /* button */
   GtkWidget * slot_up_image; /* button */
   GtkWidget * slot_remove; /* button */
@@ -164,11 +168,11 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
   /* plugin selector menu thingy */
   plugin_slot->plugin_selector = gtk_button_new_with_label (plugin_slot->plugin->desc->name);
   gtk_widget_show (plugin_slot->plugin_selector);
-  plugin_menu = plugin_mgr_get_menu (plugin_slot->jack_rack->ui->plugin_mgr,
+  plugin_slot->plugin_menu = plugin_mgr_get_menu (plugin_slot->jack_rack->ui->plugin_mgr,
                                      G_CALLBACK (slot_change_cb), plugin_slot);
   g_signal_connect_swapped (G_OBJECT (plugin_slot->plugin_selector), "event",
                             G_CALLBACK (plugin_button_cb),
-                            G_OBJECT (plugin_menu));
+                            G_OBJECT (plugin_slot->plugin_menu));
   gtk_box_pack_start (GTK_BOX (plugin_slot->top_controls),
                       plugin_slot->plugin_selector, FALSE, FALSE, 0);
 

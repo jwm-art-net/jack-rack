@@ -513,12 +513,12 @@ plugin_mgr_get_menu (plugin_mgr_t * plugin_mgr,
     return main_menu;
 
   /* add the alphabet menu to the bottom of the lrdf menu */
-  gtk_widget_show (alphabet_menu);
-  
   menu_item = gtk_menu_item_new_with_label ("Uncategorised");
   gtk_widget_show (menu_item);
   gtk_menu_shell_append (GTK_MENU_SHELL (main_menu), menu_item);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), alphabet_menu);
+  gtk_widget_show (alphabet_menu);
+  
   
   return main_menu;
 }

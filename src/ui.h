@@ -29,7 +29,6 @@
 #include "plugin_mgr.h"
 
 typedef struct _ui ui_t;
-typedef enum _ui_state ui_state_t;
 
 enum _ui_state
 {
@@ -39,6 +38,7 @@ enum _ui_state
   /* the gui is waiting for the process callback to do something */
   STATE_RACK_CHANGE
 };
+typedef enum _ui_state ui_state_t;
 
 struct _ui
 {

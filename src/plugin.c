@@ -38,52 +38,34 @@
 void
 plugin_connect_input_ports (plugin_t * plugin)
 {
-  unsigned long copy, channel;
-  unsigned long rack_channel = 0;
+  gint copy;
+  unsigned long channel;
+  unsigned long rack_channel;
 
   if (!plugin || !plugin->prev)
     return;
 
-
+  rack_channel = 0;
   for (copy = 0; copy < plugin->copies; copy++)
-    for (channel = 0; channel < plugin->desc->channels; channel++)
-      {
-        plugin->descriptor->
-          connect_port (plugin->holders[copy].instance,
-                        plugin->desc->audio_input_port_indicies[channel],
-                        plugin->prev->audio_memory[rack_channel]);
-        rack_channel++;
-      }
-                    
-/*  if (plugin->desc->mono)
     {
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[IN_L],
-		      plugin->prev->audio_memory[0]);
-      plugin->descriptor->
-	connect_port (plugin->holders[1]->instance,
-		      plugin->desc->audio_port_indicies[IN_R],
-		      plugin->prev->audio_memory[1]);
+      for (channel = 0; channel < plugin->desc->channels; channel++)
+        {
+          plugin->descriptor->
+            connect_port (plugin->holders[copy].instance,
+                          plugin->desc->audio_input_port_indicies[channel],
+                          plugin->prev->audio_memory[rack_channel]);
+          rack_channel++;
+        }
     }
-  else
-    {
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[IN_L],
-		      plugin->prev->audio_memory[0]);
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[IN_R],
-		      plugin->prev->audio_memory[1]);
-    }*/
+                    
 }
 
 /** connect up a plugin's output ports to its own audio_memory output memory */
 void
 plugin_connect_output_ports (plugin_t * plugin)
 {
-  unsigned long copy, channel;
+  gint copy;
+  unsigned long channel;
   unsigned long rack_channel = 0;
 
   if (!plugin)
@@ -91,33 +73,16 @@ plugin_connect_output_ports (plugin_t * plugin)
 
 
   for (copy = 0; copy < plugin->copies; copy++)
-    for (channel = 0; channel < plugin->desc->channels; channel++)
-      {
-        plugin->descriptor->
-          connect_port (plugin->holders[copy].instance,
-                        plugin->desc->audio_output_port_indicies[channel],
-                        plugin->audio_memory[rack_channel]);
-        rack_channel++;
-      }
-    
-/*  if (plugin->desc->mono)
     {
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[OUT_L], plugin->audio_memory[0]);
-      plugin->descriptor->
-	connect_port (plugin->holders[1]->instance,
-		      plugin->desc->audio_port_indicies[OUT_R], plugin->audio_memory[1]);
+      for (channel = 0; channel < plugin->desc->channels; channel++)
+        {
+          plugin->descriptor->
+            connect_port (plugin->holders[copy].instance,
+                          plugin->desc->audio_output_port_indicies[channel],
+                          plugin->audio_memory[rack_channel]);
+          rack_channel++;
+        }
     }
-  else
-    {
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[OUT_L], plugin->audio_memory[0]);
-      plugin->descriptor->
-	connect_port (plugin->holders[0]->instance,
-		      plugin->desc->audio_port_indicies[OUT_R], plugin->audio_memory[1]);
-    }*/
 }
 
 void
@@ -314,12 +279,13 @@ plugin_open_plugin (plugin_desc_t * desc,
     dlsym (dl_handle, "ladspa_descriptor");
   
   dlerr = dlerror();
-  if (dlerr) {
-    fprintf (stderr, "%s: error finding descriptor symbol in object file '%s': %s\n",
-             __FUNCTION__, desc->object_file, dlerr);
-    dlclose (dl_handle);
-    return 1;
-  }
+  if (dlerr)
+    {
+      fprintf (stderr, "%s: error finding descriptor symbol in object file '%s': %s\n",
+               __FUNCTION__, desc->object_file, dlerr);
+      dlclose (dl_handle);
+      return 1;
+    }
   
   *descriptor_ptr = get_descriptor (desc->index);
   *dl_handle_ptr = dl_handle;
@@ -330,10 +296,10 @@ plugin_open_plugin (plugin_desc_t * desc,
 static int
 plugin_instantiate (const LADSPA_Descriptor * descriptor,
                     unsigned long plugin_index,
-                    unsigned long copies,
+                    gint copies,
                     LADSPA_Handle * instances)
 {
-  unsigned long i;
+  gint i;
   
   for (i = 0; i < copies; i++)
     {
@@ -406,7 +372,7 @@ plugin_new (plugin_desc_t * desc, unsigned long rack_channels)
   void * dl_handle;
   const LADSPA_Descriptor * descriptor;
   LADSPA_Handle * instances;
-  unsigned long copies;
+  gint copies;
   unsigned long i;
   int err;
   plugin_t * plugin;
@@ -442,11 +408,15 @@ plugin_new (plugin_desc_t * desc, unsigned long rack_channels)
   
   plugin->audio_memory = g_malloc (sizeof (LADSPA_Data *) * rack_channels);
   for (i = 0; i < rack_channels; i++)
-    plugin->audio_memory[i] = g_malloc (sizeof (LADSPA_Data) * buffer_size);
+    {
+      plugin->audio_memory[i] = g_malloc (sizeof (LADSPA_Data) * buffer_size);
+    }
   
   plugin->holders = g_malloc (sizeof (ladspa_holder_t) * copies);
   for (i = 0; i < copies; i++)
-    plugin_init_holder (plugin->holders + i, plugin, instances[i]);
+    {
+      plugin_init_holder (plugin->holders + i, plugin, instances[i]);
+    }
   
   
   return plugin;

@@ -70,6 +70,6 @@ struct _plugin * plugin_desc_instantiate (plugin_desc_t * pd);
 LADSPA_Data plugin_desc_get_default_control_value (plugin_desc_t * pd, unsigned long port_index, jack_nframes_t sample_rate);
 LADSPA_Data plugin_desc_change_control_value (plugin_desc_t *, unsigned long, LADSPA_Data, jack_nframes_t, jack_nframes_t);
 
-unsigned long plugin_desc_get_copies (plugin_desc_t * pd, unsigned long rack_channels);
+gint plugin_desc_get_copies (plugin_desc_t * pd, unsigned long rack_channels);
 
 #endif /* __JR_PLUGIN_DESC_H__ */

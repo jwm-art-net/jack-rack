@@ -99,7 +99,9 @@ settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
       value = plugin_desc_get_default_control_value (settings->desc, control, sample_rate);
 
       for (copy = 0; copy < PLUGIN_COPIES; copy++)
-        settings->control_values[copy][control] = value;
+        {
+          settings->control_values[copy][control] = value;
+        }
           
       settings->locks[control] = TRUE;
     }
@@ -194,10 +196,16 @@ settings_change_sample_rate (settings_t * settings, LADSPA_Data old_sample_rate,
       unsigned long copy, control;
 
       for (control = 0; control < settings->desc->control_port_count; control++)
-        for (copy = 0; copy < PLUGIN_COPIES; copy++)
-          if (LADSPA_IS_HINT_SAMPLE_RATE (settings->desc->port_range_hints[control].HintDescriptor))
-            settings->control_values[copy][control] =
-              (settings->control_values[copy][control] / old_sample_rate) * new_sample_rate;
+        {
+          for (copy = 0; copy < PLUGIN_COPIES; copy++)
+            {
+              if (LADSPA_IS_HINT_SAMPLE_RATE (settings->desc->port_range_hints[control].HintDescriptor))
+                {
+                  settings->control_values[copy][control] =
+                    (settings->control_values[copy][control] / old_sample_rate) * new_sample_rate;
+                }
+            }
+        }
     }
 }
 

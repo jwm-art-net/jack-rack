@@ -48,6 +48,7 @@ struct _plugin_slot
   GtkWidget * separator;
   GtkWidget * plugin_selector;
   GtkWidget * enable;
+  GtkWidget * plugin_menu;
   
   port_controls_t * port_controls; /* port controls array */
   

@@ -42,7 +42,7 @@ struct _plugin
   plugin_desc_t *            desc;
   gint                       enabled;
 
-  unsigned long              copies;
+  gint                       copies;
   ladspa_holder_t *          holders;
   LADSPA_Data **             audio_memory;
   
