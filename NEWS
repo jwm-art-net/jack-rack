@@ -1,3 +1,12 @@
+1.4.1:
+
+* icon and .desktop get installed properly
+* much more graceful handling of jackd shutdowns
+* midi thread will now try and use SCHED_FIFO.  If you run jackd with
+  jackstart then you don't need to do anything to enable this as jackd will
+  give the appropriate rights to jack rack.
+
+
 1.4.0:
 
 * MIDI support

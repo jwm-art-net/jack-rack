@@ -9,10 +9,12 @@ In order to save rack configurations, libxml2 is needed.
 It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
 needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn
 needs raptor, available from http://www.redland.opensource.ac.uk/raptor/. 
-JACK Rack searches for .rdf and .rdfs files in
-/usr/local/share/ladspa/rdf and /usr/share/ladspa/rdf by default.  You can
-change this search path using the LADSPA_RDF_PATH environment variable.
 
+ Feedback
+----------
+
+It would be very much appreciated if you could provide some user-perspective
+feedback here: http://pkl.net/~node/feedback.html
 
  Compilation
 -------------
@@ -30,6 +32,10 @@ Assuming you have some ladspa plugins installed, make sure you have your
 LADSPA_PATH environment variable set to include them.  If you don't have any
 ladspa plugins installed, head over to http://plugin.org.uk/ and grab Steve
 Harris's excellent plugin collection.
+
+JACK Rack searches for .rdf and .rdfs files in
+/usr/local/share/ladspa/rdf and /usr/share/ladspa/rdf by default.  You can
+change this search path using the LADSPA_RDF_PATH environment variable.
 
 JACK Rack doesn't do any port connecting by default, so you might want to
 use QJackConnect or jack_connect to connect it up.  Alternatively, if you
