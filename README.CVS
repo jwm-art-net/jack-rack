@@ -4,3 +4,4 @@ It is not stable.  It likely won't compile.  Don't moan if doesn't work
 intended for users is always available from http://sf.net/projects/jack-rack.
 
 You'll probably need to link in ltmain.sh from /usr/share/libtool
+

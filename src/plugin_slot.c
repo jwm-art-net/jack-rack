@@ -40,15 +40,20 @@
 #define TEXT_BOX_CHARS        -1
 
 void
-plugin_slot_show_controls (plugin_slot_t * plugin_slot)
+plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
 {
   unsigned long control;
-  gint copy;
+  guint copy;
   port_controls_t * port_controls;
   gboolean lock_all;
   
-  if (plugin_slot->plugin->desc->control_port_count == 0)
+  
+  if (plugin_slot->plugin->desc->control_port_count == 0
+      || plugin_slot->plugin->copies < 2)
     return;
+
+  if (copy_to_show >= plugin_slot->plugin->copies)
+    copy_to_show = 0;
   
   lock_all = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (plugin_slot->lock_all));
   
@@ -56,19 +61,23 @@ plugin_slot_show_controls (plugin_slot_t * plugin_slot)
     {
       port_controls = plugin_slot->port_controls + control;
 
-      for (copy = 1; copy < plugin_slot->plugin->copies; copy++)
+      for (copy = 0; copy < plugin_slot->plugin->copies; copy++)
         {
-          if (lock_all || port_controls->locked)
+          if ((copy != copy_to_show) && (lock_all || port_controls->locked))
             {
               gtk_widget_hide (port_controls->controls[copy].control);
               if (port_controls->type == JR_CTRL_FLOAT)
-                gtk_widget_hide (port_controls->controls[copy].text);
+                {
+                  gtk_widget_hide (port_controls->controls[copy].text);
+                }
             }
           else
             {
               gtk_widget_show (port_controls->controls[copy].control);
               if (port_controls->type == JR_CTRL_FLOAT)
-                gtk_widget_show (port_controls->controls[copy].text);
+                {
+                  gtk_widget_show (port_controls->controls[copy].text);
+                }
             }
         }
       
@@ -84,7 +93,7 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
 {
   unsigned long control;
   LADSPA_Data value;
-  gint copies, copy;
+  guint copies, copy;
   plugin_t * plugin;
   port_controls_t * port_controls;
   plugin_desc_t * desc;
@@ -95,6 +104,8 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
   
   if (desc->control_port_count == 0)
     return;
+  
+  printf ("%s: copies: %d\n", __FUNCTION__, copies);
   
   if (copies > 1)
     {
@@ -127,7 +138,6 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
                                      value);
               
                 str = g_strdup_printf ("%f", value);
-                printf ("%s: text: %p\n", __FUNCTION__, port_controls->controls[copy].text);
                 gtk_entry_set_text (GTK_ENTRY (port_controls->controls[copy].text), str);
                 g_free (str);
                 break;
@@ -163,10 +173,10 @@ plugin_slot_create_control_table (plugin_slot_t * plugin_slot)
 {
   if (plugin_slot->plugin->desc->control_port_count > 0)
     {
-      unsigned long copies = plugin_slot->plugin->copies;
+      guint copies = plugin_slot->plugin->copies;
       plugin_slot->control_table =
         gtk_table_new (plugin_slot->plugin->desc->control_port_count,
-                       copies * 2 + ((copies > 1) ? 2 : 1),
+                       (copies > 1) ? 3 : 2,
                        FALSE);
 
       gtk_widget_show (plugin_slot->control_table);
@@ -280,9 +290,9 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
   else
     plugin_slot->lock_all = NULL;
 
-
   /* control table */
   plugin_slot_create_control_table (plugin_slot);
+
    
   /* final seperator bar */
   plugin_slot->separator = gtk_hseparator_new ();
@@ -314,7 +324,7 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   else
     plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
   
-  plugin_slot_show_controls (plugin_slot);
+  plugin_slot_show_controls (plugin_slot, 0);
   
   return plugin_slot;
 }

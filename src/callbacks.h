@@ -47,6 +47,7 @@ gboolean slot_ablise_cb (GtkWidget * button, GdkEventButton *event,
                                       gpointer user_data);
 void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data);
 
+gboolean control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
 void control_lock_cb (GtkToggleButton * button, gpointer user_data);
 void control_float_cb (GtkRange * range, gpointer user_data);
 void control_float_text_cb (GtkEntry * entry, gpointer user_data);

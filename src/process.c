@@ -118,7 +118,8 @@ int process_control_messages (process_info_t * procinfo) {
 /** process messages for plugins' control ports */
 void process_control_port_messages (process_info_t * procinfo) {
   plugin_t * plugin;
-  unsigned long control, copy;
+  unsigned long control;
+  gint copy;
   
   if (!procinfo->chain) return;
   
@@ -158,26 +159,6 @@ int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames) {
         }
     }
 
-/*  procinfo->jack_buffers[IN_L] = jack_port_get_buffer (procinfo->jack_ports[IN_L], frames);
-  
-  procinfo->jack_buffers[IN_R] = jack_port_get_buffer (procinfo->jack_ports[IN_R], frames);
-  if (!procinfo->jack_buffers[IN_R]) {
-    fprintf (stderr, "%s: no jack buffer for right input port\n", __FUNCTION__);
-    return 1;
-  }
-  
-  procinfo->jack_buffers[OUT_L] = jack_port_get_buffer (procinfo->jack_ports[OUT_L], frames);
-  if (!procinfo->jack_buffers[OUT_L]) {
-    fprintf (stderr, "%s: no jack buffer for left output port\n", __FUNCTION__);
-    return 1;
-  }
-  
-  procinfo->jack_buffers[OUT_R] = jack_port_get_buffer (procinfo->jack_ports[OUT_R], frames);
-  if (!procinfo->jack_buffers[OUT_R]) {
-    fprintf (stderr, "%s: no jack buffer for right output port\n", __FUNCTION__);
-    return 1;
-  }*/
-  
   return 0;
 }
 
@@ -219,7 +200,7 @@ void
 connect_chain (process_info_t * procinfo, jack_nframes_t frames)
 {
   plugin_t * first_enabled, * last_enabled, * plugin;
-  unsigned long copy;
+  gint copy;
   unsigned long channel;
   unsigned long rack_channel;
   
@@ -343,7 +324,8 @@ int process (jack_nframes_t frames, void * data) {
   
   quitting = process_control_messages (procinfo);
   
-  if (quitting) return 1;
+  if (quitting)
+    return 1;
   
   process_control_port_messages (procinfo);
   
@@ -351,7 +333,7 @@ int process (jack_nframes_t frames, void * data) {
   if (err)
     {
       fprintf(stderr, "%s: failed to get jack ports, not processing\n", __FUNCTION__);
-      return 1;
+      return 0;
     }
   
   connect_chain (procinfo, frames);

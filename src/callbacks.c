@@ -347,29 +347,36 @@ void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data) {
   gboolean on;
   plugin_slot_t * plugin_slot;
   unsigned long i;
+  guint lock_copy;
   
   on = gtk_toggle_button_get_active (button);
   
   plugin_slot = (plugin_slot_t *) user_data;
   
-/*  plugin_slot->plugin_settings[plugin_slot->plugin->collection_index].lock_all = on; */
   settings_set_lock_all (plugin_slot->settings, on);
 
-  for (i = 0; i < plugin_slot->plugin->desc->control_port_count; i++) {
+  for (i = 0; i < plugin_slot->plugin->desc->control_port_count; i++)
+    {
   
-    gtk_widget_set_sensitive (plugin_slot->port_controls[i].lock, on ? FALSE : TRUE);
+      gtk_widget_set_sensitive (plugin_slot->port_controls[i].lock, on ? FALSE : TRUE);
       
-    if (on) {
-      plugin_slot->port_controls[i].locked = TRUE;
-    } else {
-      plugin_slot->port_controls[i].locked =
-        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(plugin_slot->port_controls[i].lock));
-    }
+      if (on)
+        {
+          plugin_slot->port_controls[i].locked = TRUE;
+        }
+      else
+        {
+          plugin_slot->port_controls[i].locked =
+            gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(plugin_slot->port_controls[i].lock));
+        }
     
-  }
+    }
   
-  plugin_slot_show_controls (plugin_slot);
+  lock_copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(button), "jack-rack-lock-copy"));
   
+  plugin_slot_show_controls (plugin_slot, lock_copy);
+  
+  g_object_set_data (G_OBJECT(button), "jack-rack-lock-copy", GINT_TO_POINTER (0));
 }
 
 void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
@@ -380,7 +387,47 @@ void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
   port_controls->locked = gtk_toggle_button_get_active (button);
   settings_set_lock (port_controls->plugin_slot->settings, port_controls->control_index, port_controls->locked);
 
-  plugin_slot_show_controls (port_controls->plugin_slot);
+  plugin_slot_show_controls (port_controls->plugin_slot, port_controls->lock_copy);
+  
+  port_controls->lock_copy = 0;
+}
+
+/* lock a specific control with a click+ctrl */
+gboolean
+control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer user_data)
+{
+  port_controls_t * port_controls;
+
+  port_controls = (port_controls_t *) user_data;
+  
+  if (port_controls->locked ||
+      gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (port_controls->plugin_slot->lock_all)))
+    return FALSE;
+  
+  if (event->state & GDK_CONTROL_MASK)
+    {
+      guint lock_copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(widget), "jack-rack-plugin-copy"));
+      switch (event->button)
+        {
+        /* lock the control row */
+        case 1:
+          port_controls->lock_copy = lock_copy;
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (port_controls->lock), TRUE);
+          return TRUE;
+          
+        /* lock all */
+        case 3:
+          g_object_set_data (G_OBJECT(port_controls->plugin_slot->lock_all),
+                             "jack-rack-lock-copy", GINT_TO_POINTER (lock_copy));
+          gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (port_controls->plugin_slot->lock_all), TRUE);
+          return TRUE;
+        
+        default:
+          break;
+        }
+    }
+  
+  return FALSE;
 }
 
 static void
@@ -401,7 +448,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   port_controls_t * port_controls;
   gchar * str;
   LADSPA_Data value;
-  gint copy;
+  guint copy;
   
   port_controls = (port_controls_t *) user_data;
   
@@ -410,10 +457,10 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   str = g_strdup_printf ("%f", value);
   
   /* get which copy we're using from the g object data stuff */
-  copy = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(range), "jack-rack-plugin-copy"));
+  copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(range), "jack-rack-plugin-copy"));
     
   /* write to the fifo */
-  lff_write (port_controls->controls[copy].control_fifo, &value);
+/*  lff_write (port_controls->controls[copy].control_fifo, &value);  */
   
   adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
     
@@ -428,7 +475,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   if (port_controls->plugin_slot->plugin->copies > 1
       && port_controls->locked)
     {
-      gint i;
+      guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {
           if (i != copy)
@@ -452,12 +499,12 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   const char * str;
   char * endptr;
   GtkAdjustment * adjustment;
-  gint copy;
+  guint copy;
 
   printf ("%s: boo\n", __FUNCTION__);
   
   port_controls = (port_controls_t *) user_data;
-  copy = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(entry), "jack-rack-plugin-copy"));
+  copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(entry), "jack-rack-plugin-copy"));
 
   str = gtk_entry_get_text (entry);
   value = strtof (str, &endptr);
@@ -483,7 +530,7 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   /* possibly set our peers */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
     {
-      gint i;
+      guint i;
       for (i = 0; i < copy; i++)
         {
           printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
@@ -514,7 +561,7 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   data = on ? 1.0 : -1.0;
 
   /* get which channel we're using from the g object data stuff */
-  copy = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(button), "jack-rack-plugin-copy"));
+  copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(button), "jack-rack-plugin-copy"));
   
   /* write to the fifo */
   lff_write (port_controls->controls[copy].control_fifo, &data);
@@ -525,7 +572,7 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   /* possibly set other controls */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
     {
-      gint i;
+      guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {
           if (i != copy)
@@ -549,7 +596,7 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   data = value;
   
   /* get which channel we're using from the g object data stuff */
-  copy = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(spinbutton), "jack-rack-plugin-copy"));
+  copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(spinbutton), "jack-rack-plugin-copy"));
   
   /* write to the fifo */
   lff_write (port_controls->controls[copy].control_fifo, &data);
@@ -560,7 +607,7 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   /* possibly set other controls */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
     {
-      gint i;
+      guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {
           if (i != copy)

@@ -34,20 +34,20 @@ struct _settings
 {
   jack_nframes_t sample_rate;
   plugin_desc_t * desc;
-  gint copies;
+  guint copies;
   LADSPA_Data ** control_values;
   gboolean * locks;
   gboolean lock_all;
 };
 
-settings_t * settings_new     (plugin_desc_t * desc, gint copies, jack_nframes_t sample_rate);
+settings_t * settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate);
 void         settings_destroy (settings_t * settings);
 
-void settings_set_control_value (settings_t * settings, gint copy, unsigned long control_index, LADSPA_Data value);
+void settings_set_control_value (settings_t * settings, guint copy, unsigned long control_index, LADSPA_Data value);
 void settings_set_lock          (settings_t * settings, unsigned long control_index, gboolean locked);
 void settings_set_lock_all      (settings_t * settings, gboolean lock_all);
 
-LADSPA_Data settings_get_control_value (const settings_t * settings, gint copy, unsigned long control_index);
+LADSPA_Data settings_get_control_value (settings_t * settings, guint copy, unsigned long control_index);
 gboolean    settings_get_lock          (const settings_t * settings, unsigned long control_index);
 gboolean    settings_get_lock_all      (const settings_t * settings);
 

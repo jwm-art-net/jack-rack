@@ -1,3 +1,19 @@
+1.2:
+
+* can now have arbitrary channel numbers.  you can use any plugin that has
+  equal numbers of input and output channels where they divide exactly into
+  the number of rack channels.  eg, you could have a 4 channel rack with 2
+  stereo plugins in one slot and 4 mono plugins in another.  obviously, you
+  can also have mono racks now.  use the -c command line option to specify
+  the number of channels on startup.
+* when you lock a group of controls, only one widget will be shown.  click
+  on a control while holding down the CTRL key to make it the one that
+  remains visible.
+* the PID is now used in the jack client name by default.  you can change it
+  to the previous behaviour (of using just "jack_rack") with the -n command
+  line option.
+
+
 1.1.2:
 
 * build fixes for gcc 2.9x from Fernando Pablo Lopez-Lezcano

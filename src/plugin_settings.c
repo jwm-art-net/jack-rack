@@ -28,7 +28,7 @@ static void
 settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
 {
   unsigned long control;
-  gint copy;
+  guint copy;
   LADSPA_Data value;
   
   for (control = 0; control < settings->desc->control_port_count; control++)
@@ -45,7 +45,7 @@ settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
 }
 
 settings_t *
-settings_new     (plugin_desc_t * desc, gint copies, jack_nframes_t sample_rate)
+settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate)
 {
   settings_t * settings;
   
@@ -60,7 +60,7 @@ settings_new     (plugin_desc_t * desc, gint copies, jack_nframes_t sample_rate)
   
   if (desc->control_port_count > 0)
     {
-      gint copy;
+      guint copy;
       
       settings->locks = g_malloc (sizeof (gboolean) * desc->control_port_count);
 
@@ -81,7 +81,7 @@ settings_destroy (settings_t * settings)
 {
   if (settings->desc->control_port_count > 0)
     {
-      gint i;
+      guint i;
       for (i = 0; i < settings->copies; i++)
         g_free (settings->control_values[i]);
 
@@ -93,10 +93,10 @@ settings_destroy (settings_t * settings)
 }
 
 static void
-settings_set_copies (settings_t * settings, gint copies)
+settings_set_copies (settings_t * settings, guint copies)
 {
-  gint copy;
-  gint last_copy;
+  guint copy;
+  guint last_copy;
   unsigned long control;
   
   g_return_if_fail (copies <= settings->copies);
@@ -120,7 +120,7 @@ settings_set_copies (settings_t * settings, gint copies)
 }
 
 void
-settings_set_control_value (settings_t * settings, gint copy, unsigned long control_index, LADSPA_Data value)
+settings_set_control_value (settings_t * settings, guint copy, unsigned long control_index, LADSPA_Data value)
 {
   g_return_if_fail (settings != NULL);
   g_return_if_fail (control_index < settings->desc->control_port_count);
@@ -149,11 +149,13 @@ settings_set_lock_all (settings_t * settings, gboolean lock_all)
 }
 
 LADSPA_Data
-settings_get_control_value (const settings_t * settings, gint copy, unsigned long control_index)
+settings_get_control_value (settings_t * settings, guint copy, unsigned long control_index)
 {
   g_return_val_if_fail (settings != NULL, NAN);
-  g_return_val_if_fail (copy < settings->copies, NAN);
   g_return_val_if_fail (control_index < settings->desc->control_port_count, NAN);
+
+  if (copy >= settings->copies)
+    settings_set_copies (settings, copy - 1);
 
   return settings->control_values[copy][control_index];
 }
@@ -181,7 +183,7 @@ settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
   if (settings->desc->control_port_count > 0)
     {
       unsigned long control;
-      gint copy;
+      guint copy;
       
       new_sample_rate = (LADSPA_Data) sample_rate;
       old_sample_rate = (LADSPA_Data) settings->sample_rate;

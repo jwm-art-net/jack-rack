@@ -51,16 +51,17 @@ struct _controls
 struct _port_controls
 {
   control_type_t type;
-  controls_t * controls;
+  controls_t *   controls;
 
   /* single copy only stuff */
-  GtkWidget * lock;
-  gboolean    locked;
+  GtkWidget *    lock;
+  gboolean       locked;
+  gint           lock_copy;
   
   struct _plugin_slot * plugin_slot;
 
-  unsigned long port_index;
-  unsigned long control_index;
+  unsigned long  port_index;
+  unsigned long  control_index;
 };
 
 port_controls_t * port_controls_new     (struct _plugin_slot * plugin_slot);

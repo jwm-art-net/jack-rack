@@ -33,19 +33,20 @@ LADSPA_PATH environment variable set to include them.  If you don't have any
 ladspa plugins installed, head over to http://plugin.org.uk/ and grab Steve
 Harris's excellent plugin collection.
 
-If you want JACK Rack to register with JACK with a client name different to
-"jack_rack", you can use -p flag to tell it to append the pid, or -s with a
-string to append that string.
-
 JACK Rack doesn't do any port connecting, so you'll need a JACK patchbay,
 only one of which exists atm, QJackConnect, available from
 http://www.suse.de/~mana/jack.html.  Or you can use jack_connect.
 
+When you lock a line of controls, all but one of the controls will be
+hidden.  Using the Lock button, this will be the first control. This can
+hinder things if you want to replicate a control which isn't the first.  In
+this case, you can hold down the CTRL key and click on the control you want
+to remain visible.  The line will lock, but the clicked-on control will be
+the visible one.
 
  Contact
 ---------
 
 Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
 (subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
-New versions will be available from http://pkl.net/~node/jack-rack.html and
-http://sf.net/projects/jack-rack.
+New versions will be available from http://sf.net/projects/jack-rack.

@@ -157,15 +157,8 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 }
 
 static void
-ui_init_gui (ui_t * ui, unsigned long channels)
+ui_set_default_window_icon ()
 {
-  GtkWidget *menu;
-  GtkWidget *main_box;
-  GtkWidget *toolbar_handle;
-  GtkWidget *toolbar;
-  GtkWidget *plugin_scroll;
-  GtkWidget *plugin_viewport;
-  GtkWidget *channel_spin;
   gchar * icon_file;
   GError * icon_error = NULL;
   GList * icons = NULL;
@@ -188,6 +181,18 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   
   g_list_free (icons);
   g_object_unref (icon);
+}
+
+static void
+ui_init_gui (ui_t * ui, unsigned long channels)
+{
+  GtkWidget *menu;
+  GtkWidget *main_box;
+  GtkWidget *toolbar_handle;
+  GtkWidget *toolbar;
+  GtkWidget *plugin_scroll;
+  GtkWidget *plugin_viewport;
+  GtkWidget *channel_spin;
 
 
   /* main window */
@@ -229,7 +234,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
   /* channel spin */  
-  channel_spin = gtk_spin_button_new_with_range (1.0, INT_MAX, 1.0);
+  channel_spin = gtk_spin_button_new_with_range (1.0, G_MAXUINT, 1.0);
   gtk_widget_show (channel_spin);
   gtk_spin_button_set_digits (GTK_SPIN_BUTTON (channel_spin), 0);
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (channel_spin), channels);
@@ -319,10 +324,14 @@ ui_init_splash_screen (ui_t * ui)
   int i;
   gint h, w;
   
+  ui_set_default_window_icon ();
+  
   ui->splash_screen = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_decorated (GTK_WINDOW (ui->splash_screen), FALSE);
   gtk_window_set_resizable (GTK_WINDOW (ui->splash_screen), FALSE);
+  gtk_window_set_title (GTK_WINDOW (ui->splash_screen), PACKAGE_NAME);
   gtk_container_set_resize_mode (GTK_CONTAINER (ui->splash_screen), GTK_RESIZE_IMMEDIATE);
+  
   
   
   box = gtk_vbox_new (FALSE, 0);
