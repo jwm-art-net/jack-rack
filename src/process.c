@@ -24,6 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include "process.h"
 #include "control_message.h"
@@ -32,6 +34,10 @@
 #include "globals.h"
 #include "jack_rack.h"
 #include "ui.h"
+
+#define USEC_PER_SEC         1000000
+#define MSEC_PER_SEC         1000
+#define TIME_RUN_SKIP_COUNT  5
 
 jack_nframes_t sample_rate;
 jack_nframes_t buffer_size;
@@ -101,6 +107,9 @@ int process_control_messages (process_info_t * procinfo) {
         quitting = 1;
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         return 1;
+      
+      case CTRLMSG_TIME:
+        break;
       }
     
     if (err)
@@ -258,8 +267,12 @@ connect_chain (process_info_t * procinfo, jack_nframes_t frames)
 void
 process_chain (process_info_t * procinfo, jack_nframes_t frames)
 {
+  static ulong time_run_skip = TIME_RUN_SKIP_COUNT;
   plugin_t * first_enabled, * last_enabled = 0, * plugin;
   unsigned long i;
+  guint plugin_index = 0;
+/*  struct timespec start, end;
+  gboolean time_err; */
 
   first_enabled = get_first_enabled_plugin (procinfo);
   
@@ -280,19 +293,67 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
 
   last_enabled = get_last_enabled_plugin (procinfo);
   
+  if (procinfo->time_runs && !time_run_skip)
+    {
+      for (plugin = procinfo->chain; plugin != first_enabled; plugin = plugin->next)
+        plugin_index++;
+    }
+  
   for (plugin = first_enabled;
        plugin;
        plugin = plugin->next)
     {
       if (plugin->enabled)
         {
-
-          for (i = 0; i < plugin->copies; i++)
+/*          if (!time_run_skip)
             {
-              plugin->descriptor->run (plugin->holders[i].instance, frames);
-            }
+              int err;
+
+              time_err = FALSE;
+              
+              err = clock_gettime (CLOCK_REALTIME, &start);
+              if (err)
+                time_err = TRUE;
+            } */
+          
+          for (i = 0; i < plugin->copies; i++)
+            plugin->descriptor->run (plugin->holders[i].instance, frames);
+          
+/*          if (!time_run_skip  && !time_err)
+            {
+              int err;
+              
+              err = clock_gettime (CLOCK_REALTIME, &end);
+              
+              if (!err)
+                {
+                  ctrlmsg_t ctrlmsg;
+                  long nsecs;
+                  long secs;
+                  
+                  secs = end.tv_sec - start.tv_sec;
+                  nsecs = end.tv_nsec;
+                  nsecs += end.tv_sec == start.tv_sec ? start.tv_nsec
+                                                      : (NSEC_PER_SEC - start.tv_nsec);
+                  while (nsecs > NSEC_PER_SEC)
+                    {
+                      secs++;
+                      nsecs -= NSEC_PER_SEC;
+                    }                  
+                  
+                  ctrlmsg.type = CTRLMSG_TIME;
+                  ctrlmsg.number = secs;
+                  ctrlmsg.second_number = (long) nsecs;
+                  ctrlmsg.pointer = GUINT_TO_POINTER (plugin_index);
+                  
+                  lff_write (procinfo->process_to_ui, &ctrlmsg);
+
+                }
+            }*/
+          
   
-          if (plugin == last_enabled) break;
+          if (plugin == last_enabled)
+            break;
 
         }
       else
@@ -306,7 +367,17 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
                       sizeof(LADSPA_Data) * frames);
             }
         }
+      
+      plugin_index++;
     }
+  
+/*  if (procinfo->time_runs)
+    {
+      if (!time_run_skip)
+        time_run_skip = TIME_RUN_SKIP_COUNT;
+      else
+        time_run_skip--;
+    }*/
 }
 
 int process (jack_nframes_t frames, void * data) {
@@ -506,6 +577,7 @@ process_info_new (ui_t * ui, const char * client_name, unsigned long rack_channe
   procinfo->jack_input_ports = NULL;
   procinfo->jack_output_ports = NULL;
   procinfo->channels = rack_channels;
+  procinfo->time_runs = time_runs;
   
   
   err = process_info_connect_jack (procinfo, ui, client_name);

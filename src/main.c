@@ -54,6 +54,7 @@ unsigned long global_channels  = 2;
 
 gboolean connect_inputs = FALSE;
 gboolean connect_outputs = FALSE;
+gboolean time_runs = TRUE;
 
 #ifdef HAVE_LADCCA
 cca_client_t * global_cca_client;
@@ -94,6 +95,7 @@ void print_help () {
   printf(" -i, --input                 %s\n", _("Connected inputs to the first two physical capture ports"));
   printf(" -o, --output                %s\n", _("Connected outputs to the first two physical playback ports"));
   printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
+/*  printf(" -t, --no-time               %s\n", _("Do not display plugins' execution time")); */
   printf("\n");
 #ifdef HAVE_JACK_SET_SERVER_DIR
   printf(" -D, --tmpdir <dir>          %s\n", _("Tell JACK to use <dir> for its temporary files"));
@@ -107,9 +109,9 @@ int main (int argc, char ** argv) {
   int opt;
 
 #ifdef HAVE_JACK_SET_SERVER_DIR
-  const char * options = "hps:ionc:D:";
+  const char * options = "hps:ionc:tD:";
 #else
-  const char * options = "hps:ionc:";
+  const char * options = "hps:ionc:t";
 #endif /* HAVE_JACK_SET_SERVER_DIR */
 
   struct option long_options[] = {
@@ -121,8 +123,9 @@ int main (int argc, char ** argv) {
 #ifdef HAVE_JACK_SET_SERVER_DIR
     { "tmpdir", 1, NULL, 'D' },
 #endif
-    { "input", 0, NULL, 'i' },
-    { "output", 0, NULL, 'o' },
+    { "input", 1, NULL, 'i' },
+    { "output", 1, NULL, 'o' },
+    { "no-time", 0, NULL, 't' },
     { 0, 0, 0, 0 }
   };
 
@@ -206,6 +209,10 @@ int main (int argc, char ** argv) {
             fprintf (stderr, _("there must be at least one channel\n"));
             exit (1);
           }
+        break;
+      
+      case 't':
+        time_runs = FALSE;
         break;
 
       case ':':

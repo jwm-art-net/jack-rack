@@ -41,6 +41,8 @@
 #include "callbacks.h"
 #include "globals.h"
 
+#define PROCESS_FIFO_SIZE 64
+
 static void
 ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 {
@@ -56,6 +58,9 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 #endif /* HAVE_XML */
   GtkWidget *separator;
   GtkWidget *quit;
+  GtkWidget *rack_menuitem;
+  GtkWidget *rack_menu;
+  GtkWidget *channels_menuitem;  
 #ifdef HAVE_GNOME
   GtkWidget *help_menuitem;
   GtkWidget *help_menu;
@@ -74,10 +79,11 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   file_menuitem = gtk_menu_item_new_with_label (_("File"));
   gtk_widget_show (file_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), file_menuitem);
+
+  rack_menuitem = gtk_menu_item_new_with_label (_("Rack"));
+  gtk_widget_show (rack_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (menubar), rack_menuitem);
   
-  ui->add_menuitem = gtk_menu_item_new_with_label (_("Add"));
-  gtk_widget_show (ui->add_menuitem);
-  gtk_menu_shell_append (GTK_MENU_SHELL (menubar), ui->add_menuitem);
 
 #ifdef HAVE_GNOME  
   help_menuitem = gtk_menu_item_new_with_label (_("Help"));
@@ -141,10 +147,24 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
                     G_CALLBACK (quit_cb), ui);
 
 
-  /* add menu */
+  /* rack menu */
+  rack_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (rack_menuitem), rack_menu);
+  
+  ui->add_menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD, NULL);
+  gtk_widget_show (ui->add_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), ui->add_menuitem);
+
   ui->add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(ui->add_menuitem), ui->add_menu);
 
+  channels_menuitem = gtk_menu_item_new_with_label (_("Channels"));
+  gtk_widget_show (channels_menuitem);
+  gtk_menu_shell_append (GTK_MENU_SHELL (rack_menu), channels_menuitem);
+  g_signal_connect (G_OBJECT (channels_menuitem), "activate",
+                    G_CALLBACK (channel_cb), ui);
+  
+  
 
 #ifdef HAVE_GNOME
   /* help menu */
@@ -194,8 +214,8 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   GtkWidget *toolbar;
   GtkWidget *plugin_scroll;
   GtkWidget *plugin_viewport;
-  GtkWidget *channel_label;
-  GtkWidget *channel_box;
+  GtkWidget *channel_icon;
+  gchar *channel_icon_file;
 
 
   /* main window */
@@ -222,7 +242,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   toolbar = gtk_toolbar_new ();
   gtk_widget_show (toolbar);
   gtk_container_add (GTK_CONTAINER (toolbar_handle), toolbar);
-  gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
 
 
   ui->add = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
@@ -234,28 +253,17 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                             G_OBJECT (ui->add_menu));
                                                          
 
-  /* channel spin */  
-  channel_box = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (channel_box);
-  gtk_toolbar_append_widget (GTK_TOOLBAR (toolbar),
-                             channel_box,
-                             _("Change the number of channels the rack has"),
-                             NULL);
-  
-  
-  ui->channel_spin = gtk_spin_button_new_with_range (1.0, 60, 1.0);
-  gtk_widget_show (ui->channel_spin);
-  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (ui->channel_spin), 0);
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channel_spin), channels);
-  g_signal_connect (G_OBJECT (ui->channel_spin), "value-changed",
-                    G_CALLBACK (channel_cb), ui);
-  gtk_box_pack_start (GTK_BOX (channel_box), ui->channel_spin, FALSE, TRUE, 0);
-  
-
-  channel_label = gtk_label_new (_("Channels"));
-  gtk_widget_show (channel_label);
-  gtk_box_pack_start (GTK_BOX (channel_box), channel_label, FALSE, TRUE, 0);
-                             
+  /* channels */
+  channel_icon_file = g_strdup_printf ("%s/pixmaps/%s", JR_DESKTOP_PREFIX, JACK_RACK_CHANNELS_ICON_FILE);
+  channel_icon = gtk_image_new_from_file (channel_icon_file);
+  g_free (channel_icon_file);
+  gtk_toolbar_append_item (GTK_TOOLBAR (toolbar),
+                           _("Channels"),
+                           _("Change the number of I/O channels the rack has"),
+                           NULL,
+                           channel_icon,
+                           G_CALLBACK (channel_cb), ui);
+                              
   
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
@@ -301,6 +309,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                             _("Quit JACK Rack"),
                             NULL, G_CALLBACK (quit_cb), ui, -1);
 
+  gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
 
                               
 
@@ -387,8 +396,8 @@ ui_new (const char * jack_client_name, unsigned long channels)
   ui->cca_save_menu_item = NULL;
 #endif
 
-  ui->ui_to_process = lff_new (32, sizeof (ctrlmsg_t));
-  ui->process_to_ui = lff_new (32, sizeof (ctrlmsg_t));
+  ui->ui_to_process = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
+  ui->process_to_ui = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
 
   ui->jack_client_name = g_strdup (jack_client_name);
 
@@ -577,8 +586,6 @@ ui_set_channels (ui_t * ui, unsigned long channels)
   g_signal_connect_swapped (G_OBJECT (ui->add), "event",
                             G_CALLBACK (plugin_button_cb),
                             G_OBJECT (ui->add_menu));
-  
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channel_spin), channels);
   
   jack_activate (ui->procinfo->jack_client);
 }

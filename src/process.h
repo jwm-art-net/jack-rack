@@ -50,6 +50,8 @@ struct _process_info {
   lff_t * ui_to_process;
   lff_t * process_to_ui;
   lff_t * midi_to_process;
+  
+  gboolean time_runs;
 };
 
 extern jack_nframes_t sample_rate;

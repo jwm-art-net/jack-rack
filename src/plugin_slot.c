@@ -281,6 +281,13 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
                       plugin_slot->enable, FALSE, FALSE, 0);
 
 
+  /* time output */
+/*  plugin_slot->time = gtk_label_new (NULL);
+  gtk_widget_show (plugin_slot->time);
+  gtk_box_pack_start (GTK_BOX (plugin_slot->top_controls),
+                      plugin_slot->time, FALSE, FALSE, 6); */
+  
+  
 
   /* sort out the port controls */
   if (plugin_slot->plugin->copies > 1

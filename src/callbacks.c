@@ -62,27 +62,50 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
 }
 
 void
-channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
+channel_cb (GtkWidget * widget, gpointer user_data)
 {
   ui_t * ui;
   unsigned long channels;
+  GtkWidget * dialog;
+  GtkWidget * spin;
+  GtkWidget * warning;
+  gint response;
   
   ui = (ui_t *) user_data;
-  channels = (unsigned long) gtk_spin_button_get_value (GTK_SPIN_BUTTON (spinbutton));
+  
+  dialog = gtk_dialog_new_with_buttons ("I/O Channels",
+                                        GTK_WINDOW (ui->main_window),
+                                        GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
+                                        GTK_STOCK_OK,     GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                        NULL);
+  
+  spin = gtk_spin_button_new_with_range (1.0, 60, 1.0);
+  gtk_widget_show (spin);
+  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (spin), 0);
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (spin), ui->jack_rack->channels);
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), spin);
+
+  warning = gtk_label_new ("Warning: changing the number of\nchannels will clear the current rack");
+  gtk_widget_show (warning);
+  gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), warning);
+  
+  
+  response = gtk_dialog_run (GTK_DIALOG (dialog));
+  
+  if (response != GTK_RESPONSE_ACCEPT)
+    {
+      gtk_widget_destroy (dialog);
+      return;
+    }
+  
+  channels = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
+  
+  gtk_widget_destroy (dialog);
   
   if (channels == ui->jack_rack->channels)
     return;
   
-/*  if (ui->jack_rack->slots)
-    {
-      gboolean ok;
-      
-      ok = ui_get_ok (ui, _("Changing the number of channels will clear the current rack.\n\nAre you sure you want to do this?"));
-      
-      if (!ok)
-        return; 
-    }*/
-
   ui_set_channels (ui, channels);
 }
 
@@ -760,6 +783,20 @@ gboolean idle_cb (gpointer data) {
       case CTRLMSG_QUIT:
         gtk_main_quit ();
         break;
+        
+/*      case CTRLMSG_TIME:
+        {
+          char * time;
+
+          plugin_slot = jack_rack_get_plugin_slot (jack_rack, GPOINTER_TO_UINT (ctrlmsg.pointer));
+
+          time = g_strdup_printf ("Time: %lds:%ldu", ctrlmsg.number, ctrlmsg.second_number);
+
+          gtk_label_set_text (GTK_LABEL (plugin_slot->time), time);
+
+          g_free (time);
+          break;
+        } */
       }
     }
 

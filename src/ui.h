@@ -60,7 +60,6 @@ struct _ui
   GtkWidget *       add;
   GtkWidget *       add_menuitem;
   GtkWidget *       add_menu;
-  GtkWidget *       channel_spin;
 #ifdef HAVE_LADCCA
   GtkWidget *       cca_save;
   GtkWidget *       cca_save_menu_item;

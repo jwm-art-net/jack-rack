@@ -26,7 +26,8 @@
 #include <gtk/gtk.h>
 
 void     add_cb            (GtkMenuItem * menuitem, gpointer user_data);
-void     channel_cb        (GtkSpinButton *spinbutton, gpointer user_data);
+/*void     channel_cb        (GtkSpinButton *spinbutton, gpointer user_data); */
+void     channel_cb        (GtkWidget * button, gpointer user_data);
 void     new_cb            (GtkWidget * button, gpointer user_data);
 #ifdef HAVE_XML
 void     open_cb           (GtkButton * button, gpointer user_data);

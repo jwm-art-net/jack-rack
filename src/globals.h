@@ -33,6 +33,7 @@ extern cca_client_t * global_cca_client;
 
 #define JACK_RACK_LOGO_FILE "jack-rack-logo.png"
 #define JACK_RACK_ICON_FILE "jack-rack-icon.png"
+#define JACK_RACK_CHANNELS_ICON_FILE "gnome-mixer-small.png"
 #define JACK_RACK_URL "http://pkl.net/~node/jack-rack.html"
 
 
@@ -52,5 +53,6 @@ extern struct _ui * global_ui;
 
 extern gboolean connect_inputs;
 extern gboolean connect_outputs;
+extern gboolean time_runs;
 
 #endif /* __JLH_GLOBALS_H__ */

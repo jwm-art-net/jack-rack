@@ -32,11 +32,13 @@ typedef enum { CTRLMSG_ADD,
                CTRLMSG_CHANGE,
                CTRLMSG_CLEAR,
                CTRLMSG_QUIT,
+               CTRLMSG_TIME
              } ctrlmsg_type_t;
 
 typedef struct ctrlmsg {
   ctrlmsg_type_t type;
-  gint number;
+  long number;
+  long second_number;
   gpointer pointer;
   gpointer second_pointer;
 } ctrlmsg_t;
