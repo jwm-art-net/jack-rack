@@ -14,6 +14,7 @@
   line option.
 * save files now use an XML format (which is incompatible with the previous
   format, sorry)
+* port connecting works now, -i to connect inputs, -o to connect outputs
 
 
 1.1.2:

@@ -105,8 +105,6 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
   if (desc->control_port_count == 0)
     return;
   
-  printf ("%s: copies: %d\n", __FUNCTION__, copies);
-  
   if (copies > 1)
     {
       gboolean lock_all;

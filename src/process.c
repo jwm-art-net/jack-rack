@@ -52,7 +52,6 @@ int process_control_messages (process_info_t * procinfo) {
     
       /* add a link to the end of the plugin chain */
       case CTRLMSG_ADD:
-        printf ("%s: adding plugin\n", __FUNCTION__);
         plugin = ctrlmsg.pointer;
         process_add_plugin (procinfo, plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);

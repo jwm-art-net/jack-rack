@@ -73,7 +73,7 @@ channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
   if (channels == ui->jack_rack->channels)
     return;
   
-  if (ui->jack_rack->slots)
+/*  if (ui->jack_rack->slots)
     {
       gboolean ok;
       
@@ -81,7 +81,7 @@ channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
       
       if (!ok)
         return; 
-    }
+    }*/
 
   ui_set_channels (ui, channels);
 }

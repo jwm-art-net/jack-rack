@@ -243,13 +243,13 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                              NULL);
   
   
-  ui->channels = gtk_spin_button_new_with_range (1.0, 60, 1.0);
-  gtk_widget_show (ui->channels);
-  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (ui->channels), 0);
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channels), channels);
-  g_signal_connect (G_OBJECT (ui->channels), "value-changed",
+  ui->channel_spin = gtk_spin_button_new_with_range (1.0, 60, 1.0);
+  gtk_widget_show (ui->channel_spin);
+  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (ui->channel_spin), 0);
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channel_spin), channels);
+  g_signal_connect (G_OBJECT (ui->channel_spin), "value-changed",
                     G_CALLBACK (channel_cb), ui);
-  gtk_box_pack_start (GTK_BOX (channel_box), ui->channels, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (channel_box), ui->channel_spin, FALSE, TRUE, 0);
   
 
   channel_label = gtk_label_new (_("Channels"));
@@ -578,7 +578,7 @@ ui_set_channels (ui_t * ui, unsigned long channels)
                             G_CALLBACK (plugin_button_cb),
                             G_OBJECT (ui->add_menu));
   
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channels), channels);
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channel_spin), channels);
   
   jack_activate (ui->procinfo->jack_client);
 }

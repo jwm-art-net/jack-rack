@@ -246,6 +246,12 @@ plugin_mgr_new (ui_t * ui)
 
   plugin_mgr_get_path_plugins (ui, pm);
   
+  if (!pm->all_plugins)
+    {
+      ui_display_error (ui, "No LADSPA plugins were found!\n\nCheck your LADSPA_PATH environment variable.");
+      abort ();
+    }
+  
   pm->all_plugins = g_slist_sort (pm->all_plugins, plugin_mgr_sort);
   
   return pm;
@@ -537,7 +543,6 @@ plugin_mgr_get_menu (plugin_mgr_t * plugin_mgr,
                      GCallback callback,
                      gpointer data)
 {
-  printf ("getting menu\n");
   return plugin_mgr_create_alphabet_menu (plugin_mgr->plugins, callback, data);
 }
 
@@ -559,11 +564,7 @@ plugin_mgr_get_dir_uris (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * dir)
   
   dir_stream = opendir (dir);
   if (!dir_stream)
-    {
-/*      fprintf (stderr, "%s: error opening directory '%s': %s\n",
-               __FUNCTION__, dir, strerror (errno));*/
-      return;
-    }
+    return;
   
   dirlen = strlen (dir);
   

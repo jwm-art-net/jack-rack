@@ -3,7 +3,8 @@
 ====================
 
 JACK Rack is a stereo LADSPA effects rack for the JACK audio API.  It uses
-GTK+ 2 (and optionally GNOME 2) for the gui.  LADSPA version 1.1 is needed.
+GTK+ 2 (and optionally GNOME 2) for the gui.  LADSPA version 1.1 is needed. 
+In order to save rack configurations, libxml2 is needed.
 
 It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
 needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn
@@ -27,26 +28,28 @@ them be installed under the autoconf prefix with --disable-desktop-inst.
  Running
 ---------
 
-If you're running jackd as root, you need to run JACK Rack as root as well.
 Assuming you have some ladspa plugins installed, make sure you have your
 LADSPA_PATH environment variable set to include them.  If you don't have any
 ladspa plugins installed, head over to http://plugin.org.uk/ and grab Steve
 Harris's excellent plugin collection.
 
-JACK Rack doesn't do any port connecting, so you'll need a JACK patchbay,
-only one of which exists atm, QJackConnect, available from
-http://www.suse.de/~mana/jack.html.  Or you can use jack_connect.
+JACK Rack doesn't do any port connecting by default, so you might want to
+use QJackConnect or jack_connect to connect it up.  Alternatively, if you
+use the -i command line option, JACK Rack will try to connect its input
+ports to the capture ports of whatever physical devices are in the system. 
+The -o option works similarly for the outputs.
 
 When you lock a line of controls, all but one of the controls will be
 hidden.  Using the Lock button, this will be the first control. This can
-hinder things if you want to replicate a control which isn't the first.  In
+hinder things if you want to replicate a value which isn't the first.  In
 this case, you can hold down the CTRL key and click on the control you want
 to remain visible.  The line will lock, but the clicked-on control will be
-the visible one.
+the visible one.  Clicking with mouse button 3 works similarly, but with
+Lock All instead.
 
  Contact
 ---------
 
 Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
 (subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
-New versions will be available from http://sf.net/projects/jack-rack.
+New versions will be available from http://pkl.net/~node/jack-rack.html
