@@ -368,6 +368,8 @@ void slot_lock_all_cb (GtkToggleButton * button, gpointer user_data) {
     
   }
   
+  plugin_slot_show_controls (plugin_slot);
+  
 }
 
 void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
@@ -378,9 +380,7 @@ void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
   port_controls->locked = gtk_toggle_button_get_active (button);
   settings_set_lock (port_controls->plugin_slot->settings, port_controls->control_index, port_controls->locked);
 
-/*  port_controls_holder->plugin_slot->
-    plugin_settings[port_controls_holder->plugin_slot->plugin->collection_index].
-    locks[port_controls_holder->port_index] = port_controls_holder->locked; */
+  plugin_slot_show_controls (port_controls->plugin_slot);
 }
 
 static void
@@ -397,6 +397,7 @@ set_widget_text_colour (GtkWidget * widget, const char * colour_str)
 }
 
 void control_float_cb (GtkRange * range, gpointer user_data) {
+  GtkAdjustment * adjustment;
   port_controls_t * port_controls;
   gchar * str;
   LADSPA_Data value;
@@ -413,13 +414,14 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
     
   /* write to the fifo */
   lff_write (port_controls->controls[copy].control_fifo, &value);
+  
+  adjustment = gtk_range_get_adjustment (GTK_RANGE (port_controls->controls[copy].control));
     
   /* print the value in the text box */
-  printf ("%s: text: %p\n", __FUNCTION__, port_controls->controls[copy].text);
   gtk_entry_set_text (GTK_ENTRY(port_controls->controls[copy].text), str);
     
   /* store the value */
-  settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, value);
+  settings_set_control_value (port_controls->plugin_slot->settings, copy, port_controls->control_index, value);
               
     
   /* possibly set our peers */
@@ -431,7 +433,6 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
         {
           if (i != copy)
             {
-              printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
               gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
                                    gtk_range_get_value (range));
             }
@@ -452,6 +453,8 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   char * endptr;
   GtkAdjustment * adjustment;
   gint copy;
+
+  printf ("%s: boo\n", __FUNCTION__);
   
   port_controls = (port_controls_t *) user_data;
   copy = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(entry), "jack-rack-plugin-copy"));
@@ -481,13 +484,15 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
     {
       gint i;
-      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+      for (i = 0; i < copy; i++)
         {
-          if (i != copy)
-            {
-              printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
-              gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
-            }
+          printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
+          gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
+        }
+      for (i = copy + 1; i < port_controls->plugin_slot->plugin->copies; i++)
+        {
+          printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
+          gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
         }
     }
   
@@ -501,6 +506,8 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   LADSPA_Data data;
   int copy;
   
+  printf ("%s: boo\n", __FUNCTION__);
+  
   port_controls = (port_controls_t *) user_data;
   
   on = gtk_toggle_button_get_active (button);
@@ -513,7 +520,7 @@ void control_bool_cb (GtkToggleButton * button, gpointer user_data) {
   lff_write (port_controls->controls[copy].control_fifo, &data);
   
   /* store value */
-  settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, data);
+  settings_set_control_value (port_controls->plugin_slot->settings, copy, port_controls->control_index, data);
   
   /* possibly set other controls */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
@@ -534,6 +541,8 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   LADSPA_Data data;
   int copy;
   
+  printf ("%s: boo\n", __FUNCTION__);
+  
   port_controls = (port_controls_t *) user_data;
   
   value = gtk_spin_button_get_value_as_int (spinbutton);
@@ -546,7 +555,7 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   lff_write (port_controls->controls[copy].control_fifo, &data);
   
   /* store value */
-  settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, data);
+  settings_set_control_value (port_controls->plugin_slot->settings, copy, port_controls->control_index, data);
       
   /* possibly set other controls */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)

@@ -42,6 +42,7 @@
 #include "ui.h"
 #include "ac_config.h"
 #include "callbacks.h"
+#include "globals.h"
 
 ui_t *        global_ui        = NULL;
 unsigned long global_channels  = 2;

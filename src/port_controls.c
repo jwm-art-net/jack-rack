@@ -68,17 +68,14 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
     }
 
 /*  printf ("%s: lower: %f, upper: %f, %s\n", __FUNCTION__, lower, upper,
-          LADSPA_IS_HINT_SAMPLE_RATE (desc->port_range_hints[port_index].HintDescriptor)
-          ? "sample rate adjusted" : "normal");*/
+  ›       LADSPA_IS_HINT_SAMPLE_RATE (desc->port_range_hints[port_index].HintDescriptor)
+          ? "sample rate adjusted" : "normal"); */
 
   if (!(lower < upper))
     {
       printf ("%s: lower !< upper!\n", __FUNCTION__);
     }
-  widget =
-    gtk_hscale_new_with_range ((gdouble) lower, (gdouble) upper,
-                               (upper - lower) / 10.0);
-  printf ("%s: range: %p\n", __FUNCTION__, widget);
+  widget = gtk_hscale_new_with_range ((gdouble) lower, (gdouble) upper, (upper - lower) / 10.0);
   gtk_scale_set_draw_value (GTK_SCALE (widget), FALSE);
   gtk_scale_set_digits (GTK_SCALE (widget), 8);
   gtk_range_set_increments (GTK_RANGE (widget), (upper - lower) / 1000.0,
@@ -221,13 +218,14 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
   desc = plugin_slot->plugin->desc;
   descriptor = plugin_slot->plugin->descriptor;
   copies = plugin_slot->plugin->copies;
+  
+  printf ("%s: copies: %d\n", __FUNCTION__, copies);
 
   if (copies > 1)
     {
       /* lock control */
       port_controls->locked = TRUE;
       port_controls->lock = gtk_toggle_button_new_with_label (_("Lock"));
-      gtk_widget_show (port_controls->lock);
       g_signal_connect (G_OBJECT (port_controls->lock), "toggled",
                         G_CALLBACK (control_lock_cb), port_controls);
       gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
@@ -260,6 +258,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
       switch (port_controls->type)
         {
         case JR_CTRL_FLOAT:
+          printf ("%s: float copy: %d\n", __FUNCTION__, i);
           port_controls->controls[i].control =
             create_float_control (desc, port_controls->port_index);
           g_signal_connect (G_OBJECT (port_controls->controls[i].control), "value-changed",
@@ -301,12 +300,11 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
           port_controls->controls[i].text = NULL;
           break;
         }
-
-      g_object_set_data (G_OBJECT
-                         (port_controls->controls[i].control),
-                         "jack-rack-plugin-copy", GINT_TO_POINTER (i));
-
+      
       gtk_widget_show (port_controls->controls[i].control);
+
+      g_object_set_data (G_OBJECT (port_controls->controls[i].control),
+                         "jack-rack-plugin-copy", GINT_TO_POINTER (i));
 
       /* pack the controls */
       switch (port_controls->type)
@@ -314,8 +312,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
         case JR_CTRL_FLOAT:
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].control,
-                            /* left-most column */ (i * 2 + 1) + 1,
-                            /* right-most column */ (i * 2 + 1) + 2,
+                            /* left-most column */ i * 2 + 2,
+                            /* right-most column */ i * 2 + 3,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_EXPAND | GTK_FILL,
@@ -324,8 +322,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
                             /* y padding */ 0);
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].text,
-                            /* left-most column */ (i * 2 + 1) + 2,
-                            /* right-most column */ (i * 2 + 1) + 3,
+                            /* left-most column */ i * 2 + 3,
+                            /* right-most column */ i * 2 + 4,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_FILL,
@@ -338,8 +336,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
         case JR_CTRL_BOOL:
           gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                             port_controls->controls[i].control,
-                            /* left-most column */ (i * 2 + 1) + 1,
-                            /* right-most column */ (i * 2 + 1) + 3,
+                            /* left-most column */ i * 2 + 2,
+                            /* right-most column */ i * 2 + 4,
                             /* upper-most row */ port_controls->control_index,
                             /* lower-most row */ port_controls->control_index + 1,
                             /* x pack options */ GTK_EXPAND | GTK_FILL,

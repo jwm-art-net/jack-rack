@@ -155,7 +155,7 @@ jack_rack_read_filea (jack_rack_t * jack_rack, FILE * file, const char * filenam
           return 1;
         }
         
-      settings = settings_new (desc, sample_rate);
+      settings = settings_new (desc, 2, sample_rate);
       saved_plugin = saved_plugin_new ();
       saved_plugin->desc = desc;
       saved_plugin->settings = settings;

@@ -146,6 +146,7 @@ jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
     }
 
   /* create the plugin_slot */
+  settings = NULL;
   plugin_slot = plugin_slot_new (jack_rack, plugin, settings);
   
   if (settings)

@@ -39,6 +39,45 @@
 #define CONTROL_FIFO_SIZE     256
 #define TEXT_BOX_CHARS        -1
 
+void
+plugin_slot_show_controls (plugin_slot_t * plugin_slot)
+{
+  unsigned long control;
+  gint copy;
+  port_controls_t * port_controls;
+  gboolean lock_all;
+  
+  if (plugin_slot->plugin->desc->control_port_count == 0)
+    return;
+  
+  lock_all = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (plugin_slot->lock_all));
+  
+  for (control = 0; control < plugin_slot->plugin->desc->control_port_count; control++)
+    {
+      port_controls = plugin_slot->port_controls + control;
+
+      for (copy = 1; copy < plugin_slot->plugin->copies; copy++)
+        {
+          if (lock_all || port_controls->locked)
+            {
+              gtk_widget_hide (port_controls->controls[copy].control);
+              if (port_controls->type == JR_CTRL_FLOAT)
+                gtk_widget_hide (port_controls->controls[copy].text);
+            }
+          else
+            {
+              gtk_widget_show (port_controls->controls[copy].control);
+              if (port_controls->type == JR_CTRL_FLOAT)
+                gtk_widget_show (port_controls->controls[copy].text);
+            }
+        }
+      
+      if (lock_all)
+        gtk_widget_hide (port_controls->lock);
+      else
+        gtk_widget_show (port_controls->lock);
+    }
+}
 
 static void
 plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
@@ -78,7 +117,7 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
       port_controls = plugin_slot->port_controls + control;
       for (copy = 0; copy < copies; copy++)
         {
-          value = settings_get_control_value (settings, control, copy);
+          value = settings_get_control_value (settings, copy, control);
           switch (port_controls->type)
             {
             case JR_CTRL_FLOAT:
@@ -264,15 +303,7 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   plugin_slot->enabled = FALSE;
 
   /* create plugin settings */
-  plugin_slot->all_settings = settings_collection_new (jack_rack->ui->plugin_mgr, sample_rate);
-  plugin_slot->settings = settings_collection_get_settings (plugin_slot->all_settings,
-                                                            plugin->desc->id);
-  if (!plugin_slot->settings)
-    {
-      fprintf (stderr, "%s: programming error: no settings for plugin slot!\n",
-               __FUNCTION__);
-      abort ();
-    }
+  plugin_slot->settings = settings_new (plugin->desc, plugin->copies, sample_rate);
 
   /* create the gui */
   plugin_slot_init_gui (plugin_slot);
@@ -282,7 +313,8 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
     plugin_slot_set_controls (plugin_slot, saved_settings);
   else
     plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
-    
+  
+  plugin_slot_show_controls (plugin_slot);
   
   return plugin_slot;
 }
@@ -326,13 +358,8 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
 
   plugin_slot->plugin = plugin;
   plugin_slot->enabled = FALSE;
-  plugin_slot->settings = settings_collection_get_settings (plugin_slot->all_settings, plugin->desc->id);
-  if (!plugin_slot->settings)
-    {
-      fprintf (stderr, "%s: programming error: no settings for plugin slot!\n",
-               __FUNCTION__);
-      abort ();
-    }
+  settings_destroy (plugin_slot->settings);
+  plugin_slot->settings = settings_new (plugin->desc, plugin->copies, sample_rate);
   
   /* create the new port controls */
   if (plugin->desc->control_port_count > 0)

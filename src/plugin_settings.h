@@ -29,41 +29,28 @@
 #include "plugin_desc.h"
 
 typedef struct _settings settings_t;
-typedef struct _settings_collection settings_collection_t;
 
 struct _settings
 {
+  jack_nframes_t sample_rate;
   plugin_desc_t * desc;
+  gint copies;
   LADSPA_Data ** control_values;
   gboolean * locks;
   gboolean lock_all;
 };
 
-struct _settings_collection
-{
-  GSList * settings;
-  jack_nframes_t sample_rate;
-};
-
-settings_collection_t * settings_collection_new     (plugin_mgr_t * plugin_mgr, jack_nframes_t sample_rate);
-void                    settings_collection_destroy (settings_collection_t * collection);
-
-void settings_collection_change_sample_rate (settings_collection_t * collection, jack_nframes_t sample_rate);      
-settings_t * settings_collection_get_settings (settings_collection_t * collection, unsigned long plugin_id);
-
-
-
-settings_t * settings_new     (plugin_desc_t * desc, jack_nframes_t sample_rate);
+settings_t * settings_new     (plugin_desc_t * desc, gint copies, jack_nframes_t sample_rate);
 void         settings_destroy (settings_t * settings);
 
-void settings_set_control_value (settings_t * settings, unsigned long control_index, unsigned long copy, LADSPA_Data value);
+void settings_set_control_value (settings_t * settings, gint copy, unsigned long control_index, LADSPA_Data value);
 void settings_set_lock          (settings_t * settings, unsigned long control_index, gboolean locked);
 void settings_set_lock_all      (settings_t * settings, gboolean lock_all);
 
-LADSPA_Data settings_get_control_value (const settings_t * settings, unsigned long control_index, unsigned long copy);
+LADSPA_Data settings_get_control_value (const settings_t * settings, gint copy, unsigned long control_index);
 gboolean    settings_get_lock          (const settings_t * settings, unsigned long control_index);
 gboolean    settings_get_lock_all      (const settings_t * settings);
 
-void settings_change_sample_rate (settings_t * settings, LADSPA_Data old_sample_rate, LADSPA_Data new_sample_rate);
+void settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate);
 
 #endif /* __JR_PLUGIN_SETTINGS_H__ */

@@ -18,87 +18,24 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <math.h>
+
 #include "plugin_settings.h"
 
-#define PLUGIN_COPIES 50
-
-static void
-settings_collection_create_settings (settings_collection_t * collection, plugin_mgr_t * plugin_mgr)
-{
-  GSList * list;
-  settings_t * settings;
-  
-  for (list = plugin_mgr->plugins; list; list = g_slist_next (list))
-    {
-      settings = settings_new ((plugin_desc_t *) list->data, collection->sample_rate);
-      collection->settings = g_slist_append (collection->settings, settings);
-    }
-}
-
-settings_collection_t *
-settings_collection_new (plugin_mgr_t * plugin_mgr, jack_nframes_t sample_rate)
-{
-  settings_collection_t * collection;
-  
-  collection = g_malloc (sizeof (settings_collection_t));
-  
-  collection->sample_rate = sample_rate;
-  collection->settings = NULL;
-  
-  settings_collection_create_settings (collection, plugin_mgr);
-  
-  return collection;
-}
-
-void settings_collection_destroy (settings_collection_t * collection);
-
-void
-settings_collection_change_sample_rate (settings_collection_t * collection, jack_nframes_t sample_rate)
-{
-  GSList * list;
-  
-  if (sample_rate == collection->sample_rate)
-    return;
-  
-  for (list = collection->settings; list; list = g_slist_next (list))
-    settings_change_sample_rate ((settings_t *) list->data,
-                                 (LADSPA_Data) collection->sample_rate,
-                                 (LADSPA_Data) sample_rate);
-  
-  collection->sample_rate = sample_rate;
-}
-
-static gint
-settings_collection_find_settings (gconstpointer a, gconstpointer b)
-{
-  const settings_t * settings = (const settings_t *) a;
-  const unsigned long * plugin_id = (const unsigned long *) b;
-  
-  return settings->desc->id == *plugin_id ? 0 : 1;
-}
-
-
-settings_t *
-settings_collection_get_settings (settings_collection_t * collection, unsigned long plugin_id)
-{
-  GSList * settings;
-  settings = g_slist_find_custom (collection->settings, &plugin_id,
-                                   settings_collection_find_settings);
-  return settings->data;
-}
 
 
 static void
 settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
 {
-  unsigned long copy, control;
+  unsigned long control;
+  gint copy;
   LADSPA_Data value;
   
   for (control = 0; control < settings->desc->control_port_count; control++)
     {
       value = plugin_desc_get_default_control_value (settings->desc, control, sample_rate);
 
-      for (copy = 0; copy < PLUGIN_COPIES; copy++)
+      for (copy = 0; copy < settings->copies; copy++)
         {
           settings->control_values[copy][control] = value;
         }
@@ -108,26 +45,30 @@ settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
 }
 
 settings_t *
-settings_new     (plugin_desc_t * desc, jack_nframes_t sample_rate)
+settings_new     (plugin_desc_t * desc, gint copies, jack_nframes_t sample_rate)
 {
   settings_t * settings;
   
   settings = g_malloc (sizeof (settings_t));
   
+  settings->sample_rate = sample_rate;
   settings->desc = desc;
+  settings->copies = copies;
   settings->lock_all = TRUE;
   settings->locks = NULL;
   settings->control_values = NULL;
   
   if (desc->control_port_count > 0)
     {
-      unsigned long copy;
+      gint copy;
       
       settings->locks = g_malloc (sizeof (gboolean) * desc->control_port_count);
 
-      settings->control_values = g_malloc (sizeof (LADSPA_Data *) * PLUGIN_COPIES);
-      for (copy = 0; copy < PLUGIN_COPIES; copy++)
-        settings->control_values[copy] = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
+      settings->control_values = g_malloc (sizeof (LADSPA_Data *) * copies);
+      for (copy = 0; copy < copies; copy++)
+        {
+          settings->control_values[copy] = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
+        }
       
       settings_set_to_default (settings, sample_rate);
     }
@@ -138,11 +79,10 @@ settings_new     (plugin_desc_t * desc, jack_nframes_t sample_rate)
 void
 settings_destroy (settings_t * settings)
 {
-  if (settings->desc->control_port_count)
+  if (settings->desc->control_port_count > 0)
     {
-      unsigned long i;
-      
-      for (i = 0; i < PLUGIN_COPIES; i++)
+      gint i;
+      for (i = 0; i < settings->copies; i++)
         g_free (settings->control_values[i]);
 
       g_free (settings->control_values);
@@ -152,27 +92,69 @@ settings_destroy (settings_t * settings)
   g_free (settings);
 }
 
-void
-settings_set_control_value (settings_t * settings, unsigned long control_index, unsigned long copy, LADSPA_Data value)
+static void
+settings_set_copies (settings_t * settings, gint copies)
 {
+  gint copy;
+  gint last_copy;
+  unsigned long control;
+  
+  g_return_if_fail (copies <= settings->copies);
+  
+  last_copy = settings->copies - 1;
+  
+  settings->control_values = g_realloc (settings->control_values,
+                                        sizeof (LADSPA_Data *) * copies);
+  
+  /* copy over the last settings to the new copies */
+  for (copy = settings->copies; copy < copies; copy++)
+    {
+      for (control = 0; control < settings->desc->control_port_count; control++)
+        {
+          settings->control_values[copy][control] = 
+            settings->control_values[last_copy][control];
+        }
+    }
+  
+  settings->copies = copies;
+}
+
+void
+settings_set_control_value (settings_t * settings, gint copy, unsigned long control_index, LADSPA_Data value)
+{
+  g_return_if_fail (settings != NULL);
+  g_return_if_fail (control_index < settings->desc->control_port_count);
+  
+  if (copy >= settings->copies)
+    settings_set_copies (settings, copy - 1);
+  
   settings->control_values[copy][control_index] = value;
 }
 
 void
 settings_set_lock          (settings_t * settings, unsigned long control_index, gboolean locked)
 {
+  g_return_if_fail (settings != NULL);
+  g_return_if_fail (control_index < settings->desc->control_port_count);
+  
   settings->locks[control_index] = locked;
 }
 
 void
 settings_set_lock_all (settings_t * settings, gboolean lock_all)
 {
+  g_return_if_fail (settings != NULL);
+
   settings->lock_all = lock_all;
 }
 
 LADSPA_Data
-settings_get_control_value (const settings_t * settings, unsigned long control_index, unsigned long copy)
+settings_get_control_value (const settings_t * settings, gint copy, unsigned long control_index)
 {
+  g_return_val_if_fail (settings != NULL, NAN);
+  g_return_val_if_fail (copy < settings->copies, NAN);
+  g_return_val_if_fail (control_index < settings->desc->control_port_count, NAN);
+
   return settings->control_values[copy][control_index];
 }
 
@@ -189,15 +171,24 @@ settings_get_lock_all      (const settings_t * settings)
 }
 
 void
-settings_change_sample_rate (settings_t * settings, LADSPA_Data old_sample_rate, LADSPA_Data new_sample_rate)
+settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
 {
-  if (settings->desc->control_port_count)
+  LADSPA_Data old_sample_rate;
+  LADSPA_Data new_sample_rate;
+
+  g_return_if_fail (settings != NULL);
+
+  if (settings->desc->control_port_count > 0)
     {
-      unsigned long copy, control;
+      unsigned long control;
+      gint copy;
+      
+      new_sample_rate = (LADSPA_Data) sample_rate;
+      old_sample_rate = (LADSPA_Data) settings->sample_rate;
 
       for (control = 0; control < settings->desc->control_port_count; control++)
         {
-          for (copy = 0; copy < PLUGIN_COPIES; copy++)
+          for (copy = 0; copy < settings->copies; copy++)
             {
               if (LADSPA_IS_HINT_SAMPLE_RATE (settings->desc->port_range_hints[control].HintDescriptor))
                 {
@@ -207,6 +198,8 @@ settings_change_sample_rate (settings_t * settings, LADSPA_Data old_sample_rate,
             }
         }
     }
+  
+  settings->sample_rate = sample_rate;
 }
 
 /* EOF */

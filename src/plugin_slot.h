@@ -36,7 +36,6 @@ typedef struct _plugin_slot plugin_slot_t;
 struct _plugin_slot
 {
   plugin_t * plugin;
-  settings_collection_t * all_settings;
   settings_t * settings;
   gint enabled;
   
@@ -60,5 +59,6 @@ plugin_slot_t * plugin_slot_new     (struct _jack_rack * jack_rack, plugin_t * p
 void            plugin_slot_destroy (plugin_slot_t * plugin_slot);
 
 void plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin);
+void plugin_slot_show_controls (plugin_slot_t * plugin_slot);
 
 #endif /* __JR_PLUGIN_SLOT_H__ */

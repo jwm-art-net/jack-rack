@@ -89,9 +89,12 @@ int lff_write (lff_t * lff, void * data) {
 
   /* lots of logic for when we're allowed to write to the fifo which basically
      boils down to "don't write if we're one element behind the read index" */  
-  if ((ri > lff->write_index && ri - lff->write_index > 1) ||
+/*  if ((ri > lff->write_index && ri - lff->write_index > 1) ||
       (lff->write_index >= ri && lff->write_index != lff->size - 1) ||
-      (lff->write_index >= ri && lff->write_index == lff->size - 1 && ri != 0)) {
+      (lff->write_index >= ri && lff->write_index == lff->size - 1 && ri != 0)) { */
+
+  if ((ri > lff->write_index && ri - lff->write_index > 1) ||
+      (lff->write_index >= ri && (lff->write_index != lff->size - 1 || ri != 0))) {
 
     memcpy (((char *)lff->data) + (lff->write_index * lff->object_size),
             data, lff->object_size);
