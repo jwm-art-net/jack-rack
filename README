@@ -13,8 +13,8 @@ needs raptor, available from http://www.redland.opensource.ac.uk/raptor/.
  Feedback
 ----------
 
-It would be very much appreciated if you could provide some user-perspective
-feedback here: http://pkl.net/~node/feedback.html
+# It would be very much appreciated if you could provide some user-perspective
+# feedback here: http://pkl.net/~node/feedback.html
 
  Compilation
 -------------
@@ -56,4 +56,5 @@ Lock All instead.
 
 Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
 (subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
-New versions will be available from http://pkl.net/~node/jack-rack.html
+New versions will be available from http://arb.bash.sh/~rah/software/jack-rack/ .
+There is an IRC channel, irc://irc.oftc.net/#jack-rack.
