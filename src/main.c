@@ -125,21 +125,24 @@ int main (int argc, char ** argv) {
     { "output", 0, NULL, 'o' },
     { 0, 0, 0, 0 }
   };
-  
-  /* fuck the gnome popt bollocks */
-  for (opt = 1; opt < argc; opt++)
-    if (strcmp (argv[opt], "-h") == 0 ||
-        strcmp (argv[opt], "--help") == 0)
-      {
-        print_help ();
-        exit (0);
-      }
 
 #ifdef HAVE_LADCCA
   char * ladcca_client_name = NULL;
   cca_args_t * cca_args;
   cca_event_t * cca_event;
 #endif  
+  
+
+  /* fuck the gnome popt bollocks */
+  for (opt = 1; opt < argc; opt++)
+    {
+      if (strcmp (argv[opt], "-h") == 0 ||
+          strcmp (argv[opt], "--help") == 0)
+        {
+          print_help ();
+          exit (0);
+        }
+    }
 
 
 #ifdef HAVE_LADCCA
