@@ -23,27 +23,26 @@
 
 #include "ac_config.h"
 
-#include <stdio.h>
+#ifdef HAVE_XML
 
-#include "jack_rack.h"
-#include "plugin_desc.h"
+#include <jack/jack.h>
+#include <glib.h>
 
-typedef struct _saved_plugin saved_plugin_t;
+#include "ui.h"
 
-struct _saved_plugin
+typedef struct _saved_rack saved_rack_t;
+
+struct _saved_rack
 {
-  gboolean        enabled;
-  settings_t *    settings;  
-  plugin_desc_t * desc;
+  unsigned long  channels;
+  jack_nframes_t sample_rate;
+  GSList *       settings;
 };
 
+int ui_save_file (ui_t * ui, const char * filename);
+int ui_open_file (ui_t * ui, const char * filename);
 
-saved_plugin_t * saved_plugin_new ();
-void             saved_plugin_destroy (saved_plugin_t * saved_plugin);
 
-
-void jack_rack_open_file (jack_rack_t * jack_rack, const char * filename);
-void jack_rack_save_file (jack_rack_t * jack_rack, const char * filename);
-
+#endif /* HAVE_XML */
 
 #endif /* __JR_FILE_H__ */

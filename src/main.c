@@ -39,6 +39,11 @@
 #include <libgnomeui/libgnomeui.h>
 #endif
 
+#ifdef HAVE_XML
+#include <libxml/tree.h>
+#define XML_COMPRESSION_LEVEL 5
+#endif
+
 #include "ui.h"
 #include "ac_config.h"
 #include "callbacks.h"
@@ -46,6 +51,9 @@
 
 ui_t *        global_ui        = NULL;
 unsigned long global_channels  = 2;
+
+gboolean connect_inputs = FALSE;
+gboolean connect_outputs = FALSE;
 
 #ifdef HAVE_LADCCA
 cca_client_t * global_cca_client;
@@ -62,10 +70,19 @@ void print_help () {
   printf("under the terms of the GNU General Public License, version 2 or later.  See\n");
   printf("the COPYING file that came with this software for details.\n");
   printf("\n");
+  printf(_("Compiled with:\n"));
+  printf(  "  JACK %s\n", JACK_VERSION);
+#ifdef HAVE_ALSA
+  printf(  "  ALSA %s\n", ALSA_VERSION);
+#endif
 #ifdef HAVE_LADCCA
-  printf(_("Compiled with JACK %s, LADCCA %s\n"), JACK_VERSION, LADCCA_VERSION);
-#else
-  printf(_("Compiled with JACK %s\n"), JACK_VERSION);
+  printf(  "  LADCCA %s\n", LADCCA_VERSION);
+#endif
+#ifdef HAVE_XML
+  printf(  "  libxml2 %s\n", XML_VERSION);
+#endif
+#ifdef HAVE_GNOME
+  printf(  "  GNOME %s\n", GNOME_VERSION);
 #endif
   printf("\n");
   printf(" -h, --help                  %s\n", _("Display this help info"));
@@ -74,8 +91,8 @@ void print_help () {
   printf(" -s, --string-name <string>  %s\n", _("Use <string> in the JACK client name"));
   printf(" -n, --name                  %s\n", _("Use just jack_rack as the client name"));
   printf("\n");
-/*  printf(" -i, --input                 Connected inputs to the first two physical capture ports\n");
-  printf(" -o, --output                Connected outputs to the first two physical playback ports\n"); */
+  printf(" -i, --input                 %s\n", _("Connected inputs to the first two physical capture ports"));
+  printf(" -o, --output                %s\n", _("Connected outputs to the first two physical playback ports"));
   printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
   printf("\n");
 #ifdef HAVE_JACK_SET_SERVER_DIR
@@ -86,13 +103,11 @@ void print_help () {
 
 int main (int argc, char ** argv) {
   char * client_name = NULL;
-  int connect_inputs = 0;
-  int connect_outputs = 0;
   unsigned long channels = 2;
   int opt;
 
 #ifdef HAVE_JACK_SET_SERVER_DIR
-  const char * options = "hps:D:ionc:";
+  const char * options = "hps:ionc:D:";
 #else
   const char * options = "hps:ionc:";
 #endif /* HAVE_JACK_SET_SERVER_DIR */
@@ -165,11 +180,11 @@ int main (int argc, char ** argv) {
 #endif
 
       case 'i':
-        connect_inputs = 1;
+        connect_inputs = TRUE;
         break;
 
       case 'o':
-        connect_outputs = 1;
+        connect_outputs = TRUE;
         break;
       
       case 'c':
@@ -204,6 +219,10 @@ int main (int argc, char ** argv) {
     }
 #endif
 
+#ifdef HAVE_XML
+  xmlSetCompressMode (XML_COMPRESSION_LEVEL);
+#endif
+
   if (!client_name)
     client_name = g_strdup_printf ("%s_%d", JACK_CLIENT_NAME_BASE, getpid());
 
@@ -219,7 +238,7 @@ int main (int argc, char ** argv) {
   
   gtk_main ();
 
-  jack_deactivate (global_ui->procinfo->jack_client);
+/*  jack_deactivate (global_ui->procinfo->jack_client); */
   
   ui_destroy (global_ui);
   

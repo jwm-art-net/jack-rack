@@ -28,9 +28,11 @@
 void     add_cb            (GtkMenuItem * menuitem, gpointer user_data);
 void     channel_cb        (GtkSpinButton *spinbutton, gpointer user_data);
 void     new_cb            (GtkWidget * button, gpointer user_data);
+#ifdef HAVE_XML
 void     open_cb           (GtkButton * button, gpointer user_data);
 void     save_cb           (GtkButton * button, gpointer user_data);
 void     save_as_cb        (GtkButton * button, gpointer user_data);
+#endif /* HAVE_XML */
 #ifdef HAVE_LADCCA
 void     cca_save_cb       (GtkButton * button, gpointer user_data);
 #endif

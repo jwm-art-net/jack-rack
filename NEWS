@@ -12,6 +12,8 @@
 * the PID is now used in the jack client name by default.  you can change it
   to the previous behaviour (of using just "jack_rack") with the -n command
   line option.
+* save files now use an XML format (which is incompatible with the previous
+  format, sorry)
 
 
 1.1.2:

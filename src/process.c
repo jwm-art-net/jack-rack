@@ -352,17 +352,7 @@ int process (jack_nframes_t frames, void * data) {
 static int
 process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * client_name)
 {
-  if (ui->splash_screen)
-    {
-      int i;
-      gchar * text;
-      text = g_strdup_printf ("Connecting to JACK server with client name '%s'", client_name);
-      gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
-      g_free (text);
-      for (i = 0; i < 5; i++)
-        gtk_main_iteration_do (FALSE);
-    }
-    
+  ui_display_splash_text (ui, "Connecting to JACK server with client name '%s'", client_name);
 
   procinfo->jack_client = jack_client_new (client_name);
 
@@ -373,13 +363,7 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * cl
       return 1;
     }
 
-  if (ui->splash_screen)
-    {
-      int i;
-      gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), "Connected to JACK server");
-      for (i = 0; i < 5; i++)
-        gtk_main_iteration_do (FALSE);
-    }
+  ui_display_splash_text (ui, "Connected to JACK server");
 
 #ifdef HAVE_LADCCA
   /* sort out ladcca stuff */
@@ -391,15 +375,61 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * cl
   return 0;
 }
 
+static void
+process_info_connect_port (process_info_t * procinfo,
+                           ui_t * ui,
+                           gshort in,
+                           unsigned long port_index,
+                           const char * port_name)
+{
+  const char ** jack_ports;
+  unsigned long jack_port_index;
+  int err;
+  char * full_port_name;
+  
+  jack_ports = jack_get_ports (procinfo->jack_client, NULL, NULL,
+                               JackPortIsPhysical | (in ? JackPortIsOutput : JackPortIsInput));
+  
+  if (!jack_ports)
+    return;
+  
+  for (jack_port_index = 0;
+       jack_ports[jack_port_index] && jack_port_index <= port_index;
+       jack_port_index++)
+    {
+      if (jack_port_index != port_index)
+        continue;
+        
+      full_port_name = g_strdup_printf ("%s:%s", ui->jack_client_name, port_name);
+
+      ui_display_splash_text (ui, "Connecting ports '%s' and '%s'", full_port_name, jack_ports[jack_port_index]);
+
+      err = jack_connect (procinfo->jack_client,
+                          in ? jack_ports[jack_port_index] : full_port_name,
+                          in ? full_port_name : jack_ports[jack_port_index]);
+
+      if (err)
+        fprintf (stderr, "%s: error connecting ports '%s' and '%s'\n",
+                 __FUNCTION__, full_port_name, jack_ports[jack_port_index]);
+      else
+        ui_display_splash_text (ui, "Connected ports '%s' and '%s'", full_port_name, jack_ports[jack_port_index]);
+      
+      free (full_port_name);
+    }
+  
+  free (jack_ports);
+}
+
 void
 process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long port_count)
 {
-  unsigned long i, io;
+  unsigned long i;
   char * port_name;
   jack_port_t ** port_ptr;
+  gshort in;
   
   if (procinfo->port_count >= port_count)
-    return;
+      return;
   
   if (procinfo->port_count == 0)
     {
@@ -420,54 +450,46 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
   
   for (i = procinfo->port_count; i < port_count; i++)
     {
-    for (io = 0; io < 2; io++)
+    for (in = 0; in < 2; in++)
       {
-        port_name = g_strdup_printf ("%s_%ld", io == 0 ? "in" : "out", i);
+        port_name = g_strdup_printf ("%s_%ld", in ? "in" : "out", i + 1);
        
-        if (ui->splash_screen)
-          {
-            int j;
-            gchar * text;
-            text = g_strdup_printf ("Creating %s port %s", io == 0 ? "input" : "output", port_name);
-            gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
-            g_free (text);
-            for (j = 0; j < 5; j++)
-              gtk_main_iteration_do (FALSE);
-          }
+        ui_display_splash_text (ui, "Creating %s port %s", in ? "input" : "output", port_name);
         
-        port_ptr = (io == 0 ? &procinfo->jack_input_ports[i]
-                            : &procinfo->jack_output_ports[i]);
+        port_ptr = (in ? &procinfo->jack_input_ports[i]
+                       : &procinfo->jack_output_ports[i]);
         
         *port_ptr =  jack_port_register (procinfo->jack_client,
                                          port_name,
                                          JACK_DEFAULT_AUDIO_TYPE,
-                                         io == 0 ? JackPortIsInput : JackPortIsOutput,
+                                         in ? JackPortIsInput : JackPortIsOutput,
                                          0);
         
-        if (!procinfo->jack_input_ports[i])
+        if (!*port_ptr)
           {
             fprintf (stderr, "%s: could not register port '%s'; aborting\n",
                      __FUNCTION__, port_name);
-            ui_display_error (ui, "Could not register JACK port; aborting");
+            ui_display_error (ui, "Could not register JACK port '%s'; aborting", port_name);
             abort ();
           }
 
-        if (ui->splash_screen)
-          {
-            int j;
-            gchar * text;
-            text = g_strdup_printf ("Created %s port %s", io == 0 ? "input" : "output", port_name);
-            gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
-            g_free (text);
-            for (j = 0; j < 5; j++)
-              gtk_main_iteration_do (FALSE);
-          }
+        ui_display_splash_text (ui, "Created %s port %s", in ? "input" : "output", port_name);
+        
+        if ((in && connect_inputs) || (!in && connect_outputs))
+          process_info_connect_port (procinfo, ui, in, i, port_name);
         
         g_free (port_name);
       }
     }
   
   procinfo->port_count = port_count;
+}
+
+void
+process_info_set_channels (process_info_t * procinfo, ui_t * ui, unsigned long channels)
+{
+  process_info_set_port_count (procinfo, ui, channels);
+  procinfo->channels = channels; 
 }
 
 process_info_t *

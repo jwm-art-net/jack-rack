@@ -80,7 +80,6 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
   GSList * list;
   gboolean exists;
   int err;
-  int i;
   
   /* open the object file */
   dl_handle = dlopen (filename, RTLD_NOW|RTLD_GLOBAL);
@@ -144,15 +143,7 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
       plugin_mgr->plugin_count++;
       
       /* print in the splash screen */
-      if (ui->splash_screen)
-        {
-          gchar * text;
-          text = g_strdup_printf ("Loaded plugin '%s'", desc->name);
-          gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
-          g_free (text);
-          for (i = 0; i < 5; i++)
-            gtk_main_iteration_do (FALSE);
-        }
+      ui_display_splash_text (ui, "Loaded plugin '%s'", desc->name);
     }
   
   err = dlclose (dl_handle);
@@ -293,13 +284,13 @@ plugin_mgr_set_plugins (plugin_mgr_t * plugin_mgr, unsigned long rack_channels)
     }
 }
 
-plugin_desc_t *
-plugin_mgr_get_desc (plugin_mgr_t * plugin_mgr, unsigned long id)
+static plugin_desc_t *
+plugin_mgr_find_desc (plugin_mgr_t * plugin_mgr, GSList * plugins, unsigned long id)
 {
   GSList * list;
   plugin_desc_t * desc;
   
-  for (list = plugin_mgr->plugins; list; list = g_slist_next (list))
+  for (list = plugins; list; list = g_slist_next (list))
     {
       desc = (plugin_desc_t *) list->data;
       
@@ -310,6 +301,17 @@ plugin_mgr_get_desc (plugin_mgr_t * plugin_mgr, unsigned long id)
   return NULL;
 }
 
+plugin_desc_t *
+plugin_mgr_get_desc (plugin_mgr_t * plugin_mgr, unsigned long id)
+{
+  return plugin_mgr_find_desc (plugin_mgr, plugin_mgr->plugins, id);
+}
+
+plugin_desc_t *
+plugin_mgr_get_any_desc (plugin_mgr_t * plugin_mgr, unsigned long id)
+{
+  return plugin_mgr_find_desc (plugin_mgr, plugin_mgr->all_plugins, id);
+}
 
 
 static GtkWidget *
@@ -325,8 +327,12 @@ plugin_mgr_create_menu_item (plugin_desc_t * plugin, GCallback callback, gpointe
   else
     filename = plugin->object_file;
   
-  str = g_strdup_printf ("%s (%s, %ld ch%s)", plugin->name, filename,
-                         plugin->channels, plugin->rt ? "" : ", NOT RT");
+  str = g_strdup_printf ("%s (%s, %ld %s%s)",
+                         plugin->name,
+                         filename,
+                         plugin->channels,
+                         _("ch"),
+                         plugin->rt ? "" : _(", NOT RT"));
     
   menu_item = gtk_menu_item_new_with_label (str);
   
@@ -550,7 +556,6 @@ plugin_mgr_get_dir_uris (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * dir)
   int err;
   size_t dirlen;
   char * extension;
-  int i;
   
   dir_stream = opendir (dir);
   if (!dir_stream)
@@ -586,15 +591,8 @@ plugin_mgr_get_dir_uris (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * dir)
     
       plugin_mgr->lrdf_uris = g_slist_append (plugin_mgr->lrdf_uris, file_name);
 
-      if (ui->splash_screen)
-        {
-          gchar * text;
-          text = g_strdup_printf ("Found description file '%s'", file_name);
-          gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
-          g_free (text);
-          for (i = 0; i < 5; i++)
-            gtk_main_iteration_do (FALSE);
-        }
+      
+      ui_display_splash_text (ui, "Found LRDF description file '%s'", file_name);
     }
   
   err = closedir (dir_stream);

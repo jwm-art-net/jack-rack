@@ -10,12 +10,12 @@
 * Custom float widget
 * Reload
 * MIDI control
-* Only display one set of widgets for locked controls
 
 
- In 1.2
---------
+ In 1.2.0
+----------
 * Arbitrary channel numbers
+* Only display one set of widgets for locked controls
 
 
  In 1.1

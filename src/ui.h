@@ -60,6 +60,7 @@ struct _ui
   GtkWidget *       add;
   GtkWidget *       add_menuitem;
   GtkWidget *       add_menu;
+  GtkWidget *       channels;
 #ifdef HAVE_LADCCA
   GtkWidget *       cca_save;
   GtkWidget *       cca_save_menu_item;
@@ -80,6 +81,9 @@ ui_state_t ui_get_state (ui_t * ui);
 
 plugin_t * ui_instantiate_plugin (ui_t * ui, plugin_desc_t * desc);
 
-void ui_display_error (ui_t * ui, const char * message);
+void ui_display_error       (ui_t * ui, const char * format, ...);
+void ui_display_splash_text (ui_t * ui, const char * format, ...);
+gboolean ui_get_ok (ui_t * ui, const char * format, ...);
+
 
 #endif /* __JR_UI_H__ */

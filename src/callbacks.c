@@ -47,8 +47,6 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
 {
   ui_t * ui;
   plugin_desc_t * desc;
-  plugin_t * plugin;
-  ctrlmsg_t ctrlmsg;
   
   ui = (ui_t *) user_data;
   
@@ -60,24 +58,32 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
       return;
     }
   
-  plugin = jack_rack_instantiate_plugin (ui->jack_rack, desc);
-
-  if (!plugin)
-    return;
-    
-  
-  /* send the chain link off to the process() callback */
-  ctrlmsg.type = CTRLMSG_ADD;
-  ctrlmsg.pointer = plugin;
-  ctrlmsg.second_pointer = desc;
-  lff_write (ui->ui_to_process, &ctrlmsg);
-
+  jack_rack_add_plugin (ui->jack_rack, desc);
 }
 
 void
 channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
 {
-  ui_set_channels ((ui_t *) user_data, (unsigned long) gtk_spin_button_get_value (GTK_SPIN_BUTTON (spinbutton)));
+  ui_t * ui;
+  unsigned long channels;
+  
+  ui = (ui_t *) user_data;
+  channels = (unsigned long) gtk_spin_button_get_value (GTK_SPIN_BUTTON (spinbutton));
+  
+  if (channels == ui->jack_rack->channels)
+    return;
+  
+  if (ui->jack_rack->slots)
+    {
+      gboolean ok;
+      
+      ok = ui_get_ok (ui, _("Changing the number of channels will clear the current rack.\n\nAre you sure you want to do this?"));
+      
+      if (!ok)
+        return; 
+    }
+
+  ui_set_channels (ui, channels);
 }
 
 void
@@ -91,6 +97,8 @@ new_cb (GtkWidget * widget, gpointer user_data)
   ctrlmsg.type = CTRLMSG_CLEAR;
   
   lff_write (ui->ui_to_process, &ctrlmsg);
+  
+  ui_set_filename (ui, NULL);
 }
 
 static const char *
@@ -118,12 +126,13 @@ get_filename (jack_rack_t * jack_rack)
 }
 
 
-
+#ifdef HAVE_XML
 void
 open_cb (GtkButton * button, gpointer user_data)
 {
   const char * filename;
   ui_t * ui;
+  int err;
   
   ui = (ui_t *) user_data;
   
@@ -132,7 +141,10 @@ open_cb (GtkButton * button, gpointer user_data)
   if (!filename)
     return;
   
-  jack_rack_open_file (ui->jack_rack, filename);
+  err = ui_open_file (ui, filename);
+  
+  if (!err)
+    ui_set_filename (ui, filename);
 }
  
 void
@@ -142,13 +154,13 @@ save_cb (GtkButton * button, gpointer user_data)
   
   ui = (ui_t *) user_data;
   
-  if (!ui->jack_rack->filename)
+  if (!ui->filename)
     {
       save_as_cb (button, user_data);
       return;
     }
   
-  jack_rack_save_file (ui->jack_rack, ui->jack_rack->filename);
+  ui_save_file (ui, ui->filename);
 }
 
 
@@ -158,6 +170,7 @@ save_as_cb (GtkButton * button, gpointer user_data)
 {
   const char * filename;
   ui_t * ui;
+  int err;
   
   ui = (ui_t *) user_data;
   
@@ -166,8 +179,12 @@ save_as_cb (GtkButton * button, gpointer user_data)
   if (!filename)
     return;
   
-  jack_rack_save_file (ui->jack_rack, filename);
+  err = ui_save_file (ui, filename);
+  
+  if (!err)
+    ui_set_filename (ui, filename);
 }
+#endif /* HAVE_XML */
  
 #ifdef HAVE_LADCCA
 void
@@ -180,7 +197,7 @@ cca_save_cb (GtkButton * button, gpointer user_data)
   cca_send_event (global_cca_client, event);
   printf ("%s: event sent\n", __FUNCTION__);
 }
-#endif
+#endif /* HAVE_LADCCA */
 
 
 void
@@ -536,15 +553,10 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
     {
       guint i;
       for (i = 0; i < copy; i++)
-        {
-          printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
-          gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
-        }
+        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
+
       for (i = copy + 1; i < port_controls->plugin_slot->plugin->copies; i++)
-        {
-          printf ("%s: range: %p\n", __FUNCTION__, port_controls->controls[i].control);
-          gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
-        }
+        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
     }
   
   set_widget_text_colour (GTK_WIDGET(entry), "Black");
@@ -639,20 +651,20 @@ gint plugin_button_cb (GtkWidget *widget, GdkEvent *event) {
 
 #ifdef HAVE_LADCCA
 void
-deal_with_cca_event (jack_rack_t * jack_rack, cca_event_t * event)
+deal_with_cca_event (ui_t * ui, cca_event_t * event)
 {
   switch (cca_event_get_type (event))
     {
     case CCA_Save_File:
-      jack_rack_save_file (jack_rack, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+      ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
       cca_send_event (global_cca_client, event);
       break;
     case CCA_Restore_File:
-      jack_rack_open_file (jack_rack, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+      ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
       cca_send_event (global_cca_client, event);
       break;
     case CCA_Quit:
-      quit_cb (NULL, jack_rack);
+      quit_cb (NULL, ui);
       cca_event_destroy (event);
       break;
     default:
@@ -664,18 +676,22 @@ deal_with_cca_event (jack_rack_t * jack_rack, cca_event_t * event)
 #endif /* HAVE_LADCCA */
 
 static void
-jack_rack_check_kicked (jack_rack_t * jack_rack)
+ui_check_kicked (ui_t * ui)
 {
   static gboolean shown_shutdown_msg = FALSE;
-  if (global_ui->shutdown && !shown_shutdown_msg)
-  {
-    jack_rack_display_error (jack_rack, "JACK client thread shut down by server\n\nJACK, the bastard, kicked us out.  You'll have to restart I'm afraid.  Sorry.");
+  
+  if (ui->shutdown && !shown_shutdown_msg)
+    {
+      ui_display_error (ui, "%s\n\n%s%s",
+                        "JACK client thread shut down by server",
+                        "JACK, the bastard, kicked us out.  ",
+                        "You'll have to restart I'm afraid.  Sorry.");
     
-    gtk_widget_set_sensitive (global_ui->plugin_box, FALSE);
-    gtk_widget_set_sensitive (global_ui->add, FALSE);
+      gtk_widget_set_sensitive (ui->plugin_box, FALSE);
+      gtk_widget_set_sensitive (ui->add, FALSE);
 
-    shown_shutdown_msg = TRUE;
-  }
+      shown_shutdown_msg = TRUE;
+    }
 }
 
 /* do the process->gui message processing */
@@ -697,7 +713,7 @@ gboolean idle_cb (gpointer data) {
   ui = (ui_t *) data;
   jack_rack = ui->jack_rack;
   
-  jack_rack_check_kicked (jack_rack);
+  ui_check_kicked (ui);
   
   while (lff_read (ui->process_to_ui, &ctrlmsg) == 0)
     {
@@ -763,7 +779,7 @@ gboolean idle_cb (gpointer data) {
       
       while ( (event = cca_get_event (global_cca_client)) )
         {
-          deal_with_cca_event (jack_rack, event);
+          deal_with_cca_event (ui, event);
         }
     }
 #endif

@@ -34,6 +34,41 @@ LIBS="$ORIG_LIBS"
 CFLAGS="$ORIG_CFLAGS"
 
 
+############
+### ALSA ###
+############
+#jr_enable_aseq="yes"
+#AC_ARG_ENABLE(aseq,
+#[  --disable-aseq          disable ALSA sequencer support],[
+#  case "$enableval" in
+#    "yes")
+#      ;;
+#    "no")
+#      jr_enable_aseq="no"
+#      ;;
+#    *)
+#      AC_MSG_ERROR([must use --enable-aseq(=yes/no) or --disable-aseq])
+#      ;;
+#  esac
+#])
+
+#if test "$jr_enable_aseq" = "yes"; then
+#  PKG_CHECK_MODULES(ALSA, alsa >= 0.9, ALSA_FOUND="yes", ALSA_FOUND="no")
+#  AC_SUBST(ALSA_CFLAGS)
+#  AC_SUBST(ALSA_LIBS)
+#
+#  if test "$ALSA_FOUND" = "yes"; then
+#    AC_DEFINE(HAVE_ALSA, 1, [whether or not we are supporting the alsa sequencer])
+#    ALSA_VERSION=$( pkg-config --modversion alsa )
+#    AC_DEFINE_UNQUOTED(ALSA_VERSION, "$ALSA_VERSION", [The version of alsa we're compiling against])
+#  fi
+#else
+#  ALSA_FOUND="no"
+#fi
+#AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
+
+
+
 ##############
 ### GTK+ 2 ###
 ##############
@@ -74,40 +109,77 @@ else
 fi
 AM_CONDITIONAL(HAVE_GNOME, test "$GNOME_FOUND" = "yes")
 
-
-##############
-### LADCCA ###
-##############
-jr_enable_ladcca="yes"
-AC_ARG_ENABLE(ladcca,
-[  --disable-ladcca        disable LADCCA support],[
+###############
+### libxml2 ###
+###############
+jr_enable_xml="yes"
+AC_ARG_ENABLE(xml,
+[  --disable-xml           disable libxml2 support (this is required for saving/loading files)],[
   case "$enableval" in
     "yes")
       ;;
     "no")
-      jr_enable_ladcca="no"
+      jr_enable_xml="no"
       ;;
     *)
-      AC_MSG_ERROR([must use --enable-ladcca(=yes/no) or --disable-ladcca])
+      AC_MSG_ERROR([must use --enable-xml(=yes/no) or --disable-xml])
       ;;
   esac
 ])
 
-if test "$jr_enable_ladcca" = "yes"; then
-  PKG_CHECK_MODULES(LADCCA, ladcca-1.0, LADCCA_FOUND="yes", LADCCA_FOUND="no")
-  AC_SUBST(LADCCA_CFLAGS)
-  AC_SUBST(LADCCA_LIBS)
+if test "$jr_enable_xml" = "yes"; then
+  PKG_CHECK_MODULES(XML, libxml-2.0, XML_FOUND="yes", XML_FOUND="no")
+  AC_SUBST(XML_CFLAGS)
+  AC_SUBST(XML_LIBS)
 
-  if test "$LADCCA_FOUND" = "yes"; then
-    AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])
-    LADCCA_VERSION=$( pkg-config --modversion ladcca-1.0 )
-    AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LADCCA_VERSION", [The version of ladcca we're compiling against])
+  if test "$XML_FOUND" = "yes"; then
+    AC_DEFINE(HAVE_XML, 1, [whether or not we are have xml support])
+    XML_VERSION=$( pkg-config --modversion libxml-2.0 )
+    AC_DEFINE_UNQUOTED(XML_VERSION, "$XML_VERSION", [The version of libxml2 we're compiling against])
   fi
 else
-  AC_MSG_WARN([LADCCA support is disabled])
+  XML_FOUND="no"
+fi
+AM_CONDITIONAL(HAVE_XML, test "$XML_FOUND" = "yes")
+
+##############
+### LADCCA ###
+##############
+if test x$XML_FOUND = xyes; then
+  jr_enable_ladcca="yes"
+  AC_ARG_ENABLE(ladcca,
+  [  --disable-ladcca        disable LADCCA support],[
+    case "$enableval" in
+      "yes")
+        ;;
+      "no")
+        jr_enable_ladcca="no"
+        ;;
+      *)
+        AC_MSG_ERROR([must use --enable-ladcca(=yes/no) or --disable-ladcca])
+        ;;
+    esac
+  ])
+
+  if test "$jr_enable_ladcca" = "yes"; then
+    PKG_CHECK_MODULES(LADCCA, ladcca-1.0, LADCCA_FOUND="yes", LADCCA_FOUND="no")
+    AC_SUBST(LADCCA_CFLAGS)
+    AC_SUBST(LADCCA_LIBS)
+  
+    if test "$LADCCA_FOUND" = "yes"; then
+      AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])
+      LADCCA_VERSION=$( pkg-config --modversion ladcca-1.0 )
+      AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LADCCA_VERSION", [The version of ladcca we're compiling against])
+    fi
+  else
+    AC_MSG_WARN([LADCCA support is disabled])
+    LADCCA_FOUND="no"
+  fi
+else
   LADCCA_FOUND="no"
 fi
 AM_CONDITIONAL(HAVE_LADCCA, test "$LADCCA_FOUND" = "yes")
+
 
 ############
 ### lrdf ###
@@ -187,11 +259,12 @@ AC_MSG_RESULT([
 
   JACK Rack configured
   
-  GNOME 2 support:      $GNOME_FOUND
-  LADCCA support:       $LADCCA_FOUND
-  LRDF support:         $LRDF_FOUND
+  XML support:             $XML_FOUND
+  LRDF support:            $LRDF_FOUND
+  LADCCA support:          $LADCCA_FOUND
+  GNOME 2 support:         $GNOME_FOUND
   
-  Installation prefix:  $prefix
-  Desktop files prefix: $JR_DESKTOP_PREFIX
+  Installation prefix:     $prefix
+  Desktop files prefix:    $JR_DESKTOP_PREFIX
 
 ])

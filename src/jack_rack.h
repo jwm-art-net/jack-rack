@@ -39,7 +39,6 @@ struct _jack_rack
   unsigned long     channels;
   GList *           slots;
   
-  char *            filename;
   GSList *          saved_settings;
 };
 
@@ -57,7 +56,5 @@ void jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin);
 plugin_slot_t * jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index);
 
 plugin_t * jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc);
-
-void jack_rack_display_error (jack_rack_t * jack_rack, const char * message);
 
 #endif /* __JR_JACK_RACK_H__ */

@@ -55,7 +55,7 @@ plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
   if (copy_to_show >= plugin_slot->plugin->copies)
     copy_to_show = 0;
   
-  lock_all = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (plugin_slot->lock_all));
+  lock_all = settings_get_lock_all (plugin_slot->settings);
   
   for (control = 0; control < plugin_slot->plugin->desc->control_port_count; control++)
     {
@@ -109,8 +109,10 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
   
   if (copies > 1)
     {
-      gboolean lock_all = settings_get_lock_all (settings);
+      gboolean lock_all;
       gboolean lock;
+      
+      lock_all = settings_get_lock_all (settings);
       
       gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(plugin_slot->lock_all), lock_all);
       
@@ -312,16 +314,14 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
   plugin_slot->enabled = FALSE;
 
   /* create plugin settings */
-  plugin_slot->settings = settings_new (plugin->desc, plugin->copies, sample_rate);
+  plugin_slot->settings = saved_settings ? settings_dup (saved_settings)
+                                         : settings_new (plugin->desc, plugin->copies, sample_rate);
 
   /* create the gui */
   plugin_slot_init_gui (plugin_slot);
   
-  /* set the controls to the defaults */
-  if (saved_settings)
-    plugin_slot_set_controls (plugin_slot, saved_settings);
-  else
-    plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
+  /* set the controls */
+  plugin_slot_set_controls (plugin_slot, plugin_slot->settings);
   
   plugin_slot_show_controls (plugin_slot, 0);
   
@@ -331,6 +331,7 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, settings_t * sa
 void
 plugin_slot_destroy (plugin_slot_t * plugin_slot)
 {
+  gtk_widget_destroy (plugin_slot->plugin_menu);
   gtk_widget_destroy (plugin_slot->main_vbox);
   g_free (plugin_slot->port_controls);
 }

@@ -18,10 +18,11 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#define _GNU_SOURCE
+
 #include <math.h>
 
 #include "plugin_settings.h"
-
 
 
 static void
@@ -55,6 +56,7 @@ settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate
   settings->desc = desc;
   settings->copies = copies;
   settings->lock_all = TRUE;
+  settings->enabled = FALSE;
   settings->locks = NULL;
   settings->control_values = NULL;
   
@@ -71,6 +73,46 @@ settings_new     (plugin_desc_t * desc, guint copies, jack_nframes_t sample_rate
         }
       
       settings_set_to_default (settings, sample_rate);
+    }
+  
+  return settings;
+}
+
+settings_t *
+settings_dup     (settings_t * other)
+{
+  settings_t * settings;
+  plugin_desc_t * desc;
+  
+  settings = g_malloc (sizeof (settings_t));
+  
+  settings->sample_rate = other->sample_rate;
+  settings->desc = other->desc;
+  settings->copies = settings_get_copies (other);
+  settings->lock_all = settings_get_lock_all (other);
+  settings->enabled = settings_get_enabled (other);
+  settings->locks = NULL;
+  settings->control_values = NULL;
+  
+  desc = other->desc;
+  
+  if (desc->control_port_count > 0)
+    {
+      guint copy;
+      unsigned long control;
+      
+      settings->locks = g_malloc (sizeof (gboolean) * desc->control_port_count);
+      for (control = 0; control < desc->control_port_count; control++)
+        settings_set_lock (settings, control, settings_get_lock (other, control));
+
+      settings->control_values = g_malloc (sizeof (LADSPA_Data *) * settings->copies);
+      for (copy = 0; copy < settings->copies; copy++)
+        {
+          settings->control_values[copy] = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
+
+          for (control = 0; control < desc->control_port_count; control++)
+            settings_set_control_value (settings, copy, control, settings_get_control_value (other, copy, control));
+        }
     }
   
   return settings;
@@ -148,6 +190,14 @@ settings_set_lock_all (settings_t * settings, gboolean lock_all)
   settings->lock_all = lock_all;
 }
 
+void
+settings_set_enabled (settings_t * settings, gboolean enabled)
+{
+  g_return_if_fail (settings != NULL);
+
+  settings->enabled = enabled;
+}
+
 LADSPA_Data
 settings_get_control_value (settings_t * settings, guint copy, unsigned long control_index)
 {
@@ -172,6 +222,18 @@ settings_get_lock_all      (const settings_t * settings)
   return settings->lock_all;
 }
 
+gboolean
+settings_get_enabled      (const settings_t * settings)
+{
+  return settings->enabled;
+}
+
+guint
+settings_get_copies        (const settings_t * settings)
+{
+  return settings->copies;
+}
+
 void
 settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
 {
@@ -179,6 +241,9 @@ settings_set_sample_rate (settings_t * settings, jack_nframes_t sample_rate)
   LADSPA_Data new_sample_rate;
 
   g_return_if_fail (settings != NULL);
+  
+  if (settings->sample_rate == sample_rate)
+    return;
 
   if (settings->desc->control_port_count > 0)
     {

@@ -49,6 +49,7 @@ void           plugin_mgr_destroy (plugin_mgr_t * plugin_mgr);
 void plugin_mgr_set_plugins (plugin_mgr_t * plugin_mgr, unsigned long rack_channels);
 
 plugin_desc_t * plugin_mgr_get_desc (plugin_mgr_t * plugin_mgr, unsigned long id);
+plugin_desc_t * plugin_mgr_get_any_desc (plugin_mgr_t * plugin_mgr, unsigned long id);
 
 GtkWidget * plugin_mgr_get_menu (plugin_mgr_t * plugin_mgr,
                                  GCallback callback,

@@ -1,8 +1,12 @@
 pixmapdir = $(datadir)/pixmaps
 
+EXTRA_DIST = jack_rack_1.0.dtd
+
 bin_PROGRAMS = jack-rack
 
 jack_rack_SOURCES = \
+	file.c file.h \
+	midi.c midi.h \
 	plugin_settings.c plugin_settings.h \
 	process.c process.h \
 	plugin_desc.c plugin_desc.h \
@@ -14,7 +18,6 @@ jack_rack_SOURCES = \
 	jack_rack.h jack_rack.c \
 	lock_free_fifo.c lock_free_fifo.h \
 	callbacks.c callbacks.h \
-	file.c file.h \
 	control_message.h \
 	main.c \
 	globals.h
@@ -25,23 +28,25 @@ jack_rack_CFLAGS = \
 	$(JACK_CFLAGS) \
 	$(LADCCA_CFLAGS) \
 	$(LRDF_CFLAGS) \
+	$(ALSA_CFLAGS) \
+	$(XML_CFLAGS) \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPIXMAPDIR=\"$(pixmapdir)\" \
-	-I$(top_srcdir)/range-widget
+	-DG_DISABLE_DEPRECATED=1 \
+	-DGTK_DISABLE_DEPRECATED=1 \
+	-DGDK_DISABLE_DEPRECATED=1 \
+	-DGDK_PIXBUF_DISABLE_DEPRECATED=1 \
+	-DGNOME_DISABLE_DEPRECATED=1
 
-#	-DG_DISABLE_DEPRECATED=1 \
-#	-DGTK_DISABLE_DEPRECATED=1 \
-#	-DGDK_DISABLE_DEPRECATED=1 \
-#	-DGDK_PIXBUF_DISABLE_DEPRECATED=1 \
-#	-DGNOME_DISABLE_DEPRECATED=1 \
-#
 
 jack_rack_LDFLAGS = \
 	$(JACK_LIBS) \
 	$(GTK_LIBS) \
 	$(GNOMEUI_LIBS) \
 	$(LADCCA_LIBS) \
-	$(LRDF_LIBS)
+	$(LRDF_LIBS) \
+	$(ALSA_LIBS) \
+	$(XML_LIBS)
 
 splint-check:
 	splint  +systemdirs /usr/include:/usr/local/lib \

@@ -26,6 +26,7 @@
 #include <ladspa.h>
 
 #include "lock_free_fifo.h"
+#include "globals.h"
 
 typedef struct _process_info process_info_t;
 
@@ -48,6 +49,7 @@ struct _process_info {
   
   lff_t * ui_to_process;
   lff_t * process_to_ui;
+  lff_t * midi_to_process;
 };
 
 extern jack_nframes_t sample_rate;
@@ -58,7 +60,8 @@ struct _ui;
 process_info_t * process_info_new (struct _ui * ui, const char * client_name, unsigned long rack_channels);
 void             process_info_destroy (process_info_t * procinfo);
 
-void process_info_set_port_count (process_info_t * procinfo, struct _ui * ui, unsigned long port_count);
+void process_info_set_channels (process_info_t * procinfo, struct _ui * ui, unsigned long channels);
+
 
 int process (jack_nframes_t frames, void * data);
 

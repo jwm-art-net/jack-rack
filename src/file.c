@@ -20,438 +20,292 @@
 
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
+#include "ac_config.h"
+
+#ifdef HAVE_XML
+
+#include <gtk/gtk.h>
+#include <libxml/tree.h>
 
 #include "file.h"
-#include "plugin_slot.h"
-#include "plugin_desc.h"
+#include "jack_rack.h"
+#include "globals.h"
 #include "plugin_settings.h"
-#include "process.h"
-#include "callbacks.h"
-#include "ui.h"
+#include "control_message.h"
 
-/*static size_t
-getlinenn (char **lineptr, size_t *n, FILE *stream)
+xmlDocPtr
+jack_rack_create_doc (jack_rack_t * jack_rack)
 {
-  size_t size;
-  char * ptr;
-  
-  size = getline (lineptr, n, stream);
-  
-  ptr = strchr (*lineptr, '\n');
-  if (ptr)
-    *ptr = '\0';
-  
-  return size;
-}*/
-
-static int
-jack_rack_read_file (jack_rack_t * jack_rack, FILE * file, const char * filename, GSList ** saved_plugins)
-{
-  return 1;
-}
-
-static int
-jack_rack_read_filea (jack_rack_t * jack_rack, FILE * file, const char * filename, GSList ** saved_plugins)
-{
-  size_t err;
-  char * line = NULL;
-  size_t linesize = 0;
-  unsigned long lineno = 1;
-  char * endptr;
-  unsigned long plugin_count, i;
-  unsigned long plugin_id;
-  plugin_desc_t * desc;
-  settings_t * settings;
-  saved_plugin_t * saved_plugin = NULL;
-  
-  /* header */
-  err = getline (&line, &linesize, file);
-  if (err == -1)
-    {
-      char * error;
-      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      if (line)
-        free (line);
-      return 1;
-    }
-  
-  if (strcmp ("JACK Rack Configuration File - Format 0\n", line) != 0)
-    {
-      char * error;
-      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      free (line);
-      return 1;
-    }
-  
-  
-  /* plugin count */
-  lineno++;
-  err = getline (&line, &linesize, file);
-  if (err == -1)
-    {
-      char * error;
-      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      free (line);
-      return 1;
-    }
-  
-  plugin_count = strtoul (line, &endptr, 10);
-  
-  if (plugin_count == ULONG_MAX || endptr == line)
-    {
-      char * error;
-      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      free (line);
-      return 1;
-    }
-  
-  /* plugins */
-  for (i = 0; i < plugin_count; i++)
-    {
-      /* plugin id */
-      lineno++;
-      err = getline (&line, &linesize, file);
-      if (err == -1)
-        {
-          char * error;
-          error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          free (line);
-          return 1;
-        }
-      
-      plugin_id = strtoul (line, &endptr, 10);
-      if (plugin_id == ULONG_MAX || endptr == line)
-        {
-          char * error;
-          error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          free (line);
-          return 1;
-        }
-      
-      desc = plugin_mgr_get_desc (jack_rack->ui->plugin_mgr, plugin_id);
-      if (!desc)
-        {
-          char * error;
-          error = g_strdup_printf ("Unknown plugin id %ld ('%s:%ld')", plugin_id, filename, lineno);
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          free (line);
-          return 1;
-        }
-        
-      settings = settings_new (desc, 2, sample_rate);
-      saved_plugin = saved_plugin_new ();
-      saved_plugin->desc = desc;
-      saved_plugin->settings = settings;
-      
-      /* enabled */
-      lineno++;
-      err = getline (&line, &linesize, file);
-      if (err == -1)
-        {
-          char * error;
-          error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          free (line);
-          return 1;
-        }
-      
-      saved_plugin->enabled = atoi (line);
-      
-      
-      /* lock all */
-/*      if (jack_rack-> && desc->control_port_count > 0)
-        {
-          lineno++;
-          err = getline (&line, &linesize, file);
-          if (err == -1)
-            {
-              char * error;
-              error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-              jack_rack_display_error (jack_rack, error);
-              g_free (error);
-              free (line);
-              return 1;
-            }
-          
-          settings_set_lock_all (settings, atoi (line));
-        } */
-      
-      
-      
-      /* controls */
-      if (desc->control_port_count > 0)
-        {
-          unsigned long control, copy;
-          for (control = 0; control < desc->control_port_count; control++)
-            {
-              /* locks */
-              /*if (desc->mono)
-                {
-                  lineno++;
-                  err = getline (&line, &linesize, file);
-                  if (err == -1)
-                    {
-                      char * error;
-                      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-                      jack_rack_display_error (jack_rack, error);
-                      g_free (error);
-                      free (line);
-                      return 1;
-                    }
-                  
-                  settings_set_lock (settings, control, atoi (line));
-                }*/
-              
-              /* control values */
-/*              for (copy = 0; copy < plugin_copies (desc); copy++)
-                {
-                  lineno++;
-                  err = getline (&line, &linesize, file);
-                  if (err == -1)
-                    {
-                      char * error;
-                      error = g_strdup_printf ("Malformed rack configuration file '%s:%ld'", filename, lineno);
-                      jack_rack_display_error (jack_rack, error);
-                      g_free (error);
-                      free (line);
-                      return 1;
-                    }
-                  
-                  settings_set_control_value (settings, control, copy, atof (line));
-                }*/
-            }
-        }
-
-      *saved_plugins = g_slist_append (*saved_plugins, saved_plugin);
-    }
-  
-  return 0;
-}
-
-void
-jack_rack_open_file (jack_rack_t * jack_rack, const char * filename)
-{
-  FILE * file;
-  int err;
-  char * error;
-  GSList * saved_plugins = NULL;
-  GSList * list;
-  saved_plugin_t * saved_plugin;
-
-  file = fopen (filename, "r");
-  if (!file)
-    {
-      error = g_strdup_printf ("Error opening file '%s' for reading:\n\n%s", filename, strerror (errno));
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      return;
-    }
-  
-  err = jack_rack_read_file (jack_rack, file, filename, &saved_plugins);
-  if (err)
-    {
-      for (list = saved_plugins; list; list = g_slist_next (list))
-        {
-          saved_plugin = (saved_plugin_t *) list->data;
-          settings_destroy (saved_plugin->settings);
-          saved_plugin_destroy (saved_plugin);
-        }
-      g_slist_free (saved_plugins);
-    }
-  
-  new_cb (NULL, jack_rack);
-  
-  for (list = saved_plugins; list; list = g_slist_next (list))
-    {
-      saved_plugin = (saved_plugin_t *) list->data;
-      
-      jack_rack->saved_settings = g_slist_append (jack_rack->saved_settings, saved_plugin->settings);
-      
-      jack_rack_add_plugin (jack_rack, saved_plugin->desc);
-      
-      saved_plugin_destroy (saved_plugin);
-    }
-  g_slist_free (saved_plugins);
-  
-  jack_rack_set_filename (jack_rack, filename);
-}
-
-static void
-jack_rack_write_file (jack_rack_t * jack_rack, FILE * file, const char * filename)
-{
-  int err;
-  plugin_slot_t * plugin_slot;
-  plugin_desc_t * desc;
-  unsigned long control, copy;
-  settings_t * settings = NULL;
+  xmlDocPtr doc;
+  xmlNodePtr tree, jackrack, controlrow;
+  xmlDtdPtr dtd;
+  char num[32];
   GList * list;
-
-  /* header */
-  err = fprintf (file, "JACK Rack Configuration File - Format 0\n");
-  if (err < 0)
-    {
-      char * error;
-      error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      return;
-    }
+  plugin_slot_t * plugin_slot;
+  unsigned long control;
+  gint copy;
   
-  /* plugin count */
-  err = fprintf (file, "%ld\n", g_list_length (jack_rack->slots));
-  if (err < 0)
-    {
-      char * error;
-      error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      return;
-    }
+  doc = xmlNewDoc(XML_DEFAULT_VERSION);
+
+  /* dtd */
+  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.0.dtd");
+  doc->intSubset = dtd;
+  xmlAddChild ((xmlNodePtr)doc, (xmlNodePtr)dtd);
+  
+  jackrack = xmlNewDocNode(doc, NULL, "jackrack", NULL);
+  xmlAddChild ((xmlNodePtr)doc, jackrack);
+  
+  /* channels */
+  sprintf (num, "%ld", jack_rack->channels);
+  xmlNewChild (jackrack, NULL, "channels", num);
+  
+  /* samplerate */
+  sprintf (num, "%ld", sample_rate);
+  xmlNewChild (jackrack, NULL, "samplerate", num);
   
   for (list = jack_rack->slots; list; list = g_list_next (list))
     {
       plugin_slot = (plugin_slot_t *) list->data;
-      desc = plugin_slot->plugin->desc;
-      settings = plugin_slot->settings;
-
-      /* plugin id */    
-      err = fprintf (file, "%ld\n", desc->id);
-      if (err < 0)
-        {
-          char * error;
-          error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          return;
-        }
       
-      /* enable */
-      err = fprintf (file, "%d\n", plugin_slot->enabled);
-      if (err < 0)
-        {
-          char * error;
-          error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-          jack_rack_display_error (jack_rack, error);
-          g_free (error);
-          return;
-        }
+      tree = xmlNewChild (jackrack, NULL, "plugin", NULL);
       
-      /* lock all */
-/*      if (desc->mono && desc->control_port_count > 0)
+      /* id */
+      sprintf (num, "%ld", plugin_slot->plugin->desc->id);
+      xmlNewChild (tree, NULL, "id", num);
+      
+      /* enabled */
+      xmlNewChild (tree, NULL, "enabled", plugin_slot->enabled ? "true" : "false");
+      
+      /* lockall */
+      if (plugin_slot->plugin->copies > 1)
+        xmlNewChild (tree, NULL, "lockall", settings_get_lock_all (plugin_slot->settings) ? "true" : "false");
+      
+      /* control rows */
+      for (control = 0; control < plugin_slot->plugin->desc->control_port_count; control++)
         {
-          err = fprintf (file, "%d\n", settings_get_lock_all (settings));
-          if (err < 0)
+          controlrow = xmlNewChild (tree, NULL, "controlrow", NULL);
+          
+          /* locked */
+          if (plugin_slot->plugin->copies > 1)
+            xmlNewChild (controlrow, NULL, "lock", settings_get_lock (plugin_slot->settings, control) ? "true" : "false" );
+          
+          /* plugin values */
+          for (copy = 0; copy < plugin_slot->plugin->copies; copy++)
             {
-              char * error;
-              error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-              jack_rack_display_error (jack_rack, error);
-              g_free (error);
-              return;
-            }
-        }*/
-      
-      
-      if (desc->control_port_count > 0)
-        {
-          for (control = 0; control < desc->control_port_count; control++)
-            {
-              /* locks */
-/*              if (desc->mono)
-                {
-                  err = fprintf (file, "%d\n", settings_get_lock (settings, control));
-                  if (err < 0)
-                    {
-                      char * error;
-                      error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-                      jack_rack_display_error (jack_rack, error);
-                      g_free (error);
-                      return;
-                    }
-                }*/
-              
-              /* control values */
-/*              for (copy = 0; copy < plugin_copies (desc); copy++)
-                {
-                  err = fprintf (file, "%f\n", settings_get_control_value (settings, control, copy));
-                  if (err < 0)
-                    {
-                      char * error;
-                      error = g_strdup_printf ("Error writing to file '%s':\n\n%s", filename, strerror (errno));
-                      jack_rack_display_error (jack_rack, error);
-                      g_free (error);
-                      return;
-                    }
-                } */
+              sprintf (num, "%g", settings_get_control_value (plugin_slot->settings, copy, control));
+              xmlNewChild (controlrow, NULL, "value", num);
             }
         }
     }
   
-  jack_rack_set_filename (jack_rack, filename);
+  return doc;
 }
 
-void
-jack_rack_save_file (jack_rack_t * jack_rack, const char * filename)
+int
+ui_save_file (ui_t * ui, const char * filename)
 {
-  FILE * file;
+  xmlDocPtr doc;
   int err;
   
-  file = fopen (filename, "w");
-  if (!file)
+  doc = jack_rack_create_doc (ui->jack_rack);
+  
+  err = xmlSaveFile (filename, doc);
+  if (err == -1)
+    ui_display_error (ui, _("Could not save file '%s'"), filename);
+  else
+    err = 0;
+  
+  xmlFreeDoc (doc);
+  
+  return err;
+}
+
+static saved_rack_t *
+saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
+{
+  xmlNodePtr jackrack, plugin, controlrow, value;
+  saved_rack_t *saved_rack;
+  xmlChar *content;
+  settings_t * settings;
+  unsigned long num;
+  plugin_desc_t * desc;
+  guint copy;
+  unsigned long control;
+  
+  /* create the saved rack */
+  saved_rack = g_malloc (sizeof (saved_rack_t));
+  saved_rack->settings = NULL;
+  
+  jackrack = doc->children->next;
+  
+  content = xmlNodeGetContent (jackrack->children);
+  saved_rack->channels = strtoul (content, NULL, 10);
+  xmlFree (content);
+  
+  content = xmlNodeGetContent (jackrack->children->next);
+  saved_rack->sample_rate = strtoul (content, NULL, 10);
+  xmlFree (content);
+  
+  plugin = jackrack->children->next->next;
+  
+  if (!plugin)
     {
-      char * error;
-      error = g_strdup_printf ("Error opening file '%s' for writing:\n\n%s", filename, strerror (errno));
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
-      return;
+      g_free (saved_rack);
+      return NULL;
     }
   
-  jack_rack_write_file (jack_rack, file, filename);
-  
-  err = fclose (file);
-  if (!file)
+  do
     {
-      char * error;
-      error = g_strdup_printf ("Error closing file '%s' after writing:\n\n%s", filename, strerror (errno));
-      jack_rack_display_error (jack_rack, error);
-      g_free (error);
+    
+      /* id */
+      content = xmlNodeGetContent (plugin->children);
+      num = strtoul (content, NULL, 10);
+      xmlFree (content);
+      
+      desc = plugin_mgr_get_any_desc (ui->plugin_mgr, num);
+      if (!desc)
+        {
+          ui_display_error (ui, _("The file '%s' contains an unknown plugin with ID '%ld'; skipping"), filename, num);
+          continue;
+        }
+      
+      settings = settings_new (desc, plugin_desc_get_copies (desc, saved_rack->channels), saved_rack->sample_rate);
+      
+      /* enabled */
+      content = xmlNodeGetContent (plugin->children->next);
+      settings_set_enabled (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+      xmlFree (content);
+      
+      /* lock all */
+      if (settings_get_copies (settings) > 1)
+        {
+          content = xmlNodeGetContent (plugin->children->next->next);
+          settings_set_lock_all (settings, strcmp (content, "true") == 0 ? TRUE : FALSE);
+          xmlFree (content);
+          
+          controlrow = plugin->children->next->next->next;
+        }
+      else
+        controlrow = plugin->children->next->next;
+      
+      if (!controlrow)
+        continue;
+      
+      control = 0;
+      do
+        {
+          /* lock */
+          if (settings_get_copies (settings) > 1)
+            {
+              content = xmlNodeGetContent (controlrow->children);
+              settings_set_lock (settings, control, strcmp (content, "true") == 0 ? TRUE : FALSE);
+              xmlFree (content);
+              
+              value = controlrow->children->next;
+            }
+          else
+            value = controlrow->children;
+          
+          copy = 0;
+          do
+            {
+              content = xmlNodeGetContent (value);
+              settings_set_control_value (settings, copy, control, strtof (content, NULL));
+              xmlFree (content);
+              
+              copy++;
+            }
+          while ( (value = value->next) );
+          
+          control++;
+        }
+      while ( (controlrow = controlrow->next) );
+      
+      saved_rack->settings = g_slist_append (saved_rack->settings, settings);
     }
+  while ( (plugin = plugin->next) );
+  
+  return saved_rack;
 }
 
-
-saved_plugin_t *
-saved_plugin_new ()
+static void
+saved_rack_destroy (saved_rack_t * saved_rack)
 {
-  saved_plugin_t * sp;
+  GSList * list;
   
-  sp = g_malloc (sizeof (saved_plugin_t));
+  for (list = saved_rack->settings; list; list = g_slist_next (list))
+    settings_destroy ((settings_t *) list->data);
+  g_slist_free (saved_rack->settings);
   
-  sp->enabled = FALSE;
-  sp->desc = NULL;
-  sp->settings = NULL;
-  
-  return sp;
+  g_free (saved_rack);
 }
 
-void
-saved_plugin_destroy (saved_plugin_t * saved_plugin)
+int
+ui_open_file (ui_t * ui, const char * filename)
 {
-  g_free (saved_plugin);
+  xmlDocPtr doc;
+  saved_rack_t * saved_rack;
+  ctrlmsg_t ctrlmsg;
+  GSList * list;
+  settings_t * settings;
+
+  doc = xmlParseFile (filename);
+  if (!doc)
+    {
+      ui_display_error (ui, _("Could not parse file '%s'"), filename);
+      return 1;
+    }
+  
+  if (strcmp ( ((xmlDtdPtr)doc->children)->name, "jackrack") != 0)
+    {
+      ui_display_error (ui, _("The file '%s' is not a JACK Rack settings file"), filename);
+      return 1;
+    }
+  
+  saved_rack = saved_rack_new (ui, filename, doc);
+  xmlFreeDoc (doc);
+  
+  if (!saved_rack)
+    return 1;
+
+  if (ui->jack_rack->slots)
+    {
+      gboolean ok;
+      
+      ok = ui_get_ok (ui, _("The current rack will be cleared.\n\nAre you sure you want to continue?"));
+      
+      if (!ok)
+        {
+          saved_rack_destroy (saved_rack);
+          return 1;
+        }
+    }
+  
+  if (saved_rack->channels != ui->jack_rack->channels)
+    ui_set_channels (ui, saved_rack->channels);
+  
+  ctrlmsg.type = CTRLMSG_CLEAR;
+  lff_write (ui->ui_to_process, &ctrlmsg);
+  
+  for (list = saved_rack->settings; list; list = g_slist_next (list))
+    {
+      settings = (settings_t *) list->data;
+      
+      settings_set_sample_rate (settings, sample_rate);
+      
+      jack_rack_add_plugin (ui->jack_rack, settings->desc);
+    }
+  
+  ui->jack_rack->saved_settings = saved_rack->settings;
+  
+  g_free (saved_rack);
+  
+  return 0;
 }
+
+
+#endif /* HAVE_XML */
+
+/* EOF */
+
+

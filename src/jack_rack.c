@@ -48,7 +48,6 @@ jack_rack_new (ui_t * ui, unsigned long channels)
 
   rack = g_malloc (sizeof (jack_rack_t));
   rack->slots = NULL;
-  rack->filename = NULL;
   rack->saved_settings = NULL;
   rack->ui = ui;
   rack->channels = channels;
@@ -146,7 +145,6 @@ jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
     }
 
   /* create the plugin_slot */
-  settings = NULL;
   plugin_slot = plugin_slot_new (jack_rack, plugin, settings);
   
   if (settings)
@@ -285,44 +283,6 @@ plugin_slot_t *
 jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index)
 {
   return (plugin_slot_t *) g_list_nth_data (jack_rack->slots, plugin_index);
-}
-
-void
-jack_rack_display_error (jack_rack_t * jack_rack, const char * message)
-{
-  static GtkWidget * dialog = NULL;
-  
-  if (!dialog)
-    dialog = gtk_message_dialog_new (GTK_WINDOW (jack_rack->ui->main_window),
-                                     GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_ERROR,
-                                     GTK_BUTTONS_OK,
-                                     "%s", message);
-
-  gtk_dialog_run (GTK_DIALOG(dialog));
-  gtk_widget_hide (dialog);
-}
-
-void
-jack_rack_set_filename (jack_rack_t * jack_rack, const char * filename)
-{
-  const char * base_filename;
-  char * window_title;
-  
-  if (jack_rack->filename == filename)
-    return;
-  
-  set_string_property (jack_rack->filename, filename);
-
-  base_filename = strrchr (filename, '/');
-  if (base_filename)
-    base_filename++;
-  else
-    base_filename = filename;
-    
-  window_title = g_strdup_printf ("%s - %s", PACKAGE_NAME, base_filename);
-  gtk_window_set_title (GTK_WINDOW (jack_rack->ui->main_window), window_title);
-  g_free (window_title);
 }
 
 

@@ -50,4 +50,7 @@ extern struct _ui * global_ui;
     
 #define _(x) x
 
+extern gboolean connect_inputs;
+extern gboolean connect_outputs;
+
 #endif /* __JLH_GLOBALS_H__ */

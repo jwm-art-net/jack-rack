@@ -26,6 +26,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdarg.h>
 
 #include <gtk/gtk.h>
 #include <ladspa.h>
@@ -48,9 +49,11 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *file_menuitem;
   GtkWidget *file_menu;
   GtkWidget *new;
+#ifdef HAVE_XML
   GtkWidget *open;
   GtkWidget *save;
   GtkWidget *save_as;
+#endif /* HAVE_XML */
   GtkWidget *separator;
   GtkWidget *quit;
 #ifdef HAVE_GNOME
@@ -68,16 +71,16 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_widget_show (menubar);
   gtk_container_add (GTK_CONTAINER (menubar_handle), menubar);
   
-  file_menuitem = gtk_menu_item_new_with_label ("File");
+  file_menuitem = gtk_menu_item_new_with_label (_("File"));
   gtk_widget_show (file_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), file_menuitem);
   
-  ui->add_menuitem = gtk_menu_item_new_with_label ("Add");
+  ui->add_menuitem = gtk_menu_item_new_with_label (_("Add"));
   gtk_widget_show (ui->add_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), ui->add_menuitem);
 
 #ifdef HAVE_GNOME  
-  help_menuitem = gtk_menu_item_new_with_label ("Help");
+  help_menuitem = gtk_menu_item_new_with_label (_("Help"));
   gtk_widget_show (help_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), help_menuitem);
 #endif
@@ -92,6 +95,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   g_signal_connect (G_OBJECT (new), "activate",
                     G_CALLBACK (new_cb), ui);
 
+#ifdef HAVE_XML
   open = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
   gtk_widget_show (open);
   gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), open);
@@ -109,6 +113,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), save_as);
   g_signal_connect (G_OBJECT (save_as), "activate",
                     G_CALLBACK (save_as_cb), ui);
+#endif /* HAVE_XML */
 
 #ifdef HAVE_LADCCA
   if (cca_enabled (global_cca_client))
@@ -117,7 +122,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
       gtk_widget_show (separator);
       gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), separator);
 
-      ui->cca_save_menu_item = gtk_menu_item_new_with_label ("Save project");
+      ui->cca_save_menu_item = gtk_menu_item_new_with_label (_("Save project"));
       gtk_widget_show (ui->cca_save_menu_item);
       gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->cca_save_menu_item);
       g_signal_connect (G_OBJECT (ui->cca_save_menu_item), "activate",
@@ -189,7 +194,8 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   GtkWidget *toolbar;
   GtkWidget *plugin_scroll;
   GtkWidget *plugin_viewport;
-  GtkWidget *channel_spin;
+  GtkWidget *channel_label;
+  GtkWidget *channel_box;
 
 
   /* main window */
@@ -221,59 +227,60 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
   ui->add = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                                         GTK_STOCK_ADD,
-                                        "Add a plugin",
+                                        _("Add a plugin"),
                                         NULL, NULL, NULL, -1);
   g_signal_connect_swapped (G_OBJECT (ui->add), "event",
                             G_CALLBACK (plugin_button_cb),
                             G_OBJECT (ui->add_menu));
                                                          
-  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
   /* channel spin */  
-  channel_spin = gtk_spin_button_new_with_range (1.0, G_MAXUINT, 1.0);
-  gtk_widget_show (channel_spin);
-  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (channel_spin), 0);
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (channel_spin), channels);
-  g_signal_connect (G_OBJECT (channel_spin), "value-changed",
-                    G_CALLBACK (channel_cb), ui);
+  channel_box = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (channel_box);
   gtk_toolbar_append_widget (GTK_TOOLBAR (toolbar),
-                             channel_spin,
-                             "Change the number of channels the rack has",
+                             channel_box,
+                             _("Change the number of channels the rack has"),
                              NULL);
+  
+  
+  ui->channels = gtk_spin_button_new_with_range (1.0, 60, 1.0);
+  gtk_widget_show (ui->channels);
+  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (ui->channels), 0);
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channels), channels);
+  g_signal_connect (G_OBJECT (ui->channels), "value-changed",
+                    G_CALLBACK (channel_cb), ui);
+  gtk_box_pack_start (GTK_BOX (channel_box), ui->channels, FALSE, TRUE, 0);
+  
+
+  channel_label = gtk_label_new (_("Channels"));
+  gtk_widget_show (channel_label);
+  gtk_box_pack_start (GTK_BOX (channel_box), channel_label, FALSE, TRUE, 0);
                              
   
-/*  gtk_toolbar_append_element (GTK_TOOLBAR (toolbar),
-                              GTK_TOOLBAR_CHILD_WIDGET,
-                              channel_spin,
-                              "Channels",
-                              "Change the number of channels the rack has",
-                              NULL,
-                              NULL,
-                              NULL,
-                              NULL);*/
-
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
 
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_NEW,
-                            "Clear the ui",
+                            _("Clear the rack"),
                             NULL, G_CALLBACK (new_cb), ui, -1);
 
+#ifdef HAVE_XML
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_OPEN,
-                            "Open a ui configuration file",
+                            _("Open a rack configuration file"),
                             NULL, G_CALLBACK (open_cb), ui, -1);
 
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_SAVE,
-                            "Save the ui configuration to the current file",
+                            _("Save the rack configuration to the current file"),
                             NULL, G_CALLBACK (save_cb), ui, -1);
 
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_SAVE_AS,
-                            "Save the ui configuration to a file",
+                            _("Save the rack configuration to a file"),
                             NULL, G_CALLBACK (save_as_cb), ui, -1);
+#endif /* HAVE_XML */
 
 #ifdef HAVE_LADCCA
   if (cca_enabled (global_cca_client))
@@ -282,16 +289,16 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
       ui->cca_save = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                                            GTK_STOCK_SAVE,
-                                           "Save the LADCCA project",
+                                           _("Save the LADCCA project"),
                                            NULL, G_CALLBACK (cca_save_cb), ui, -1);
     }
 
-#endif
+#endif /* HAVE_LADCCA */
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
                             GTK_STOCK_QUIT,
-                            "Quit JACK Rack",
+                            _("Quit JACK Rack"),
                             NULL, G_CALLBACK (quit_cb), ui, -1);
 
 
@@ -415,31 +422,71 @@ ui_destroy (ui_t * ui)
 }
 
 void
-ui_display_error (ui_t * ui, const char * message)
+ui_display_error (ui_t * ui, const char * format, ...)
 {
-  GtkWidget * dialog = NULL;
+  va_list args;
+  gchar * text;
+  GtkWidget * dialog;
+  
+  va_start(args, format);
+  
+  text = g_strdup_vprintf (format, args);
 
   dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
                                    GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                                    GTK_MESSAGE_ERROR,
                                    GTK_BUTTONS_OK,
-                                   "%s", message);
+                                   "%s", text);
+  
+  g_free (text);
 
   gtk_dialog_run (GTK_DIALOG(dialog));
   gtk_widget_destroy (dialog);
+  
+  va_end(args);
+}
+
+void
+ui_display_splash_text (ui_t * ui, const char * format, ...)
+{
+  va_list args;
+  gchar * text;
+  short j;
+  
+  if (!ui->splash_screen)
+    return;
+  
+  va_start(args, format);
+  
+  text = g_strdup_vprintf (format, args);
+  gtk_label_set_text (GTK_LABEL (ui->splash_screen_text), text);
+  g_free (text);
+  
+  for (j = 0; j < 5; j++)
+    gtk_main_iteration_do (FALSE);
+  
+  va_end(args);
 }
 
 gboolean
-ui_get_ok (ui_t * ui, const char * message)
+ui_get_ok (ui_t * ui, const char * format, ...)
 {
-  GtkWidget * dialog = NULL;
+  GtkWidget * dialog;
   gint response;
+  va_list args;
+  gchar * text;
+  
+  va_start(args, format);
+  
+  text = g_strdup_vprintf (format, args);
+  va_end(args);
   
   dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
                                    GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                                    GTK_MESSAGE_QUESTION,
                                    GTK_BUTTONS_OK_CANCEL,
-                                   "%s", message);
+                                   "%s", text);
+  g_free (text);
 
   response = gtk_dialog_run (GTK_DIALOG(dialog));
   gtk_widget_destroy (dialog);
@@ -453,23 +500,28 @@ ui_get_ok (ui_t * ui, const char * message)
 void
 ui_set_filename (ui_t * ui, const char * filename)
 {
-  const char * base_filename;
-  char * window_title;
-  
   if (ui->filename == filename)
     return;
   
   set_string_property (ui->filename, filename);
 
-  base_filename = strrchr (filename, '/');
-  if (base_filename)
-    base_filename++;
-  else
-    base_filename = filename;
+  if (filename)
+    {
+      const char * base_filename;
+      char * window_title;
+      
+      base_filename = strrchr (filename, '/');
+      if (base_filename)
+        base_filename++;
+      else
+        base_filename = filename;
     
-  window_title = g_strdup_printf ("%s - %s", PACKAGE_NAME, base_filename);
-  gtk_window_set_title (GTK_WINDOW (ui->main_window), window_title);
-  g_free (window_title);
+      window_title = g_strdup_printf ("%s - %s", PACKAGE_NAME, base_filename);
+      gtk_window_set_title (GTK_WINDOW (ui->main_window), window_title);
+      g_free (window_title);
+    }
+  else
+    gtk_window_set_title (GTK_WINDOW (ui->main_window), PACKAGE_NAME);
 }
 
 
@@ -488,21 +540,10 @@ ui_get_state (ui_t * ui)
 void
 ui_set_channels (ui_t * ui, unsigned long channels)
 {
-  gint i;
   GList * slots, * list;
   plugin_slot_t * plugin_slot;
   plugin_t * plugin;
 
-  if (ui->jack_rack->slots)
-    {
-      gboolean ok;
-      
-      ok = ui_get_ok (ui, "Changing the number of channels will clear the current rack.\n\nAre you sure you want to do this?");
-      
-      if (!ok)
-        return;
-    }
-    
   jack_deactivate (ui->procinfo->jack_client);
   
   /* sort out the procinfo */
@@ -527,7 +568,7 @@ ui_set_channels (ui_t * ui, unsigned long channels)
   
   
   /* recreate the rack */
-  process_info_set_port_count (ui->procinfo, ui, channels);
+  process_info_set_channels (ui->procinfo, ui, channels);
   plugin_mgr_set_plugins (ui->plugin_mgr, channels);
   ui->jack_rack = jack_rack_new (ui, channels);
 
@@ -537,7 +578,7 @@ ui_set_channels (ui_t * ui, unsigned long channels)
                             G_CALLBACK (plugin_button_cb),
                             G_OBJECT (ui->add_menu));
   
-  
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (ui->channels), channels);
   
   jack_activate (ui->procinfo->jack_client);
 }
