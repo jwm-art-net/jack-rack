@@ -8,6 +8,8 @@
 * Display of plugins' execution time
 * Save window size/position
 * Gain controls for aux in/out
+* use plugin graphs instead of chains
+* use lrdf data over in-plugin data
 
 
  In 1.4.0

@@ -484,27 +484,33 @@ plugin_mgr_menu_descend (GSList ** plugins,
           
           g_free (newbase);
         }
+
+      lrdf_free_uris (uris);
     }
     
   
   uris = lrdf_get_instances(uri);
   if (uris)
-    for (i = 0; i < uris->count; i++)
-      {
-        menu_item = plugin_mgr_menu_item (plugins, (unsigned long) lrdf_get_uid (uris->items[i]),
-                                          callback, data);
+    {
+      for (i = 0; i < uris->count; i++)
+        {
+          menu_item = plugin_mgr_menu_item (plugins, (unsigned long) lrdf_get_uid (uris->items[i]),
+                                            callback, data);
         
-        if (menu_item)
-          {
-            if (!menu)
-              {
-                menu = gtk_menu_new ();
-                gtk_widget_show (menu);
-              }
+          if (menu_item)
+            {
+              if (!menu)
+                {
+                  menu = gtk_menu_new ();
+                  gtk_widget_show (menu);
+                }
             
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-          }
-      }
+              gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+            }
+        }
+      
+      lrdf_free_uris (uris);
+    }
     
   return menu;
 }

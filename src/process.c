@@ -472,7 +472,7 @@ process_info_connect_port (process_info_t * procinfo,
   free (jack_ports);
 }
 
-void
+int
 process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long port_count)
 {
   unsigned long i;
@@ -522,7 +522,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
             fprintf (stderr, "%s: could not register port '%s'; aborting\n",
                      __FUNCTION__, port_name);
             ui_display_error (ui, "Could not register JACK port '%s'; aborting", port_name);
-            abort ();
+            return 1;
           }
 
         ui_display_splash_text (ui, "Created %s port %s", in ? "input" : "output", port_name);
@@ -535,6 +535,8 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
     }
   
   procinfo->port_count = port_count;
+
+  return 0;
 }
 
 void
@@ -581,11 +583,13 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   if (err)
     {
 /*      g_free (procinfo); */
-/*      return NULL; */
-      abort ();
+      return NULL;
+/*      abort (); */
     }
-    
-  process_info_set_port_count (procinfo, ui, rack_channels);
+  
+  err = process_info_set_port_count (procinfo, ui, rack_channels);
+  if (err)
+    return NULL;
   
   sample_rate = jack_get_sample_rate (procinfo->jack_client);
   buffer_size = jack_get_sample_rate (procinfo->jack_client);

@@ -273,14 +273,14 @@ about_cb (GtkWidget * widget, gpointer user_data)
       g_error_free (err);
     }
   g_free (logo_file);
-  
+ 
   dialog = gnome_about_new (PACKAGE_NAME,
                               PACKAGE_VERSION,
                               "Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>",
-                              "An LADSPA effects rack for the JACK audio API",
+                              _("An LADSPA effects rack for the JACK audio API"),
                               authors,
                               documenters,
-                              _(""),
+                              "",
                               logo);
   
   url = gnome_href_new (JACK_RACK_URL, JACK_RACK_URL);

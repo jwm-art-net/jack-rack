@@ -424,6 +424,9 @@ ui_new (unsigned long channels)
   ui_init_splash_screen (ui);
   
   ui->procinfo = process_info_new (ui, channels);
+  if (!ui->procinfo)
+    return NULL;
+
 #ifdef HAVE_ALSA
   ui->midi_info   = midi_info_new (ui);
 #endif

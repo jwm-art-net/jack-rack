@@ -1,4 +1,4 @@
-SUBDIRS = pixmaps src
+SUBDIRS = pixmaps src po 
 
 EXTRA_DIST = \
 	autogen.sh \

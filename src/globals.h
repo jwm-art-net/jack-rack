@@ -47,7 +47,17 @@ extern cca_client_t * global_cca_client;
   else \
     (property) = NULL;
     
+#ifdef HAVE_GNOME
+#include <libgnome/gnome-i18n.h>
+#else
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(x) gettext(x)
+#else
 #define _(x) x
+#endif
+#define N_(x) x
+#endif
 
 extern struct _ui *global_ui;
 extern gboolean   connect_inputs;

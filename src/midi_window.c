@@ -86,7 +86,7 @@ midi_window_create_control_view (midi_window_t *mwin)
                     G_CALLBACK (channel_cb), mwin);
   
   column   = gtk_tree_view_column_new_with_attributes (
-               _("Channel"), channel_renderer, "text", CHANNEL_COLUMN, NULL);
+               _("MIDI Channel"), channel_renderer, "text", CHANNEL_COLUMN, NULL);
   gtk_tree_view_append_column (GTK_TREE_VIEW (mwin->controls_view), column);
 
   /* param column */
@@ -96,7 +96,7 @@ midi_window_create_control_view (midi_window_t *mwin)
                     G_CALLBACK (param_cb), mwin);
   
   column = gtk_tree_view_column_new_with_attributes (
-             _("Controller"), param_renderer, "text", PARAM_COLUMN, NULL);
+             _("MIDI Controller"), param_renderer, "text", PARAM_COLUMN, NULL);
   gtk_tree_view_append_column (GTK_TREE_VIEW (mwin->controls_view), column);
 
 }

@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <signal.h>
+#include <locale.h>
 
 #ifdef HAVE_LADCCA
 #include <ladcca/ladcca.h>
@@ -122,7 +123,13 @@ int main (int argc, char ** argv) {
   cca_args_t * cca_args;
   cca_event_t * cca_event;
 #endif  
-  
+
+#ifdef ENABLE_NLS
+  setlocale(LC_ALL, "");
+  bindtextdomain("jack-rack", NLSDIR);
+  textdomain("jack-rack");
+  bind_textdomain_codeset("jack-rack", "UTF-8");
+#endif
 
   /* fuck the gnome popt bollocks */
   for (opt = 1; opt < argc; opt++)
@@ -229,6 +236,8 @@ int main (int argc, char ** argv) {
 #endif
 
   global_ui = ui_new (channels);
+  if (!global_ui)
+    return 1;
   
   /* ignore the sighup (the jack client thread needs to deal with it) */
   signal (SIGHUP, SIG_IGN);

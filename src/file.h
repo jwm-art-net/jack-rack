@@ -29,6 +29,8 @@
 
 #include <glib.h>
 
+#include "plugin_settings.h"
+
 typedef struct _saved_plugin saved_plugin_t;
 
 struct _saved_plugin

@@ -1,3 +1,9 @@
+1.4.2:
+
+* fixed some segfaults
+* fixed some bad configure script checks
+* i18n support, courtesy of Alexandre Prokoudine
+
 1.4.1:
 
 * icon and .desktop get installed properly
