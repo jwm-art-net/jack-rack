@@ -39,9 +39,6 @@ struct _jack_rack
   unsigned long     channels;
   GList *           slots;
   
-  lff_t *           ui_to_process;
-  lff_t *           process_to_ui;
-  
   char *            filename;
   GSList *          saved_settings;
 };

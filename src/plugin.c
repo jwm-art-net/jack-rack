@@ -29,7 +29,7 @@
 #include "jack_rack.h"
 #include "process.h"
 
-#define CONTROL_FIFO_SIZE   256
+#define CONTROL_FIFO_SIZE   128
 
 
 /** connect up the ladspa instance's input buffers to the previous
@@ -361,29 +361,40 @@ plugin_init_holder (ladspa_holder_t * holder,
                     LADSPA_Handle instance)
 {
   unsigned long i;
+  plugin_desc_t * desc;
+  
+  desc = plugin->desc;
   
   holder->instance = instance;
   
-  holder->control_fifos  = g_malloc (sizeof (lff_t) * plugin->desc->control_port_count);
-  holder->control_memory = g_malloc (sizeof (LADSPA_Data) * plugin->desc->control_port_count);
+  if (desc->control_port_count > 0)
+    {
+      holder->control_fifos  = g_malloc (sizeof (lff_t) * desc->control_port_count);
+      holder->control_memory = g_malloc (sizeof (LADSPA_Data) * desc->control_port_count);
+    }
+  else
+    {
+      holder->control_fifos  = NULL;
+      holder->control_memory = NULL;
+    }
   
-  for (i = 0; i < plugin->desc->control_port_count; i++)
+  for (i = 0; i < desc->control_port_count; i++)
     {
       lff_init (holder->control_fifos + i, CONTROL_FIFO_SIZE, sizeof (LADSPA_Data));
       
       holder->control_memory[i] =
-        plugin_desc_get_default_control_value (plugin->desc, plugin->desc->control_port_indicies[i], sample_rate);        
+        plugin_desc_get_default_control_value (desc, desc->control_port_indicies[i], sample_rate);        
       
       plugin->descriptor->
-        connect_port (instance, plugin->desc->control_port_indicies[i], holder->control_memory + i);
+        connect_port (instance, desc->control_port_indicies[i], holder->control_memory + i);
     }
   
-  for (i = 0; i < plugin->desc->port_count; i++)
+  for (i = 0; i < desc->port_count; i++)
     {
-      if (!LADSPA_IS_PORT_CONTROL (plugin->desc->port_descriptors[i]))
+      if (!LADSPA_IS_PORT_CONTROL (desc->port_descriptors[i]))
         continue;
       
-      if (LADSPA_IS_PORT_OUTPUT (plugin->desc->port_descriptors[i]))
+      if (LADSPA_IS_PORT_OUTPUT (desc->port_descriptors[i]))
         plugin->descriptor-> connect_port (instance, i, &unused_control_port_output);
     }
 }
@@ -431,7 +442,7 @@ plugin_new (plugin_desc_t * desc, unsigned long rack_channels)
   
   plugin->audio_memory = g_malloc (sizeof (LADSPA_Data *) * rack_channels);
   for (i = 0; i < rack_channels; i++)
-    plugin->audio_memory = g_malloc (sizeof (LADSPA_Data) * buffer_size);
+    plugin->audio_memory[i] = g_malloc (sizeof (LADSPA_Data) * buffer_size);
   
   plugin->holders = g_malloc (sizeof (ladspa_holder_t) * copies);
   for (i = 0; i < copies; i++)

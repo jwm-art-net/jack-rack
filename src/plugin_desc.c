@@ -85,7 +85,7 @@ plugin_desc_new_with_descriptor (const char * object_file,
   plugin_desc_set_properties  (pd, descriptor->Properties);
   plugin_desc_set_ports       (pd, descriptor->PortCount, descriptor->PortDescriptors, descriptor->PortRangeHints);
   
-  pd->rt = LADSPA_IS_HARD_RT_CAPABLE(pd->properties);
+  pd->rt = LADSPA_IS_HARD_RT_CAPABLE(pd->properties) ? TRUE : FALSE;
 
   return pd;
 }
@@ -157,7 +157,7 @@ plugin_desc_set_port_counts (plugin_desc_t * pd)
           if (LADSPA_IS_PORT_INPUT (pd->port_descriptors[i]))
             plugin_desc_add_audio_port_index (&pd->audio_input_port_indicies, &icount, i);
           else
-            plugin_desc_add_audio_port_index (&pd->audio_input_port_indicies, &ocount, i);
+            plugin_desc_add_audio_port_index (&pd->audio_output_port_indicies, &ocount, i);
         }
       else
         {

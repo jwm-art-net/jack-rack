@@ -26,6 +26,7 @@
 #include "plugin_slot.h"
 #include "port_controls.h"
 #include "callbacks.h"
+#include "globals.h"
 
 #define TEXT_BOX_WIDTH        75
 #define TEXT_BOX_CHARS        -1
@@ -225,13 +226,13 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
     {
       /* lock control */
       port_controls->locked = TRUE;
-      port_controls->lock = gtk_toggle_button_new_with_label ("Lock");
+      port_controls->lock = gtk_toggle_button_new_with_label (_("Lock"));
       gtk_widget_show (port_controls->lock);
       g_signal_connect (G_OBJECT (port_controls->lock), "toggled",
                         G_CALLBACK (control_lock_cb), port_controls);
       gtk_table_attach (GTK_TABLE (plugin_slot->control_table),
                         port_controls->lock,
-                        copies * 2,  copies * 2 + 1,
+                        copies * 2 + 1,  copies * 2 + 2,
                         port_controls->control_index, port_controls->control_index + 1,
                         GTK_FILL, GTK_FILL,
                         0, 0);
@@ -254,7 +255,8 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
       /* control fifo */
       port_controls->controls[i].control_fifo =
         plugin_slot->plugin->holders[i].control_fifos + port_controls->control_index;
-
+      printf ("%s: fifo is at %p, port controls: %p\n",
+              __FUNCTION__, port_controls->controls[i].control_fifo, port_controls);
 
       /* create the controls */
       switch (port_controls->type)
@@ -292,7 +294,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
 
         case JR_CTRL_BOOL:
           port_controls->controls[i].control =
-            gtk_toggle_button_new_with_label ("On");
+            gtk_toggle_button_new_with_label (_("On"));
           g_signal_connect (G_OBJECT
                             (port_controls->controls[i].control),
                             "toggled", G_CALLBACK (control_bool_cb),
@@ -352,7 +354,7 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
 }
 
 port_controls_t *
-port_controls_new	(struct _plugin_slot * plugin_slot)
+port_controls_new	(plugin_slot_t * plugin_slot)
 {
   plugin_desc_t *desc;
   unsigned long i;
@@ -380,11 +382,10 @@ port_controls_new	(struct _plugin_slot * plugin_slot)
       else
         port_controls->type = JR_CTRL_FLOAT;
       
+      port_controls->controls = g_malloc (sizeof (controls_t) * desc->control_port_count);
       
       plugin_slot_create_control_table_row (plugin_slot, port_controls);
     }
-  
-  plugin_slot->port_controls = port_controls_array;
   
   return port_controls_array;
 }

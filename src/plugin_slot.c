@@ -33,6 +33,7 @@
 #include "jack_rack.h"
 #include "process.h"
 #include "ui.h"
+#include "globals.h"
 
 #define TEXT_BOX_WIDTH        75
 #define CONTROL_FIFO_SIZE     256
@@ -105,7 +106,7 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
 static void
 plugin_slot_create_lock_all_button (plugin_slot_t * plugin_slot)
 {
-  plugin_slot->lock_all = gtk_toggle_button_new_with_label ("Lock All");
+  plugin_slot->lock_all = gtk_toggle_button_new_with_label (_("Lock All"));
   g_signal_connect (G_OBJECT (plugin_slot->lock_all), "toggled",
                     G_CALLBACK (slot_lock_all_cb), plugin_slot);
   gtk_widget_show (plugin_slot->lock_all);
@@ -116,7 +117,7 @@ plugin_slot_create_lock_all_button (plugin_slot_t * plugin_slot)
 static void
 plugin_slot_create_control_table (plugin_slot_t * plugin_slot)
 {
-  if (plugin_slot->plugin->desc->control_port_count)
+  if (plugin_slot->plugin->desc->control_port_count > 0)
     {
       unsigned long copies = plugin_slot->plugin->copies;
       plugin_slot->control_table =
@@ -218,7 +219,7 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
                       slot_down, FALSE, FALSE, 0);
 
   /* enable button */
-  plugin_slot->enable = gtk_toggle_button_new_with_label ("Enable");
+  plugin_slot->enable = gtk_toggle_button_new_with_label (_("Enable"));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->enable),
                                 FALSE);
   g_signal_connect (G_OBJECT (plugin_slot->enable), "button-press-event",
@@ -230,8 +231,8 @@ plugin_slot_init_gui (plugin_slot_t * plugin_slot)
 
 
   /* sort out the port controls */
-  if (plugin_slot->plugin->desc->control_port_count > 0
-      && plugin_slot->plugin->copies > 1)
+  if (plugin_slot->plugin->copies > 1
+      && plugin_slot->plugin->desc->control_port_count > 0)
     plugin_slot_create_lock_all_button (plugin_slot);
   else
     plugin_slot->lock_all = NULL;

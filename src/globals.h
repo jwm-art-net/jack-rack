@@ -35,6 +35,7 @@ extern cca_client_t * global_cca_client;
 #define JACK_RACK_ICON_FILE "jack-rack-icon.png"
 #define JACK_RACK_URL "http://pkl.net/~node/jack-rack.html"
 
+
 extern struct _ui * global_ui;
 
 #define set_string_property(property, value) \
@@ -46,5 +47,7 @@ extern struct _ui * global_ui;
     (property) = g_strdup (value); \
   else \
     (property) = NULL;
+    
+#define _(x) x
 
 #endif /* __JLH_GLOBALS_H__ */

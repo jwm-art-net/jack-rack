@@ -53,9 +53,6 @@ jack_rack_new (ui_t * ui, unsigned long channels)
   rack->ui = ui;
   rack->channels = channels;
 
-  rack->ui_to_process = ui->ui_to_process;
-  rack->process_to_ui = ui->process_to_ui;
-
   return rack;
 }
 
@@ -125,7 +122,7 @@ jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   ctrlmsg.type = CTRLMSG_ADD;
   ctrlmsg.pointer = plugin;
   ctrlmsg.second_pointer = desc;
-  lff_write (jack_rack->ui_to_process, &ctrlmsg);
+  lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
 
@@ -154,24 +151,6 @@ jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
   if (settings)
     settings_destroy (settings);
 
-/*  if (jack_rack->slots)
-    {
-      plugin_slot->prev = jack_rack->slots_end;
-      plugin_slot->prev->next = plugin_slot;
-      plugin_slot->next = NULL;
-      jack_rack->slots_end = plugin_slot;
-      plugin_slot->index = plugin_slot->prev->index + 1;
-    }
-  else
-    {
-      plugin_slot->next = NULL;
-      plugin_slot->prev = NULL;
-      jack_rack->slots = plugin_slot;
-      jack_rack->slots_end = plugin_slot;
-      plugin_slot->index = 0;
-    }
-  jack_rack->slot_count++;*/
-  
   jack_rack->slots = g_list_append (jack_rack->slots, plugin_slot);
 
   gtk_box_pack_start (GTK_BOX (jack_rack->ui->plugin_box),

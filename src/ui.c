@@ -308,8 +308,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_widget_show (ui->plugin_box);
 
   gtk_widget_show (ui->main_window);
-
-  gtk_idle_add (idle_cb, ui);
 }
 
 void
@@ -319,13 +317,13 @@ ui_init_splash_screen (ui_t * ui)
   GtkWidget * logo;
   GtkWidget * box;
   int i;
+  gint h, w;
   
   ui->splash_screen = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_realize (ui->splash_screen);
   gtk_window_set_decorated (GTK_WINDOW (ui->splash_screen), FALSE);
   gtk_window_set_resizable (GTK_WINDOW (ui->splash_screen), FALSE);
   gtk_container_set_resize_mode (GTK_CONTAINER (ui->splash_screen), GTK_RESIZE_IMMEDIATE);
-  gtk_window_set_position (GTK_WINDOW (ui->splash_screen), GTK_WIN_POS_CENTER_ALWAYS);
+  
   
   box = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (box), 3);
@@ -342,6 +340,11 @@ ui_init_splash_screen (ui_t * ui)
   gtk_box_pack_start (GTK_BOX (box), ui->splash_screen_text, TRUE, TRUE, 0);
   gtk_misc_set_alignment (GTK_MISC (ui->splash_screen_text), 0.0, 0.5);
   
+  gtk_window_get_size (GTK_WINDOW (ui->splash_screen), &w, &h);
+  gtk_window_move (GTK_WINDOW (ui->splash_screen),
+                   (gdk_screen_width() / 2) - (w / 2),
+                   (gdk_screen_height() / 2) - (h / 2));
+  gtk_window_set_position (GTK_WINDOW (ui->splash_screen), GTK_WIN_POS_CENTER_ALWAYS);
   gtk_widget_show (ui->splash_screen);
 
   for (i = 0; i < 20; i++)
@@ -359,6 +362,7 @@ ui_new (const char * jack_client_name, unsigned long channels)
   ui->filename = NULL;
   ui->shutdown = FALSE;
   ui->state = STATE_NORMAL;
+  ui->main_window = NULL;
 
 #ifdef HAVE_LADCCA  
   ui->cca_save = NULL;
@@ -376,6 +380,8 @@ ui_new (const char * jack_client_name, unsigned long channels)
   ui->plugin_mgr = plugin_mgr_new (ui);
   plugin_mgr_set_plugins (ui->plugin_mgr, channels);
   ui->jack_rack = jack_rack_new (ui, channels);
+
+  gtk_idle_add (idle_cb, ui->jack_rack);
 
   ui_init_gui (ui, channels);
   
@@ -403,7 +409,7 @@ ui_display_error (ui_t * ui, const char * message)
   static GtkWidget * dialog = NULL;
   
   if (!dialog)
-    dialog = gtk_message_dialog_new (GTK_WINDOW (ui->main_window),
+    dialog = gtk_message_dialog_new (ui->main_window ? GTK_WINDOW (ui->main_window) : NULL,
                                      GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                                      GTK_MESSAGE_ERROR,
                                      GTK_BUTTONS_OK,

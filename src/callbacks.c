@@ -82,14 +82,14 @@ channel_cb (GtkSpinButton *spinbutton, gpointer user_data)
 void
 new_cb (GtkWidget * widget, gpointer user_data)
 {
-  jack_rack_t * jack_rack;
+  ui_t * ui;
   ctrlmsg_t ctrlmsg;
   
-  jack_rack = (jack_rack_t *) user_data;
+  ui = (ui_t *) user_data;
   
   ctrlmsg.type = CTRLMSG_CLEAR;
   
-  lff_write (jack_rack->ui_to_process, &ctrlmsg);
+  lff_write (ui->ui_to_process, &ctrlmsg);
 }
 
 static const char *
@@ -122,32 +122,32 @@ void
 open_cb (GtkButton * button, gpointer user_data)
 {
   const char * filename;
-  jack_rack_t * jack_rack;
+  ui_t * ui;
   
-  jack_rack = (jack_rack_t *) user_data;
+  ui = (ui_t *) user_data;
   
-  filename = get_filename (jack_rack);
+  filename = get_filename (ui->jack_rack);
   
   if (!filename)
     return;
   
-  jack_rack_open_file (jack_rack, filename);
+  jack_rack_open_file (ui->jack_rack, filename);
 }
  
 void
 save_cb (GtkButton * button, gpointer user_data)
 {
-  jack_rack_t * jack_rack;
+  ui_t * ui;
   
-  jack_rack = (jack_rack_t *) user_data;
+  ui = (ui_t *) user_data;
   
-  if (!jack_rack->filename)
+  if (!ui->jack_rack->filename)
     {
       save_as_cb (button, user_data);
       return;
     }
   
-  jack_rack_save_file (jack_rack, jack_rack->filename);
+  jack_rack_save_file (ui->jack_rack, ui->jack_rack->filename);
 }
 
 
@@ -156,16 +156,16 @@ void
 save_as_cb (GtkButton * button, gpointer user_data)
 {
   const char * filename;
-  jack_rack_t * jack_rack;
+  ui_t * ui;
   
-  jack_rack = (jack_rack_t *) user_data;
+  ui = (ui_t *) user_data;
   
-  filename = get_filename (jack_rack);
+  filename = get_filename (ui->jack_rack);
   
   if (!filename)
     return;
   
-  jack_rack_save_file (jack_rack, filename);
+  jack_rack_save_file (ui->jack_rack, filename);
 }
  
 #ifdef HAVE_LADCCA
@@ -185,16 +185,16 @@ cca_save_cb (GtkButton * button, gpointer user_data)
 void
 quit_cb (GtkButton * button, gpointer user_data)
 {
-  jack_rack_t * jack_rack;
+  ui_t * ui;
   ctrlmsg_t ctrlmsg;
   
-  jack_rack = user_data;
+  ui = user_data;
   
   ctrlmsg.type = CTRLMSG_CLEAR;
-  lff_write (jack_rack->ui_to_process, &ctrlmsg);
+  lff_write (ui->ui_to_process, &ctrlmsg);
 
   ctrlmsg.type = CTRLMSG_QUIT;
-  lff_write (jack_rack->ui_to_process, &ctrlmsg);
+  lff_write (ui->ui_to_process, &ctrlmsg);
 }
 
 gboolean
@@ -234,7 +234,7 @@ about_cb (GtkWidget * widget, gpointer user_data)
                               "A stereo LADSPA effects rack for the JACK audio API",
                               authors,
                               documenters,
-                              "",
+                              _(""),
                               logo);
   
   url = gnome_href_new (JACK_RACK_URL, JACK_RACK_URL);
@@ -420,7 +420,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   settings_set_control_value (port_controls->plugin_slot->settings, port_controls->control_index, copy, value);
               
     
-  /* possibly set our pair */
+  /* possibly set our peers */
   if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked) {
     unsigned long i;
     for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
@@ -617,7 +617,7 @@ gboolean idle_cb (gpointer data) {
   
   jack_rack_check_kicked (jack_rack);
   
-  while (lff_read (jack_rack->process_to_ui, &ctrlmsg) == 0)
+  while (lff_read (jack_rack->ui->process_to_ui, &ctrlmsg) == 0)
     {
     switch (ctrlmsg.type)
       {

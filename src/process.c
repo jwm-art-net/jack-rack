@@ -50,6 +50,7 @@ int process_control_messages (process_info_t * procinfo) {
     
       /* add a link to the end of the plugin chain */
       case CTRLMSG_ADD:
+        printf ("%s: adding plugin\n", __FUNCTION__);
         plugin = ctrlmsg.pointer;
         process_add_plugin (procinfo, plugin);
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
@@ -357,6 +358,8 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui, const char * cl
   /* sort out ladcca stuff */
   cca_jack_client_name (global_cca_client, client_name);
 #endif
+
+  jack_set_process_callback (procinfo->jack_client, process, procinfo);
   
   return 0;
 }
@@ -458,8 +461,9 @@ process_info_new (ui_t * ui, const char * client_name, unsigned long rack_channe
   err = process_info_connect_jack (procinfo, ui, client_name);
   if (err)
     {
-      g_free (procinfo);
-      return NULL;
+/*      g_free (procinfo); */
+/*      return NULL; */
+      abort ();
     }
     
   process_info_set_port_count (procinfo, ui, rack_channels);

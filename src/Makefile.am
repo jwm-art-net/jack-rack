@@ -32,10 +32,7 @@ jack_rack_CFLAGS = \
 	-DGNOME_DISABLE_DEPRECATED=1 \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPIXMAPDIR=\"$(pixmapdir)\" \
-	-I$(top_srcdir)/range-widget \
-	-std=c99 -Wall
-
-# -pedantic -Werror -g
+	-I$(top_srcdir)/range-widget
 
 jack_rack_LDFLAGS = \
 	$(JACK_LIBS) \
@@ -43,7 +40,3 @@ jack_rack_LDFLAGS = \
 	$(GNOMEUI_LIBS) \
 	$(LADCCA_LIBS) \
 	$(LRDF_LIBS)
-
-# jack_rack_LDADD = $(top_builddir)/range-widget/src/libgtkaudioscale.la
-
-EXTRA_DIST = connect.sh meter.sh

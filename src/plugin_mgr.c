@@ -326,7 +326,7 @@ plugin_mgr_create_menu_item (plugin_desc_t * plugin, GCallback callback, gpointe
     filename = plugin->object_file;
   
   str = g_strdup_printf ("%s (%s, %ld ch%s)", plugin->name, filename,
-                         plugin->channels, plugin->rt ? ", NOT RT" : "");
+                         plugin->channels, plugin->rt ? "" : ", NOT RT");
     
   menu_item = gtk_menu_item_new_with_label (str);
   

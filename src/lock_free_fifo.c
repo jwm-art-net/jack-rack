@@ -50,8 +50,6 @@ lff_new (unsigned int size, size_t object_size)
   return lff;
 }
 
-/** free up the memory used by an initialise()d fifo */
-
 void
 lff_free (lff_t * lff)
 {
