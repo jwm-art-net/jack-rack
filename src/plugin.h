@@ -23,6 +23,7 @@
 
 #include <glib-2.0/glib.h>
 #include <ladspa.h>
+#include <jack/jack.h>
 
 #include "process.h"
 #include "plugin_desc.h"
@@ -35,6 +36,8 @@ struct _ladspa_holder
   LADSPA_Handle instance;
   lff_t * control_fifos;
   LADSPA_Data * control_memory;
+
+  jack_port_t **             aux_ports;
 };
 
 struct _plugin
@@ -44,13 +47,20 @@ struct _plugin
 
   gint                       copies;
   ladspa_holder_t *          holders;
-  LADSPA_Data **             audio_memory;
+  LADSPA_Data **             audio_input_memory;
+  LADSPA_Data **             audio_output_memory;
+  
+  gboolean                   wet_dry_enable;
+  lff_t *                    wet_dry_fifos;
+  /* 1.0 = all wet, 0.0 = all dry, 0.5 = 50% wet/50% dry */
+  LADSPA_Data *              wet_dry_values;
   
   plugin_t *                 next;
   plugin_t *                 prev;
 
   const LADSPA_Descriptor *  descriptor;
   void *                     dl_handle;
+  
 };
 
 void       process_add_plugin    (process_info_t *, plugin_t * plugin);
@@ -59,10 +69,12 @@ void       process_ablise_plugin (process_info_t *, gint plugin_index, gint able
 void       process_move_plugin   (process_info_t *, gint plugin_index, gint up);
 plugin_t * process_change_plugin (process_info_t *, gint plugin_index, plugin_t * new_plugin);
 
-plugin_t * plugin_new (plugin_desc_t * plugin_desc, unsigned long rack_channels);
-void       plugin_destroy (plugin_t * plugin);
+struct _jack_rack;
 
-void plugin_connect_input_ports (plugin_t * plugin);
+plugin_t * plugin_new (plugin_desc_t * plugin_desc, struct _jack_rack * jack_rack);
+void       plugin_destroy (plugin_t * plugin, jack_client_t *);
+
+void plugin_connect_input_ports (plugin_t * plugin, LADSPA_Data ** inputs);
 void plugin_connect_output_ports (plugin_t * plugin);
 
 #endif /* __JR_PLUGIN_H__ */

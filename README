@@ -41,8 +41,8 @@ The -o option works similarly for the outputs.
 
 When you lock a line of controls, all but one of the controls will be
 hidden.  Using the Lock button, this will be the first control. This can
-hinder things if you want to replicate a value which isn't the first.  In
-this case, you can hold down the CTRL key and click on the control you want
+hinder things if you want to use a value which isn't the first.  In this
+case, you can hold down the CTRL key and click on the control you want
 to remain visible.  The line will lock, but the clicked-on control will be
 the visible one.  Clicking with mouse button 3 works similarly, but with
 Lock All instead.

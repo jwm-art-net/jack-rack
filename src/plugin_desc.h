@@ -1,7 +1,7 @@
 /*
  *   jack-rack
  *    
- *   Copyright (C) Robert Ham 2002 (node@users.sourceforge.net)
+ *   Copyright (C) Robert Ham 2002, 2003 (node@users.sourceforge.net)
  *    
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,13 +37,19 @@ struct _plugin_desc
   gboolean                 rt;
   
   unsigned long            channels;
+  
+  gboolean                 aux_are_input;
+  unsigned long            aux_channels;
 
   unsigned long            port_count;
   LADSPA_PortDescriptor *  port_descriptors;
   LADSPA_PortRangeHint *   port_range_hints;
+  char **                  port_names;
   
   unsigned long *          audio_input_port_indicies;
   unsigned long *          audio_output_port_indicies;
+  
+  unsigned long *          audio_aux_port_indicies;
 
   unsigned long            control_port_count;
   unsigned long *          control_port_indicies;
@@ -60,10 +66,6 @@ void plugin_desc_set_index       (plugin_desc_t * pd, unsigned long index);
 void plugin_desc_set_id          (plugin_desc_t * pd, unsigned long id);
 void plugin_desc_set_name        (plugin_desc_t * pd, const char * name);
 void plugin_desc_set_properties  (plugin_desc_t * pd, LADSPA_Properties properties);
-void plugin_desc_set_ports       (plugin_desc_t * pd,
-                                  unsigned long port_count,
-                                  const LADSPA_PortDescriptor * port_descriptors,
-                                  const LADSPA_PortRangeHint * port_range_hints);
 
 struct _plugin * plugin_desc_instantiate (plugin_desc_t * pd);
 

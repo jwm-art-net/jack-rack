@@ -155,9 +155,6 @@ plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)
             }
         }
     }
-  
-  /* enable */
-  plugin_slot_ablise (plugin_slot, settings_get_enabled (settings));
 }
 
 static void
@@ -402,7 +399,7 @@ plugin_slot_ablise        (plugin_slot_t * plugin_slot, gboolean enabled)
   
   ctrlmsg.type = CTRLMSG_ABLE;
   ctrlmsg.number = g_list_index (plugin_slot->jack_rack->slots, plugin_slot);
-  ctrlmsg.pointer = GINT_TO_POINTER(enabled);
+  ctrlmsg.pointer = GINT_TO_POINTER(enabled ? 1 : 0);
   ctrlmsg.second_pointer = plugin_slot;
   
   lff_write (plugin_slot->jack_rack->ui->ui_to_process, &ctrlmsg);

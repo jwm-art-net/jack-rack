@@ -6,15 +6,15 @@
   stereo plugins in one slot and 4 mono plugins in another.  obviously, you
   can also have mono racks now.  use the -c command line option to specify
   the number of channels on startup.
-* when you lock a group of controls, only one widget will be shown.  click
-  on a control while holding down the CTRL key to make it the one that
+* now, when you lock a group of controls, only one widget will be shown.
+  click on a control while holding down the CTRL key to make it the one that
   remains visible.
 * the PID is now used in the jack client name by default.  you can change it
-  to the previous behaviour (of using just "jack_rack") with the -n command
-  line option.
+  to the previous behaviour (of using just "jack_rack") with the -n option.
 * save files now use an XML format (which is incompatible with the previous
   format, sorry)
 * port connecting works now, -i to connect inputs, -o to connect outputs
+* quite a bit of code factoring and cleanups and stuff
 
 
 1.1.2:

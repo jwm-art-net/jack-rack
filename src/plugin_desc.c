@@ -18,10 +18,21 @@
  */
 
 #include <math.h>
+#include <float.h>
 
 #include "plugin_desc.h"
 #include "globals.h"
 #include "plugin.h"
+
+
+void
+plugin_desc_set_ports (plugin_desc_t * pd,
+                       unsigned long port_count,
+ 	               const LADSPA_PortDescriptor * port_descriptors,
+                       const LADSPA_PortRangeHint * port_range_hints,
+                       const char * const * port_names);
+
+
 
 static void
 plugin_desc_init (plugin_desc_t * pd)
@@ -36,8 +47,11 @@ plugin_desc_init (plugin_desc_t * pd)
   pd->port_range_hints = NULL;
   pd->audio_input_port_indicies = NULL;
   pd->audio_output_port_indicies = NULL;
+  pd->audio_aux_port_indicies = NULL;
   pd->control_port_count = 0;
   pd->control_port_indicies = NULL;
+  pd->aux_channels = 0;
+  pd->aux_are_input = TRUE;
 }
 
 static void
@@ -83,7 +97,11 @@ plugin_desc_new_with_descriptor (const char * object_file,
   plugin_desc_set_id          (pd, descriptor->UniqueID);
   plugin_desc_set_name        (pd, descriptor->Name);
   plugin_desc_set_properties  (pd, descriptor->Properties);
-  plugin_desc_set_ports       (pd, descriptor->PortCount, descriptor->PortDescriptors, descriptor->PortRangeHints);
+  plugin_desc_set_ports       (pd,
+                               descriptor->PortCount,
+                               descriptor->PortDescriptors,
+                               descriptor->PortRangeHints,
+                               descriptor->PortNames);
   
   pd->rt = LADSPA_IS_HARD_RT_CAPABLE(pd->properties) ? TRUE : FALSE;
 
@@ -175,17 +193,52 @@ plugin_desc_set_port_counts (plugin_desc_t * pd)
         }
     }
   
-  g_assert (icount == ocount);
-  
-  pd->channels = icount;
+  if (icount == ocount)
+    pd->channels = icount;
+  else
+    { /* deal with auxilliary ports */
+      unsigned long ** port_indicies;
+      unsigned long port_count;
+      unsigned long i, j;
+      
+      if (icount > ocount)
+        {
+          pd->channels = ocount;
+          pd->aux_channels = icount - ocount;
+          pd->aux_are_input = TRUE;
+          port_indicies = &pd->audio_input_port_indicies;
+          port_count = icount;
+        }
+      else
+        {
+          pd->channels = icount;
+          pd->aux_channels = ocount - icount;
+          pd->aux_are_input = FALSE;
+          port_indicies = &pd->audio_output_port_indicies;
+          port_count = ocount;
+        }
+      
+      /* allocate indicies */
+      pd->audio_aux_port_indicies = g_malloc (sizeof (unsigned long) * pd->aux_channels);
+      
+      /* copy indicies */
+      for (i = pd->channels, j = 0; i < port_count; i++, j++)
+        pd->audio_aux_port_indicies[j] = (*port_indicies)[i];
+      
+      /* shrink the main indicies to only have channels indicies */
+      *port_indicies = g_realloc (*port_indicies, sizeof (unsigned long) * pd->channels);
+    }
 }
 
 void
 plugin_desc_set_ports (plugin_desc_t * pd,
                        unsigned long port_count,
                        const LADSPA_PortDescriptor * port_descriptors,
-                       const LADSPA_PortRangeHint * port_range_hints)
+                       const LADSPA_PortRangeHint * port_range_hints,
+                       const char * const * port_names)
 {
+  unsigned long i;
+
   plugin_desc_free_ports (pd);
   
   if (!port_count)
@@ -194,9 +247,13 @@ plugin_desc_set_ports (plugin_desc_t * pd,
   pd->port_count = port_count;
   pd->port_descriptors = g_malloc (sizeof (LADSPA_PortDescriptor) * port_count);
   pd->port_range_hints = g_malloc (sizeof (LADSPA_PortRangeHint) * port_count);
+  pd->port_names       = g_malloc (sizeof (char *) * port_count);
   
   memcpy (pd->port_descriptors, port_descriptors, sizeof (LADSPA_PortDescriptor) * port_count);
   memcpy (pd->port_range_hints, port_range_hints, sizeof (LADSPA_PortRangeHint) * port_count);
+  
+  for (i = 0; i < port_count; i++)
+    pd->port_names[i] = g_strdup (port_names[i]);
   
   plugin_desc_set_port_counts (pd);
 }
@@ -218,6 +275,13 @@ plugin_desc_get_default_control_value (plugin_desc_t * pd, unsigned long port_in
     upper = pd->port_range_hints[port_index].UpperBound;
     lower = pd->port_range_hints[port_index].LowerBound;
   }
+  
+  if (LADSPA_IS_HINT_LOGARITHMIC(hint_descriptor))
+    {
+      if (lower < FLT_EPSILON)
+        lower = FLT_EPSILON;
+    }
+    
 
   if (LADSPA_IS_HINT_HAS_DEFAULT(hint_descriptor)) {
       

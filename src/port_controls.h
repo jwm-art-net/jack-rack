@@ -51,6 +51,7 @@ struct _controls
 struct _port_controls
 {
   control_type_t type;
+  gboolean       logarithmic;
   controls_t *   controls;
 
   /* single copy only stuff */

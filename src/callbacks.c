@@ -498,7 +498,11 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   
   port_controls = (port_controls_t *) user_data;
   
+  
   value = gtk_range_get_value (range);
+  
+  if (port_controls->logarithmic)
+    value = exp (value);
   
   str = g_strdup_printf ("%f", value);
   
@@ -525,10 +529,8 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {
           if (i != copy)
-            {
-              gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
-                                   gtk_range_get_value (range));
-            }
+            gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
+                                 gtk_range_get_value (range));
         }
     }
     
@@ -571,18 +573,22 @@ void control_float_text_cb (GtkEntry * entry, gpointer user_data) {
   
   
   /* set the value in range */
-  gtk_range_set_value (GTK_RANGE(port_controls->controls[copy].control), value);
+  gtk_range_set_value (GTK_RANGE(port_controls->controls[copy].control),
+                       port_controls->logarithmic ? log (value) : value);
     
   /* possibly set our peers */
-  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
+  /* we shouldn't need to do this as the set_value above will do it */
+/*  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
     {
       guint i;
       for (i = 0; i < copy; i++)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
+        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
+                             port_controls->logarithmic ? log (value) : value);
 
       for (i = copy + 1; i < port_controls->plugin_slot->plugin->copies; i++)
-        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control), value);
-    }
+        gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
+                             port_controls->logarithmic ? log (value) : value);
+    } */
   
   set_widget_text_colour (GTK_WIDGET(entry), "Black");
 }
@@ -626,8 +632,6 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
   int value;
   LADSPA_Data data;
   int copy;
-  
-  printf ("%s: boo\n", __FUNCTION__);
   
   port_controls = (port_controls_t *) user_data;
   
@@ -755,7 +759,7 @@ gboolean idle_cb (gpointer data) {
         plugin = ctrlmsg.pointer;
         plugin_slot = ctrlmsg.second_pointer;
         jack_rack_remove_plugin_slot (jack_rack, plugin_slot);
-        plugin_destroy (plugin);
+        plugin_destroy (plugin, ui->procinfo->jack_client);
         break;
 
       case CTRLMSG_MOVE:
@@ -768,7 +772,7 @@ gboolean idle_cb (gpointer data) {
         plugin_slot = jack_rack_get_plugin_slot (jack_rack, ctrlmsg.number);
         plugin = ctrlmsg.pointer;
         jack_rack_change_plugin_slot (jack_rack, plugin_slot, ctrlmsg.second_pointer);
-        plugin_destroy (plugin);
+        plugin_destroy (plugin, ui->procinfo->jack_client);
         break;
 
       case CTRLMSG_ABLE:

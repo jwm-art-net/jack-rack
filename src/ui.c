@@ -254,7 +254,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                                                          
 
   /* channels */
-  channel_icon_file = g_strdup_printf ("%s/pixmaps/%s", JR_DESKTOP_PREFIX, JACK_RACK_CHANNELS_ICON_FILE);
+  channel_icon_file = g_strdup_printf ("%s/%s", PKGDATADIR, JACK_RACK_CHANNELS_ICON_FILE);
   channel_icon = gtk_image_new_from_file (channel_icon_file);
   g_free (channel_icon_file);
   gtk_toolbar_append_item (GTK_TOOLBAR (toolbar),
@@ -567,7 +567,7 @@ ui_set_channels (ui_t * ui, unsigned long channels)
       plugin = plugin_slot->plugin;
       
       jack_rack_remove_plugin_slot (ui->jack_rack, plugin_slot);
-      plugin_destroy (plugin);
+      plugin_destroy (plugin, ui->procinfo->jack_client);
     }
   g_list_free (slots);
   

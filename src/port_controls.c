@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 
 #include <gtk/gtk.h>
 
@@ -54,7 +56,7 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
       lower = desc->port_range_hints[port_index].LowerBound;
       upper = desc->port_range_hints[port_index].UpperBound;
     }
-
+  
   if (!LADSPA_IS_HINT_BOUNDED_BELOW
       (desc->port_range_hints[port_index].HintDescriptor))
     {
@@ -66,6 +68,17 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
     {
       upper = (LADSPA_Data) 100.0;
     }
+
+  if (LADSPA_IS_HINT_LOGARITHMIC (desc->port_range_hints[port_index].HintDescriptor))
+    {
+      if (lower < FLT_EPSILON)
+        lower = FLT_EPSILON;
+        
+      lower = log (lower);
+      upper = log (upper);
+      
+    }
+
 
 /*  printf ("%s: lower: %f, upper: %f, %s\n", __FUNCTION__, lower, upper,
   ›       LADSPA_IS_HINT_SAMPLE_RATE (desc->port_range_hints[port_index].HintDescriptor)
@@ -356,20 +369,16 @@ port_controls_new	(plugin_slot_t * plugin_slot)
 
       /* get the port control type from the hints */
       if (LADSPA_IS_HINT_TOGGLED (desc->port_range_hints[port_controls->port_index].HintDescriptor))
-        {
-          port_controls->type = JR_CTRL_BOOL;
-        }
+        port_controls->type = JR_CTRL_BOOL;
+      else if (LADSPA_IS_HINT_INTEGER (desc->port_range_hints[port_controls->port_index].HintDescriptor))
+        port_controls->type = JR_CTRL_INT;
       else
-        {
-          if (LADSPA_IS_HINT_INTEGER (desc->port_range_hints[port_controls->port_index].HintDescriptor))
-            {
-              port_controls->type = JR_CTRL_INT;
-            }
-          else
-            {
-              port_controls->type = JR_CTRL_FLOAT;
-            }
-        }
+        port_controls->type = JR_CTRL_FLOAT;
+      
+      if (LADSPA_IS_HINT_LOGARITHMIC (desc->port_range_hints[port_controls->port_index].HintDescriptor))
+        port_controls->logarithmic = TRUE;
+      else
+        port_controls->logarithmic = FALSE;
       
       port_controls->controls = g_malloc (sizeof (controls_t) * plugin_slot->plugin->copies);
       

@@ -87,7 +87,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   }
 
   /* create the plugin */
-  plugin = plugin_new (desc, jack_rack->channels);
+  plugin = plugin_new (desc, jack_rack);
 
   if (!plugin) {
     GtkWidget * dialog;
@@ -151,6 +151,8 @@ jack_rack_add_plugin_slot (jack_rack_t * jack_rack, plugin_t * plugin)
     settings_destroy (settings);
 
   jack_rack->slots = g_list_append (jack_rack->slots, plugin_slot);
+  
+  plugin_slot_ablise (plugin_slot, settings_get_enabled (plugin_slot->settings));
 
   gtk_box_pack_start (GTK_BOX (jack_rack->ui->plugin_box),
                       plugin_slot->main_vbox, FALSE, FALSE, 0);
@@ -275,7 +277,7 @@ jack_rack_clear_plugins (jack_rack_t * jack_rack, plugin_t * plugin)
             }
         }
       
-      plugin_destroy (plugin);
+      plugin_destroy (plugin, jack_rack->ui->procinfo->jack_client);
     }
 }
 

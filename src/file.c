@@ -189,7 +189,10 @@ saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
         controlrow = plugin->children->next->next;
       
       if (!controlrow)
-        continue;
+        {
+          saved_rack->settings = g_slist_append (saved_rack->settings, settings);
+          continue;
+        }
       
       control = 0;
       do

@@ -62,7 +62,7 @@ plugin_is_valid (const LADSPA_Descriptor * descriptor)
         ocount++;
     }
   
-  if (icount != ocount || icount == 0)
+  if (icount == 0 || ocount == 0)
     return FALSE;
   
   return TRUE;
@@ -326,19 +326,32 @@ plugin_mgr_create_menu_item (plugin_desc_t * plugin, GCallback callback, gpointe
   GtkWidget * menu_item;
   char * filename;
   char * str;
+  const char * rt_component;
+  char * aux_component;
   
   filename = strrchr (plugin->object_file, '/');
   if (filename)
     filename++;
   else
     filename = plugin->object_file;
+    
+  rt_component = plugin->rt ? "" : _(", NOT RT");
+  aux_component = plugin->aux_channels == 0
+                    ? g_strdup ("")
+                    : g_strdup_printf (", %ld aux %s",
+                                       plugin->aux_channels,
+                                       plugin->aux_are_input ? "in" : "out");
+                  
   
-  str = g_strdup_printf ("%s (%s, %ld %s%s)",
+  str = g_strdup_printf ("%s (%s, %ld %s%s%s)",
                          plugin->name,
                          filename,
                          plugin->channels,
                          _("ch"),
-                         plugin->rt ? "" : _(", NOT RT"));
+                         aux_component,
+                         rt_component);
+  g_free (aux_component);
+  
     
   menu_item = gtk_menu_item_new_with_label (str);
   
