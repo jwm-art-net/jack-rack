@@ -74,7 +74,7 @@ channel_cb (GtkWidget * widget, gpointer user_data)
   
   ui = (ui_t *) user_data;
   
-  dialog = gtk_dialog_new_with_buttons ("I/O Channels",
+  dialog = gtk_dialog_new_with_buttons (_("I/O Channels"),
                                         GTK_WINDOW (ui->main_window),
                                         GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                                         GTK_STOCK_OK,     GTK_RESPONSE_ACCEPT,
@@ -87,7 +87,7 @@ channel_cb (GtkWidget * widget, gpointer user_data)
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (spin), ui->jack_rack->channels);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), spin);
 
-  warning = gtk_label_new ("Warning: changing the number of\nchannels will clear the current rack");
+  warning = gtk_label_new (_("Warning: changing the number of\nchannels will clear the current rack"));
   gtk_widget_show (warning);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), warning);
   
@@ -132,7 +132,7 @@ get_filename ()
   int response;
   
   if (!dialog)
-    dialog = gtk_file_selection_new ("Select file");
+    dialog = gtk_file_selection_new (_("Select file"));
   
   gtk_widget_show (dialog);
   gtk_file_selection_complete (GTK_FILE_SELECTION (dialog), "*.rack");
@@ -343,6 +343,12 @@ deal_with_cca_event (ui_t * ui, cca_event_t * event)
       quit_cb (NULL, ui);
       cca_event_destroy (event);
       break;
+    case CCA_Server_Lost:
+      printf (_("LADCCA server disconnected\n"));
+      gtk_widget_set_sensitive (ui->cca_save, FALSE);
+      gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
+      cca_event_destroy (event);
+      break;
     default:
       fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
       cca_event_destroy (event);
@@ -351,32 +357,12 @@ deal_with_cca_event (ui_t * ui, cca_event_t * event)
 }
 
 static void
-cca_idle (ui_t * ui)
+cca_idle (ui_t * ui, cca_client_t * client)
 {
-  static int ladcca_enabled_at_start = -10;
-  
-  if (ladcca_enabled_at_start == -10)
-    ladcca_enabled_at_start = cca_enabled (global_cca_client);
+  cca_event_t * event;
 
-
-  if (ladcca_enabled_at_start && !cca_enabled (global_cca_client))
-    {
-      /* server disconnected */
-      printf ("LADCCA server disconnected\n");
-      gtk_widget_set_sensitive (global_ui->cca_save, FALSE);
-      gtk_widget_set_sensitive (global_ui->cca_save_menu_item, FALSE);
-      ladcca_enabled_at_start = 0;
-    }
-  
-  if (ladcca_enabled_at_start && cca_enabled (global_cca_client))
-    {
-      cca_event_t * event;
-      
-      while ( (event = cca_get_event (global_cca_client)) )
-        {
-          deal_with_cca_event (ui, event);
-        }
-    }
+  while ( (event = cca_get_event (client)) )
+    deal_with_cca_event (ui, event);
 }
 #endif /* HAVE_LADCCA */
 
@@ -467,10 +453,10 @@ ui_check_kicked (ui_t * ui)
       !shown_shutdown_msg &&
       ui_get_state (ui) != STATE_QUITTING)
     {
-      ui_display_error (ui, "%s\n\n%s%s",
-                        "JACK client thread shut down by server",
-                        "JACK, the bastard, kicked us out.  ",
-                        "You'll have to restart I'm afraid.  Sorry.");
+      ui_display_error (ui, _("%s\n\n%s%s"),
+                        _("JACK client thread shut down by server"),
+                        _("JACK, the bastard, kicked us out.  "),
+                        _("You'll have to restart I'm afraid.  Sorry."));
     
       gtk_widget_set_sensitive (ui->plugin_box, FALSE);
       gtk_widget_set_sensitive (ui->add, FALSE);
@@ -566,7 +552,8 @@ idle_cb (gpointer data)
     }
 
 #ifdef HAVE_LADCCA
-  cca_idle (ui);
+  if (cca_enabled (global_cca_client))
+    cca_idle (ui, global_cca_client);
 #endif
   
   usleep (1000);

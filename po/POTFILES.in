@@ -32,7 +32,6 @@ src/process.h
 src/midi_window.h
 src/plugin_slot_callbacks.h
 src/control_message.h
-src/ac_config.h
 src/jack_rack.h
 src/lock_free_fifo.h
 src/globals.h

@@ -403,18 +403,18 @@ int process (jack_nframes_t frames, void * data) {
 static int
 process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
-  ui_display_splash_text (ui, "Connecting to JACK server with client name '%s'", jack_client_name);
+  ui_display_splash_text (ui, _("Connecting to JACK server with client name '%s'"), jack_client_name);
 
   procinfo->jack_client = jack_client_new (jack_client_name);
 
   if (!procinfo->jack_client)
     {
       fprintf (stderr, "%s: could not create jack client; exiting\n", __FUNCTION__);
-      ui_display_error (ui, "Could not create JACK client\n\nIs the jackd server running?");
+      ui_display_error (ui, _("Could not create JACK client\n\nIs the jackd server running?"));
       return 1;
     }
 
-  ui_display_splash_text (ui, "Connected to JACK server");
+  ui_display_splash_text (ui, _("Connected to JACK server"));
 
 #ifdef HAVE_LADCCA
   /* sort out ladcca stuff */
@@ -454,7 +454,7 @@ process_info_connect_port (process_info_t * procinfo,
         
       full_port_name = g_strdup_printf ("%s:%s", jack_client_name, port_name);
 
-      ui_display_splash_text (ui, "Connecting ports '%s' and '%s'", full_port_name, jack_ports[jack_port_index]);
+      ui_display_splash_text (ui, _("Connecting ports '%s' and '%s'"), full_port_name, jack_ports[jack_port_index]);
 
       err = jack_connect (procinfo->jack_client,
                           in ? jack_ports[jack_port_index] : full_port_name,
@@ -464,7 +464,7 @@ process_info_connect_port (process_info_t * procinfo,
         fprintf (stderr, "%s: error connecting ports '%s' and '%s'\n",
                  __FUNCTION__, full_port_name, jack_ports[jack_port_index]);
       else
-        ui_display_splash_text (ui, "Connected ports '%s' and '%s'", full_port_name, jack_ports[jack_port_index]);
+        ui_display_splash_text (ui, _("Connected ports '%s' and '%s'"), full_port_name, jack_ports[jack_port_index]);
       
       free (full_port_name);
     }
@@ -506,7 +506,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
       {
         port_name = g_strdup_printf ("%s_%ld", in ? "in" : "out", i + 1);
        
-        ui_display_splash_text (ui, "Creating %s port %s", in ? "input" : "output", port_name);
+        ui_display_splash_text (ui, _("Creating %s port %s"), in ? "input" : "output", port_name);
         
         port_ptr = (in ? &procinfo->jack_input_ports[i]
                        : &procinfo->jack_output_ports[i]);
@@ -525,7 +525,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
             return 1;
           }
 
-        ui_display_splash_text (ui, "Created %s port %s", in ? "input" : "output", port_name);
+        ui_display_splash_text (ui, _("Created %s port %s"), in ? "input" : "output", port_name);
         
         if ((in && connect_inputs) || (!in && connect_outputs))
           process_info_connect_port (procinfo, ui, in, i, port_name);

@@ -177,7 +177,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   help_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(help_menuitem), help_menu);
   
-  about = gtk_menu_item_new_with_label ("About");
+  about = gtk_menu_item_new_with_label (_("About"));
   gtk_widget_show (about);
   gtk_menu_shell_append (GTK_MENU_SHELL (help_menu), about);
   g_signal_connect (G_OBJECT (about), "activate",

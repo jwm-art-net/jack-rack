@@ -1,207 +1,381 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# translation of ru.po to Russian
+# Alexandre Prokoudine <avp@altlinux.ru>, 2003
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-06-25 16:31+0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: ru\n"
+"POT-Creation-Date: 2003-07-03 19:14+0100\n"
+"PO-Revision-Date: 2003-07-01 20:33+0400\n"
+"Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=koi8-r\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Report-Msgid-Bugs-To: (null)\n"
+"X-Generator: KBabel 1.0.1\n"
 
-#: ../src/file.c:176
+#: src/ui.c:79
+msgid "File"
+msgstr "Файл"
+
+#: src/ui.c:83
+msgid "Rack"
+msgstr "Эффект-процессор"
+
+#: src/ui.c:89
+msgid "Help"
+msgstr "Справка"
+
+#: src/ui.c:131
+msgid "Save project"
+msgstr "Сохранить·проект"
+
+#: src/ui.c:161 src/ui.c:267
+msgid "Channels"
+msgstr "Каналы"
+
+#: src/ui.c:168
+msgid "MIDI Controls"
+msgstr "MIDI-регуляторы"
+
+#: src/ui.c:180
+msgid "About"
+msgstr "О программе"
+
+#: src/ui.c:255
+msgid "Add a plugin"
+msgstr "Добавить·модуль"
+
+#: src/ui.c:268
+msgid "Change the number of I/O channels the rack has"
+msgstr "Изменить·количество·I/O·портов·эффект-процессора"
+
+#: src/ui.c:279
+msgid "Clear the rack"
+msgstr "Стереть·набор·эффектов"
+
+#: src/ui.c:285
+msgid "Open a rack configuration file"
+msgstr "Открыть·файл·настроек·эффект-процессора"
+
+#: src/ui.c:290
+msgid "Save the rack configuration to the current file"
+msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
+
+#: src/ui.c:295
+msgid "Save the rack configuration to a file"
+msgstr "Сохранить·настройки·эффект-процессора·в·файл"
+
+#: src/ui.c:306
+msgid "Save the LADCCA project"
+msgstr "Сохранить·LADCCA-проект"
+
+#: src/ui.c:315
+msgid "Quit JACK Rack"
+msgstr "Выйти·из·JACK Rack"
+
+#: src/ui.c:345
+msgid "Add MIDI control"
+msgstr "Добавить·MIDI-регулятор"
+
+#: src/plugin_mgr.c:338
+msgid ", NOT RT"
+msgstr ", НЕ RT"
+
+#: src/plugin_mgr.c:350
+msgid "ch"
+msgstr "к"
+
+#: src/port_controls.c:247 src/wet_dry_controls.c:89
+msgid "Lock"
+msgstr "Блокировать"
+
+#: src/port_controls.c:323
+msgid "On"
+msgstr "Вкл"
+
+#: src/midi_control.c:233
+msgid "Wet/dry"
+msgstr "Wet/dry"
+
+#: src/ui_callbacks.c:77
+msgid "I/O Channels"
+msgstr "I/O·каналы"
+
+#: src/ui_callbacks.c:90
+msgid ""
+"Warning: changing the number of\n"
+"channels will clear the current rack"
+msgstr ""
+"Предупреждение: изменение·количества·каналов приведёт\n"
+"к·стиранию·текущих·настроек·эффект-процессора"
+
+#: src/ui_callbacks.c:135
+msgid "Select file"
+msgstr "Выберите файл"
+
+#: src/ui_callbacks.c:280
+msgid "An LADSPA effects rack for the JACK audio API"
+msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
+
+#: src/ui_callbacks.c:365
+msgid "LADCCA server disconnected\n"
+msgstr "Разорвано соединение с LADCCA-сервером\n"
+
+#: src/ui_callbacks.c:470
+#, c-format
+msgid ""
+"%s\n"
+"\n"
+"%s%s"
+msgstr ""
+"%s\n"
+"\n"
+"%s%s"
+
+#: src/ui_callbacks.c:471
+msgid "JACK client thread shut down by server"
+msgstr "Нить процесса JACK-клиент уничтожена сервером"
+
+#: src/ui_callbacks.c:472
+msgid "JACK, the bastard, kicked us out.  "
+msgstr "JACK нас \"выкинул\".  "
+
+#: src/ui_callbacks.c:473
+msgid "You'll have to restart I'm afraid.  Sorry."
+msgstr "Боюсь, вам придётся перезагрузить программу..."
+
+#: src/file.c:176
 #, c-format
 msgid "Could not save file '%s'"
-msgstr ""
+msgstr "Не·удалось·сохранить·файл·'%s'"
 
-#: ../src/file.c:214
+#: src/file.c:214
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
-msgstr ""
+msgstr "Файл·'%s' содержит·неизвестный·модуль·с·ID '%ld'·и·будет·пропущен"
 
-#: ../src/file.c:430
+#: src/file.c:430
 #, c-format
 msgid "Could not parse file '%s'"
-msgstr ""
+msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: ../src/file.c:436
+#: src/file.c:436
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
-msgstr ""
+msgstr "'%s' не·является·файлом·настроек JACK Rack"
 
-#: ../src/file.c:450
+#: src/file.c:450
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
+" Текущий·набор·эффектов·будет·стёрт.\n"
+" ·\n"
+" ·Вы·уверены,·что·хотите·продолжить?"
 
-#: ../src/main.c:72
+#: src/plugin_slot.c:248
+msgid "Lock All"
+msgstr "Блокировать·все"
+
+#: src/plugin_slot.c:360
+msgid "Enable"
+msgstr "Разрешить"
+
+#: src/plugin_slot.c:371
+msgid "Wet/Dry"
+msgstr "Wet/Dry"
+
+#: src/wet_dry_controls.c:105
+msgid "Channel"
+msgstr "Канал"
+
+#: src/main.c:73
 msgid "Compiled with:\n"
-msgstr ""
+msgstr "Скомпилировано·с:\n"
 
-#: ../src/main.c:87
+#: src/main.c:88
 msgid "Display this help info"
-msgstr ""
+msgstr "Отображать·эту справку"
 
-#: ../src/main.c:89
+#: src/main.c:90
 msgid "Use the pid in the JACK client name (default)"
-msgstr ""
+msgstr "Использовать·этот pid в·имени·JACK-клиенте (по·умолчанию)"
 
-#: ../src/main.c:90
+#: src/main.c:91
 msgid "Use <string> in the JACK client name"
-msgstr ""
+msgstr "Использовать·<string> в·имени JACK-клиента"
 
-#: ../src/main.c:91
+#: src/main.c:92
 msgid "Use just jack_rack as the client name"
-msgstr ""
+msgstr "Использовать·только·jack_rack·в·качестве·имени·клиента"
 
-#: ../src/main.c:93
+#: src/main.c:94
 msgid "Connected inputs to the first two physical capture ports"
-msgstr ""
+msgstr "Входы·подключены·к·первым·двум·физическим·портам·записи"
 
-#: ../src/main.c:94
+#: src/main.c:95
 msgid "Connected outputs to the first two physical playback ports"
-msgstr ""
+msgstr "Выходы·подключены·к·первым·двум·физическим·портам·воспроизведения"
 
-#: ../src/main.c:95
+#: src/main.c:96
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
+"Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
 
-#: ../src/main.c:98
+#: src/main.c:99
 msgid "Tell JACK to use <dir> for its temporary files"
-msgstr ""
+msgstr "Заставить JACK использовать·<dir> для·хранения·временных·файлов"
 
-#: ../src/main.c:196
+#: src/main.c:198
 msgid "there must be at least one channel\n"
-msgstr ""
+msgstr "должно·быть·не·менее·одного·канала\n"
 
-#: ../src/midi_control.c:233
-msgid "Wet/dry"
-msgstr ""
+#: src/process.c:406
+#, c-format
+msgid "Connecting to JACK server with client name '%s'"
+msgstr "Устанавливается соединение клиента '%s' с JACK-сервером"
 
-#: ../src/midi_window.c:68
+#: src/process.c:413
+msgid ""
+"Could not create JACK client\n"
+"\n"
+"Is the jackd server running?"
+msgstr ""
+"Не удалось создать JACK-клиент\n"
+"\n"
+"Загружен ли jackd (JACK-сервер)?"
+
+#: src/process.c:417
+msgid "Connected to JACK server"
+msgstr "Установлено соединение с JACK-сервером"
+
+#: src/process.c:457
+#, c-format
+msgid "Connecting ports '%s' and '%s'"
+msgstr "Соединяются порты '%s' и '%s'"
+
+#: src/process.c:467
+#, c-format
+msgid "Connected ports '%s' and '%s'"
+msgstr "Соединены порты '%s' и '%s'"
+
+#: src/process.c:509
+#, c-format
+msgid "Creating %s port %s"
+msgstr "Создаётся %s порт %s"
+
+#: src/process.c:528
+#, c-format
+msgid "Created %s port %s"
+msgstr "Создан %s порт %s"
+
+#: src/midi_window.c:68
 msgid "Plugin"
-msgstr ""
+msgstr "Модуль"
 
-#: ../src/midi_window.c:73
+#: src/midi_window.c:73
 msgid "Control"
-msgstr ""
+msgstr "Регулятор"
 
-#: ../src/midi_window.c:78
+#: src/midi_window.c:78
 msgid "Index"
-msgstr ""
+msgstr "Индекс"
 
-#. the label
-#: ../src/midi_window.c:89 ../src/wet_dry_controls.c:105
-msgid "Channel"
-msgstr ""
+#: src/midi_window.c:89
+msgid "MIDI Channel"
+msgstr "MIDI-канал"
 
-#: ../src/midi_window.c:99
-msgid "Controller"
-msgstr ""
+#: src/midi_window.c:99
+msgid "MIDI Controller"
+msgstr "MIDI-контроллер"
 
-#: ../src/midi_window.c:120
+#: src/midi_window.c:120
 msgid "JACK Rack MIDI Controls"
-msgstr ""
+msgstr "MIDI-регуляторы·JACK Rack"
 
-#: ../src/plugin_mgr.c:338
-msgid ", NOT RT"
-msgstr ""
+#~ msgid ""
+#~ "Plugin not RT capable\n"
+#~ "\n"
+#~ "The plugin '%s' does not describe itself as being capable of real-time "
+#~ "operation.  You may experience drop outs or jack may even kick us out if "
+#~ "you use it.\n"
+#~ "\n"
+#~ "Are you sure you want to add this plugin?"
+#~ msgstr ""
+#~ "Модуль не предназначен для работы в режиме реального времени\n"
+#~ "\n"
+#~ "Модуль '%s' не описывает себя как модуль для работы в режиме \n"
+#~ "реального времени.  Вы можете слышать неприятные артефакты, и \n"
+#~ "JACK-сервер может даже отключитm JACK Rack, если вы попытаетесь \n"
+#~ "использовать этот модуль.\n"
+#~ "\n"
+#~ "Вы действительно хотите добавить этот модуль?"
 
-#: ../src/plugin_mgr.c:350
-msgid "ch"
-msgstr ""
+#~ msgid "Error loading file plugin '%s' from file '%s'"
+#~ msgstr "Ошибка при загрузке модуля '%s' из файла '%s'"
 
-#: ../src/plugin_slot.c:248
-msgid "Lock All"
-msgstr ""
+#~ msgid "Connecting to ALSA sequencer"
+#~ msgstr "Устанавливается соединение с ALSA sequencer"
 
-#. enable button
-#: ../src/plugin_slot.c:360
-msgid "Enable"
-msgstr ""
+#~ msgid ""
+#~ "Could not open ALSA sequencer, aborting\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Make sure you have configure ALSA properly and that\n"
+#~ "/proc/asound/seq/clients exists and contains relevant\n"
+#~ "devices."
+#~ msgstr ""
+#~ "Не удалось установить соединение с ALSA sequencer, операция прерывается\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Убедитесь в том, что вы корректно настроили ALSA, что файл\n"
+#~ "/proc/asound/seq/clients существует и содержит требуемые устройства."
 
-#. wet/dry button
-#: ../src/plugin_slot.c:371
-msgid "Wet/Dry"
-msgstr ""
+#~ msgid "Connected to ALSA sequencer with id %d"
+#~ msgstr "Установлено соединение с ALSA sequencer с id %d"
 
-#. lock control
-#: ../src/port_controls.c:247 ../src/wet_dry_controls.c:89
-msgid "Lock"
-msgstr ""
+#~ msgid "Creating ALSA sequencer port"
+#~ msgstr "Создаётся порт для ALSA sequencer"
 
-#: ../src/port_controls.c:323
-msgid "On"
-msgstr ""
+#~ msgid ""
+#~ "Could not create ALSA port, aborting\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Не удалось создать порт для ALSA port, операция прерывается\n"
+#~ "\n"
+#~ "%s"
 
-#: ../src/ui.c:79
-msgid "File"
-msgstr ""
+#~ msgid "Created ALSA sequencer port"
+#~ msgstr "Создан порт для ALSA sequencer"
 
-#: ../src/ui.c:83
-msgid "Rack"
-msgstr ""
+#~ msgid "Could not register jack port '%s'; aborting"
+#~ msgstr ""
+#~ "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
 
-#: ../src/ui.c:89
-msgid "Help"
-msgstr ""
+#~ msgid "Plugin %ld exists in both '%s' and '%s'; using version in '%s'\n"
+#~ msgstr ""
+#~ "Модуль %ld существует в двух версиях: '%s' и '%s'; используем версию '%"
+#~ "s'\n"
 
-#: ../src/ui.c:131
-msgid "Save project"
-msgstr ""
+#~ msgid "Loaded plugin '%s'"
+#~ msgstr "Загружен·модуль·'%s'"
 
-#: ../src/ui.c:161 ../src/ui.c:267
-msgid "Channels"
-msgstr ""
+#~ msgid ""
+#~ "No LADSPA plugins were found!\n"
+#~ "\n"
+#~ "Check your LADSPA_PATH environment variable."
+#~ msgstr ""
+#~ "Не найдено ни единого LADSPA-модуля!\n"
+#~ "\n"
+#~ "Проверьте переменную окружения LADSPA_PATH."
 
-#: ../src/ui.c:168
-msgid "MIDI Controls"
-msgstr "��-��"
+#~ msgid "Found LRDF description file '%s'"
+#~ msgstr "Найден файл описания LRDF '%s'"
 
-#: ../src/ui.c:255
-msgid "Add a plugin"
-msgstr ""
-
-#: ../src/ui.c:268
-msgid "Change the number of I/O channels the rack has"
-msgstr ""
-
-#: ../src/ui.c:279
-msgid "Clear the rack"
-msgstr ""
-
-#: ../src/ui.c:285
-msgid "Open a rack configuration file"
-msgstr ""
-
-#: ../src/ui.c:290
-msgid "Save the rack configuration to the current file"
-msgstr ""
-
-#: ../src/ui.c:295
-msgid "Save the rack configuration to a file"
-msgstr ""
-
-#: ../src/ui.c:306
-msgid "Save the LADCCA project"
-msgstr ""
-
-#: ../src/ui.c:315
-msgid "Quit JACK Rack"
-msgstr ""
-
-#: ../src/ui.c:345
-msgid "Add MIDI control"
-msgstr ""
-
-#: ../src/ui_callbacks.c:280
-msgid "An LADSPA effects rack for the JACK audio API"
-msgstr "��� ��� ���-�� ���� ��������"
+#~ msgid "Controller"
+#~ msgstr "Контроллер"

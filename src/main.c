@@ -125,10 +125,9 @@ int main (int argc, char ** argv) {
 #endif  
 
 #ifdef ENABLE_NLS
-  setlocale(LC_ALL, "");
-  bindtextdomain("jack-rack", NLSDIR);
-  textdomain("jack-rack");
-  bind_textdomain_codeset("jack-rack", "UTF-8");
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
+  bind_textdomain_codeset(PACKAGE, "UTF-8");
 #endif
 
   /* fuck the gnome popt bollocks */
@@ -216,14 +215,11 @@ int main (int argc, char ** argv) {
 
 #ifdef HAVE_LADCCA
   {
-    int flags = CCA_Use_Jack|CCA_Config_File;
-#ifdef HAVE_ALSA
-    flags |= CCA_Use_Alsa;
-#endif
-    global_cca_client = cca_init (cca_args, "JACK Rack", flags, CCA_PROTOCOL (1,0));
+    int flags = CCA_Config_File;
+    global_cca_client = cca_init (cca_args, PACKAGE, flags, CCA_PROTOCOL (2,0));
  }
 
-  if (cca_enabled (global_cca_client))
+  if (global_cca_client)
     {
       cca_event = cca_event_new_with_type (CCA_Client_Name);
       cca_event_set_string (cca_event, client_name->str);

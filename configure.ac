@@ -1,10 +1,9 @@
-AC_INIT([JACK Rack], 1.4.2)
+AC_INIT([JACK Rack], 1.4.3)
 AC_CONFIG_SRCDIR(src/lock_free_fifo.h)
 AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/ac_config.h)
 AM_MAINTAINER_MODE
 
-dnl ***** Check for programs *****
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
@@ -206,46 +205,12 @@ if test x$LRDF_FOUND = xyes; then
   AC_SUBST(LRDF_LIBS)
 fi
 AM_CONDITIONAL(HAVE_LRDF, test "$LRDF_FOUND" = "yes")
+
+
 ###############
 ### gettext ###
 ###############
-INTLIBS=""
-AC_CHECK_FUNC(gettext, [HAVEGETTEXT="yes"],
-	AC_CHECK_LIB(intl, gettext, [INTLIBS="-lintl" HAVEGETTEXT="yes"],
-		INTLIBS=""))
-
-AC_CHECK_PROG(XGETTEXT, xgettext, xgettext)
-AC_CHECK_PROG(MSGFMT, msgfmt, msgfmt)
-
-if test "x$XGETTEXT" != "x"; then
-	if $XGETTEXT --help 2>&1 | grep illegal &> /dev/null; then
-		echo "xgettext isn't GNU version"
-		XGETTEXT=""
-	fi
-fi
-
-ENABLE_NLS=no
-if test "x$MSGFMT" != "x" -a "x$HAVEGETTEXT" != "x"; then
-	AC_DEFINE(ENABLE_NLS, 1, [Define if you want internationalization support])
-	ENABLE_NLS=yes
-fi
-AC_SUBST(ENABLE_NLS)
-
-AC_ARG_WITH(nlsdir,
-	AC_HELP_STRING([--with-nlsdir=PATH],[specify where locale stuff should go]))
-
-if test "x$NLSDIR" = "x"; then
-	if test "x$with_nlsdir" != "x"; then
-		NLSDIR=$with_nlsdir
-	else
-		NLSDIR=$prefix/lib/locale
-	fi
-fi
-
-AC_DEFINE_UNQUOTED(NLSDIR, "$NLSDIR", [where to look for locale files])
-AC_SUBST(NLSDIR)
-AC_SUBST(XGETTEXT)
-AC_SUBST(MSGFMT)
+AM_GNU_GETTEXT([external])
 
 #######################
 ### desktop install ###
@@ -278,11 +243,10 @@ AC_DEFINE_UNQUOTED(JR_DESKTOP_PREFIX, "$JR_DESKTOP_PREFIX", [Where files for des
 AC_SUBST(JR_DESKTOP_PREFIX)
 
 
-AC_OUTPUT([
+AC_OUTPUT([ po/Makefile.in m4/Makefile 
 Makefile
 src/Makefile
 pixmaps/Makefile
-po/Makefile
 ])
 
 AC_MSG_RESULT([

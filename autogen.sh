@@ -1,5 +1,5 @@
 #!/bin/sh
-aclocal-1.6 \
+aclocal-1.6 -I m4 \
   && autoheader \
   && automake-1.6 -a \
   && autoconf

@@ -1,3 +1,6 @@
+localedir = $(datadir)/locale
+DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
+
 pixmapdir = $(datadir)/pixmaps
 
 EXTRA_DIST = \
@@ -70,3 +73,4 @@ splint-check:
 		+posixlib \
 		$(jack_rack_CFLAGS) \
 		*.c
+
