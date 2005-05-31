@@ -251,9 +251,12 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
 
   ui->add = gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
-                                        GTK_STOCK_ADD,
-                                        _("Add a plugin"),
-                                        NULL, NULL, NULL, -1);
+				      GTK_STOCK_ADD,
+				      _("Add a plugin"),
+				      (const char *) NULL,
+				      (GtkSignalFunc) NULL,
+				      (gpointer)NULL,
+				      (gint)-1);
   g_signal_connect_swapped (G_OBJECT (ui->add), "event",
                             G_CALLBACK (plugin_button_cb),
                             G_OBJECT (ui->add_menu));
@@ -367,8 +370,7 @@ ui_init_splash_screen (ui_t * ui)
   gtk_window_set_resizable (GTK_WINDOW (ui->splash_screen), FALSE);
   gtk_window_set_title (GTK_WINDOW (ui->splash_screen), PACKAGE_NAME);
   gtk_container_set_resize_mode (GTK_CONTAINER (ui->splash_screen), GTK_RESIZE_IMMEDIATE);
-  
-  
+  gtk_window_set_policy (GTK_WINDOW (ui->splash_screen), FALSE, TRUE, FALSE);
   
   box = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (box), 3);
@@ -383,7 +385,8 @@ ui_init_splash_screen (ui_t * ui)
   ui->splash_screen_text = gtk_label_new (NULL);
   gtk_widget_show (ui->splash_screen_text);
   gtk_box_pack_start (GTK_BOX (box), ui->splash_screen_text, TRUE, TRUE, 0);
-  gtk_misc_set_alignment (GTK_MISC (ui->splash_screen_text), 0.0, 0.5);
+  //  gtk_misc_set_alignment (GTK_MISC (ui->splash_screen_text), 0.0, 0.5);
+  gtk_label_set_justify (GTK_LABEL (ui->splash_screen_text), GTK_JUSTIFY_CENTER);
   
   gtk_window_get_size (GTK_WINDOW (ui->splash_screen), &w, &h);
   gtk_window_move (GTK_WINDOW (ui->splash_screen),

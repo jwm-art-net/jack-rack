@@ -96,8 +96,6 @@ void print_help () {
   printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
 /*  printf(" -t, --no-time               %s\n", _("Do not display plugins' execution time")); */
   printf("\n");
-  printf(" -D, --tmpdir <dir>          %s\n", _("Tell JACK to use <dir> for its temporary files"));
-  printf("\n");
 }
 
 int main (int argc, char ** argv) {
@@ -112,7 +110,6 @@ int main (int argc, char ** argv) {
     { "string-name", 1, NULL, 's' },
     { "name", 1, NULL, 'n' },
     { "channels", 1, NULL, 'c' },
-    { "tmpdir", 1, NULL, 'D' },
     { "input", 1, NULL, 'i' },
     { "output", 1, NULL, 'o' },
     { "no-time", 0, NULL, 't' },
@@ -129,8 +126,8 @@ int main (int argc, char ** argv) {
   textdomain(PACKAGE);
   bind_textdomain_codeset(PACKAGE, "UTF-8");
 #endif
-
-  /* fuck the gnome popt bollocks */
+  
+  /* not using gnome popt */
   for (opt = 1; opt < argc; opt++)
     {
       if (strcmp (argv[opt], "-h") == 0 ||
@@ -177,10 +174,6 @@ int main (int argc, char ** argv) {
       
       case 'n':
         g_string_printf (client_name, CLIENT_NAME_BASE);
-        break;
-
-      case 'D':
-        jack_set_server_dir (optarg);
         break;
 
       case 'i':

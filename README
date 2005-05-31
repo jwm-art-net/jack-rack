@@ -13,8 +13,8 @@ needs raptor, available from http://www.redland.opensource.ac.uk/raptor/.
  Feedback
 ----------
 
-# It would be very much appreciated if you could provide some user-perspective
-# feedback here: http://pkl.net/~node/feedback.html
+It would be very much appreciated if you could provide some user-perspective
+feedback here: http://arb.bash.sh/~rah/software/feedback.html
 
  Compilation
 -------------
@@ -51,10 +51,12 @@ to remain visible.  The line will lock, but the clicked-on control will be
 the visible one.  Clicking with mouse button 3 works similarly, but with
 Lock All instead.
 
+Right-clicking on plugin controls or wet/dry controls will bring up a
+context menu allowing you to add MIDI controls.
+
  Contact
 ---------
 
 Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
 (subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
 New versions will be available from http://arb.bash.sh/~rah/software/jack-rack/ .
-There is an IRC channel, irc://irc.oftc.net/#jack-rack.

@@ -1,3 +1,8 @@
+1.4.4:
+
+* Removed references to jack_set_server_dir
+
+
 1.4.3:
 
 * updated for ladcca 0.4.0

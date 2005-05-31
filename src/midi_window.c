@@ -22,9 +22,11 @@
 
 #ifdef HAVE_ALSA
 
+#include "globals.h"
 #include "midi_window.h"
 #include "ui.h"
 #include "control_message.h"
+
 
 static void ok_cb      (GtkButton *button, gpointer user_data);
 static void remove_cb  (GtkButton *button, gpointer user_data);

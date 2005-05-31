@@ -4,14 +4,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
-"POT-Creation-Date: 2003-10-22 02:07+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-05-31 18:05+0100\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: (null)\n"
 "X-Generator: KBabel 1.0.1\n"
 
 #: src/ui.c:79
@@ -30,7 +30,7 @@ msgstr "Справка"
 msgid "Save project"
 msgstr "Сохранить·проект"
 
-#: src/ui.c:161 src/ui.c:267
+#: src/ui.c:161 src/ui.c:270
 msgid "Channels"
 msgstr "Каналы"
 
@@ -46,35 +46,35 @@ msgstr "О программе"
 msgid "Add a plugin"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:268
+#: src/ui.c:271
 msgid "Change the number of I/O channels the rack has"
 msgstr "Изменить·количество·I/O·портов·эффект-процессора"
 
-#: src/ui.c:279
+#: src/ui.c:282
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
-#: src/ui.c:285
+#: src/ui.c:288
 msgid "Open a rack configuration file"
 msgstr "Открыть·файл·настроек·эффект-процессора"
 
-#: src/ui.c:290
+#: src/ui.c:293
 msgid "Save the rack configuration to the current file"
 msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
 
-#: src/ui.c:295
+#: src/ui.c:298
 msgid "Save the rack configuration to a file"
 msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#: src/ui.c:306
+#: src/ui.c:309
 msgid "Save the LADCCA project"
 msgstr "Сохранить·LADCCA-проект"
 
-#: src/ui.c:315
+#: src/ui.c:318
 msgid "Quit JACK Rack"
 msgstr "Выйти·из·JACK Rack"
 
-#: src/ui.c:345
+#: src/ui.c:348
 msgid "Add MIDI control"
 msgstr "Добавить·MIDI-регулятор"
 
@@ -119,6 +119,7 @@ msgid "An LADSPA effects rack for the JACK audio API"
 msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
 
 #: src/ui_callbacks.c:356
+#, c-format
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
@@ -192,6 +193,7 @@ msgid "Channel"
 msgstr "Канал"
 
 #: src/main.c:73
+#, c-format
 msgid "Compiled with:\n"
 msgstr "Скомпилировано·с:\n"
 
@@ -224,11 +226,8 @@ msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
 
-#: src/main.c:99
-msgid "Tell JACK to use <dir> for its temporary files"
-msgstr "Заставить JACK использовать·<dir> для·хранения·временных·файлов"
-
-#: src/main.c:198
+#: src/main.c:191
+#, c-format
 msgid "there must be at least one channel\n"
 msgstr "должно·быть·не·менее·одного·канала\n"
 
@@ -294,6 +293,9 @@ msgstr "MIDI-контроллер"
 #: src/midi_window.c:120
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
+
+#~ msgid "Tell JACK to use <dir> for its temporary files"
+#~ msgstr "Заставить JACK использовать·<dir> для·хранения·временных·файлов"
 
 #~ msgid ""
 #~ "Plugin not RT capable\n"
