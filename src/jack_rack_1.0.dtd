@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+
+<!ELEMENT jackrack   (channels, samplerate, plugin*)>
+<!ELEMENT channels   (#PCDATA)>
+<!ELEMENT samplerate (#PCDATA)>
+
+<!ELEMENT plugin     (id, enabled, lockall?, controlrow*)>
+<!ELEMENT id         (#PCDATA)>
+<!ELEMENT enabled    (#PCDATA)>
+<!ELEMENT lockall    (#PCDATA)>
+
+<!ELEMENT controlrow (lock?, value*)>
+<!ELEMENT lock       (#PCDATA)>
+<!ELEMENT value      (#PCDATA)>

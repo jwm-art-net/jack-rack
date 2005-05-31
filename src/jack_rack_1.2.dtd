@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<!ELEMENT jackrack        (channels, samplerate, plugin*)>
+<!ELEMENT channels        (#PCDATA)>
+<!ELEMENT samplerate      (#PCDATA)>
+
+<!ELEMENT plugin          (id, enabled, wet_dry_enabled, wet_dry_locked?,
+                           wet_dry_values, lockall?, controlrow*, midi_control*)>
+<!ELEMENT id              (#PCDATA)>
+<!ELEMENT enabled         (#PCDATA)>
+<!ELEMENT wet_dry_enabled (#PCDATA)>
+<!ELEMENT wet_dry_locked  (#PCDATA)>
+<!ELEMENT lockall         (#PCDATA)>
+
+<!ELEMENT wet_dry_values  (value+)>
+
+<!ELEMENT midi_control    (midi_channel, midi_param, (ladspa | wet_dry))>
+<!ELEMENT midi_channel    (#PCDATA)>
+<!ELEMENT midi_param      (#PCDATA)>
+
+<!ELEMENT ladspa          (copy, control)>
+<!ELEMENT copy            (#PCDATA)>
+<!ELEMENT control         (#PCDATA)>
+
+<!ELEMENT wet_dry         (channel)>
+<!ELEMENT channel         (#PCDATA)>
+
+<!ELEMENT controlrow      (lock?, value*)>
+<!ELEMENT lock            (#PCDATA)>
+<!ELEMENT value           (#PCDATA)>
