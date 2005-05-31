@@ -1,7 +1,7 @@
 #!/bin/sh
-aclocal-1.6 -I m4 \
+aclocal \
   && autoheader \
-  && automake-1.6 -a \
+  && automake -a \
   && autoconf
 
 if test x$1 != x--no-conf; then

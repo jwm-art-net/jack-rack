@@ -1,3 +1,15 @@
+2005-05-21  Leslie Polzer <leslie.polzer@gmx.net>
+	* src/globals.h: deactivated GNOME-i18n, it seems to be broken
+	* autogen.sh: removed '-1.6' suffix from tools
+	* m4: removed directory (obsolete)
+	* Makefile.am (ACLOCAL_AMFLAGS): removed (obsolete)
+	* configure.ac (AC_OUTPUT): removed m4/Makefile
+	
+2005-04-15  Bob Ham  <rah@bash.sh>
+
+	* src/main.c: Removed jack_set_default_dir references
+	* configure.ac: upped version to 1.4.4
+
 2003-07-03  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* Makefile.am (SUBDIRS): Add m4.
@@ -5,3 +17,5 @@
 	(EXTRA_DIST): Add config.rpath.
 	* configure.ac (AC_OUTPUT): Add po/Makefile.in,
 
+
+	

@@ -1,4 +1,4 @@
-AC_INIT([JACK Rack], 1.4.3)
+AC_INIT([JACK Rack], 1.4.4)
 AC_CONFIG_SRCDIR(src/lock_free_fifo.h)
 AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/ac_config.h)
@@ -243,7 +243,7 @@ AC_DEFINE_UNQUOTED(JR_DESKTOP_PREFIX, "$JR_DESKTOP_PREFIX", [Where files for des
 AC_SUBST(JR_DESKTOP_PREFIX)
 
 
-AC_OUTPUT([ po/Makefile.in m4/Makefile 
+AC_OUTPUT([ po/Makefile.in 
 Makefile
 src/Makefile
 pixmaps/Makefile
