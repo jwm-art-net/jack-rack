@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-05-31 18:05+0100\n"
+"POT-Creation-Date: 2005-06-01 00:38+0200\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -270,27 +270,27 @@ msgstr "Создаётся %s порт %s"
 msgid "Created %s port %s"
 msgstr "Создан %s порт %s"
 
-#: src/midi_window.c:68
+#: src/midi_window.c:70
 msgid "Plugin"
 msgstr "Модуль"
 
-#: src/midi_window.c:73
+#: src/midi_window.c:75
 msgid "Control"
 msgstr "Регулятор"
 
-#: src/midi_window.c:78
+#: src/midi_window.c:80
 msgid "Index"
 msgstr "Индекс"
 
-#: src/midi_window.c:89
+#: src/midi_window.c:91
 msgid "MIDI Channel"
 msgstr "MIDI-канал"
 
-#: src/midi_window.c:99
+#: src/midi_window.c:101
 msgid "MIDI Controller"
 msgstr "MIDI-контроллер"
 
-#: src/midi_window.c:120
+#: src/midi_window.c:122
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
 

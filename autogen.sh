@@ -1,5 +1,6 @@
 #!/bin/sh
-aclocal \
+gettextize \
+  && aclocal \
   && libtoolize \
   && autoheader \
   && automake -a \

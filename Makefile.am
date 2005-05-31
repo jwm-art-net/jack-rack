@@ -1,6 +1,6 @@
 SUBDIRS = pixmaps src po 
 
-EXTRA_DIST = \
+EXTRA_DIST = config.rpath mkinstalldirs m4/ChangeLog  \
 	config.rpath \
 	autogen.sh \
 	BUGS \
@@ -10,3 +10,5 @@ EXTRA_DIST = \
 desktopdir = $(JR_DESKTOP_PREFIX)/applications
 
 desktop_DATA = jack-rack.desktop
+
+ACLOCAL_AMFLAGS = -I m4
