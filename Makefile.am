@@ -1,6 +1,6 @@
 SUBDIRS = pixmaps src po 
 
-EXTRA_DIST = config.rpath mkinstalldirs m4/ChangeLog  \
+EXTRA_DIST = config.rpath mkinstalldirs m4/ChangeLog  config.rpath mkinstalldirs m4/ChangeLog  \
 	config.rpath \
 	autogen.sh \
 	BUGS \
