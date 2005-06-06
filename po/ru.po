@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-01 00:38+0200\n"
+"POT-Creation-Date: 2005-06-06 20:56+0200\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -192,41 +192,41 @@ msgstr "Wet/Dry"
 msgid "Channel"
 msgstr "Канал"
 
-#: src/main.c:73
+#: src/main.c:74
 #, c-format
 msgid "Compiled with:\n"
 msgstr "Скомпилировано·с:\n"
 
-#: src/main.c:88
+#: src/main.c:96
 msgid "Display this help info"
 msgstr "Отображать·эту справку"
 
-#: src/main.c:90
+#: src/main.c:98
 msgid "Use the pid in the JACK client name (default)"
 msgstr "Использовать·этот pid в·имени·JACK-клиенте (по·умолчанию)"
 
-#: src/main.c:91
+#: src/main.c:99
 msgid "Use <string> in the JACK client name"
 msgstr "Использовать·<string> в·имени JACK-клиента"
 
-#: src/main.c:92
+#: src/main.c:100
 msgid "Use just jack_rack as the client name"
 msgstr "Использовать·только·jack_rack·в·качестве·имени·клиента"
 
-#: src/main.c:94
+#: src/main.c:102
 msgid "Connected inputs to the first two physical capture ports"
 msgstr "Входы·подключены·к·первым·двум·физическим·портам·записи"
 
-#: src/main.c:95
+#: src/main.c:103
 msgid "Connected outputs to the first two physical playback ports"
 msgstr "Выходы·подключены·к·первым·двум·физическим·портам·воспроизведения"
 
-#: src/main.c:96
+#: src/main.c:104
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
 
-#: src/main.c:191
+#: src/main.c:199
 #, c-format
 msgid "there must be at least one channel\n"
 msgstr "должно·быть·не·менее·одного·канала\n"

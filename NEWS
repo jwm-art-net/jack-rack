@@ -1,7 +1,5 @@
-1.4.5:
-* user may specify a rack file to be loaded at startup now
-
 1.4.4:
+* user may specify a rack file to be loaded at startup now
 * removed references to jack_set_server_dir
 
 

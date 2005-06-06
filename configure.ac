@@ -243,7 +243,7 @@ AC_DEFINE_UNQUOTED(JR_DESKTOP_PREFIX, "$JR_DESKTOP_PREFIX", [Where files for des
 AC_SUBST(JR_DESKTOP_PREFIX)
 
 
-AC_OUTPUT([ po/Makefile.in  
+AC_OUTPUT([ po/Makefile.in
 Makefile
 src/Makefile
 pixmaps/Makefile

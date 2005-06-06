@@ -1,5 +1,6 @@
 #!/bin/sh
-gettextize \
+#gettextize --no-changelog \
+true \
   && aclocal \
   && libtoolize \
   && autoheader \
