@@ -70,7 +70,7 @@ struct _ui
   GtkWidget *       plugin_box;
   GtkWidget *       add_menu;
 
-/* all the widgets that can be desensitised */
+/* all the widgets that can be desensitized */
   GtkWidget *       add;
   GtkWidget *       add_menuitem;
   GtkWidget *       channels_menuitem;

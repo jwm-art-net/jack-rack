@@ -1,13 +1,13 @@
-2005-06-01  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* Makefile.am (EXTRA_DIST): Add config.rpath, mkinstalldirs, m4/ChangeLog.
-	* configure.ac (AC_OUTPUT): Add po/Makefile.in.
-
-2005-06-01  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
-	(EXTRA_DIST): Add config.rpath, mkinstalldirs, m4/ChangeLog.
-
+2005-06-05  Leslie Polzer <leslie.polzer@gmx.net>
+	* src/globals.h, src/main.c: Added global GString*
+		initial_filename
+	* src/main.c (print_help): added usage information for filename on command
+		line (if HAVE_XML)
+	* src/main.c (main): added parsing of non-option initial_filename
+		(if HAVE_XML)
+	* src/ui.c (ui_init_gui): added opening of initial rack if given on
+		command line (if HAVE_XML)
+	
 2005-05-21  Leslie Polzer <leslie.polzer@gmx.net>
 	* src/globals.h: deactivated GNOME-i18n, it seems to be broken
 	* autogen.sh: removed '-1.6' suffix from tools

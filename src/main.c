@@ -55,6 +55,7 @@ gboolean connect_inputs = FALSE;
 gboolean connect_outputs = FALSE;
 gboolean time_runs = TRUE;
 GString  *client_name = NULL;
+GString  *initial_filename = NULL;
 
 #ifdef HAVE_LADCCA
 cca_client_t * global_cca_client;
@@ -84,6 +85,13 @@ void print_help () {
 #ifdef HAVE_GNOME
   printf(  "  GNOME %s\n", GNOME_VERSION);
 #endif
+  printf("\n");
+  printf("Usage: jack-rack [OPTION]...");
+#ifdef HAVE_XML
+  printf(" [file]\n");
+#else
+  printf("\n");
+#endif /* HAVE_XML */
   printf("\n");
   printf(" -h, --help                  %s\n", _("Display this help info"));
   printf("\n");
@@ -189,7 +197,7 @@ int main (int argc, char ** argv) {
         if (channels < 1)
           {
             fprintf (stderr, _("there must be at least one channel\n"));
-            exit (1);
+            exit (EXIT_FAILURE);
           }
         break;
       
@@ -200,17 +208,29 @@ int main (int argc, char ** argv) {
       case ':':
       case '?':
         print_help ();
-        exit (1);
+        exit (EXIT_FAILURE);
         break;
     }
   }
-  
+
+#ifdef HAVE_XML
+  if (optind < argc)
+  {
+    if (argc - optind > 1)
+    {
+      fprintf ( stderr, "Please specify only one file to open");
+      exit(EXIT_FAILURE);
+    }
+
+    initial_filename = g_string_new(argv[optind]);
+  }
+#endif /* HAVE_XML */
 
 #ifdef HAVE_LADCCA
   {
     int flags = CCA_Config_File;
     global_cca_client = cca_init (cca_args, PACKAGE_NAME, flags, CCA_PROTOCOL (2,0));
- }
+  }
 
   if (global_cca_client)
     {

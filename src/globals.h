@@ -66,5 +66,6 @@ extern gboolean   connect_inputs;
 extern gboolean   connect_outputs;
 extern gboolean   time_runs;
 extern GString    *client_name;
+extern GString    *initial_filename;
 
 #endif /* __JLH_GLOBALS_H__ */

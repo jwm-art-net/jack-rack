@@ -351,7 +351,20 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_widget_show (ui->midi_menu_item);
                        
   gtk_menu_shell_append (GTK_MENU_SHELL (ui->midi_menu), ui->midi_menu_item);
-#endif /* HAVE_ALSA */  
+#endif /* HAVE_ALSA */
+
+#ifdef HAVE_XML
+  /* open file from command line, if any */
+  if ( initial_filename != NULL )
+  {
+    gchar* fn = g_string_free ( initial_filename, FALSE );
+    int err = ui_open_file (ui, fn);
+  
+    if (!err)
+      ui_set_filename (ui, fn);
+    /* free? */
+  }
+#endif /* HAVE_XML */
 }
 
 void
