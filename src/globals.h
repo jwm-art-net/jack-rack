@@ -34,7 +34,7 @@
 #define JACK_RACK_LOGO_FILE "jack-rack-logo.png"
 #define JACK_RACK_ICON_FILE "jack-rack-icon.png"
 #define JACK_RACK_CHANNELS_ICON_FILE "gnome-mixer-small.png"
-#define JACK_RACK_URL "http://pkl.net/~node/jack-rack.html"
+#define JACK_RACK_URL "http://jack-rack.sourceforge.net/"
 
 
 #define set_string_property(property, value) \

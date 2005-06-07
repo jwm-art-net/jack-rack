@@ -1,7 +1,7 @@
 #!/bin/sh
 #gettextize --no-changelog \
 true \
-  && aclocal \
+  && aclocal -I m4 \
   && libtoolize \
   && autoheader \
   && automake -a \

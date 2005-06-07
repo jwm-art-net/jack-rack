@@ -1,3 +1,6 @@
+2005-06-06  Leslie Polzer <leslie.polzer@gmx.net>
+	* src/ui_callbacks.c: adjusted web site and authors
+
 2005-06-05  Leslie Polzer <leslie.polzer@gmx.net>
 	* src/globals.h, src/main.c: Added global GString*
 		initial_filename

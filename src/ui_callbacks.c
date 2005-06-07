@@ -261,8 +261,8 @@ void
 about_cb (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget * dialog;
-  const char * authors[] = { "Bob Ham <node@users.sourceforge.net>", NULL };
-  const char * documenters[] = { NULL };
+  const char * authors[] = { "Bob Ham <node@users.sourceforge.net>", "Leslie P. Polzer <leslie.polzer@gmx.net>", NULL };
+  const char * documenters[] = { "", NULL };
   GtkWidget * url;
   gchar * logo_file;
   GdkPixbuf * logo;
@@ -280,11 +280,12 @@ about_cb (GtkWidget * widget, gpointer user_data)
  
   dialog = gnome_about_new (PACKAGE_NAME,
                               PACKAGE_VERSION,
-                              "Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>",
-                              _("An LADSPA effects rack for the JACK audio API"),
+                              "Copyright (C) 2002,2003 Robert Ham <node@users.sourceforge.net>\n"
+			      "Copyright (C) 2005 Leslie P. Polzer <leslie.polzer@gmx.net>",
+                              _("A LADSPA effects rack for the JACK audio API"),
                               authors,
                               documenters,
-                              "",
+                              _("__TRANSLATOR_CREDITS"),
                               logo);
   
   url = gnome_href_new (JACK_RACK_URL, JACK_RACK_URL);
