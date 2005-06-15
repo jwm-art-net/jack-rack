@@ -453,6 +453,12 @@ midi_idle (ui_t * ui)
 }  
 #endif /* HAVE_ALSA */
 
+static gboolean
+reconnect_cb()
+{
+  
+}
+
 static void
 ui_check_kicked (ui_t * ui)
 {
