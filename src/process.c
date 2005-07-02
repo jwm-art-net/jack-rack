@@ -36,29 +36,52 @@
 #include "jack_rack.h"
 #include "ui.h"
 #include "ui_callbacks.h"
+#include "util.h"
+
 
 #define USEC_PER_SEC         1000000
 #define MSEC_PER_SEC         1000
 #define TIME_RUN_SKIP_COUNT  5
+
+
+extern void default_status_handler (const char*, ...);
+extern void default_error_handler (error_severity_t, const char*, ...);
 
 jack_nframes_t sample_rate;
 jack_nframes_t buffer_size;
 
 static char * jack_client_name;
 
-int process_control_messages (process_info_t * procinfo) {
+static void (*_update_status)(const char*, ...) = default_status_handler;
+static void (*_display_error)(error_severity_t, const char*, ...) = default_error_handler;
+
+
+void process_set_status_cb ( void (*cb)(const char*, ...) )
+{
+	_update_status = cb;
+}
+
+
+void process_set_error_cb ( void (*cb)(error_severity_t, const char*, ...) )
+{
+	_display_error = cb;
+}
+
+
+int process_control_messages (process_info_t * procinfo)
+{
   static int quitting = 0;
   ctrlmsg_t ctrlmsg;
   int err = 0;
   
-  if (quitting) return quitting;
+  if (quitting)
+	  return quitting;
   
   while (lff_read (procinfo->ui_to_process, &ctrlmsg) == 0)
     {
   
     switch (ctrlmsg.type)
       {
-    
       /* add a link to the end of the plugin chain */
       case CTRLMSG_ADD:
         process_add_plugin (procinfo, ctrlmsg.data.add.plugin);
@@ -403,18 +426,24 @@ int process (jack_nframes_t frames, void * data) {
 static int
 process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
-  ui_display_splash_text (ui, _("Connecting to JACK server with client name '%s'"), jack_client_name);
+  _update_status ( _("Connecting to JACK server with client name '%s'"), jack_client_name );
 
-  procinfo->jack_client = jack_client_new (jack_client_name);
+  while (!(procinfo->jack_client = jack_client_new (jack_client_name)))
+  {
+          /* FIXME: should show a dialog */
+          fprintf(stderr, "reconn...");
+          sleep(1); /* FIXME: interval should be configurable */
+  }
 
-  if (!procinfo->jack_client)
+  
+  /*if (!procinfo->jack_client)
     {
       fprintf (stderr, "%s: could not create jack client; exiting\n", __FUNCTION__);
       ui_display_error (ui, _("Could not create JACK client\n\nIs the jackd server running?"));
       return 1;
-    }
+      }*/
 
-  ui_display_splash_text (ui, _("Connected to JACK server"));
+  _update_status ( _("Connected to JACK server") );
 
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
   jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
@@ -449,7 +478,7 @@ process_info_connect_port (process_info_t * procinfo,
         
       full_port_name = g_strdup_printf ("%s:%s", jack_client_name, port_name);
 
-      ui_display_splash_text (ui, _("Connecting ports '%s' and '%s'"), full_port_name, jack_ports[jack_port_index]);
+      _update_status ( _("Connecting port '%s' with '%s'"), full_port_name, jack_ports[jack_port_index] );
 
       err = jack_connect (procinfo->jack_client,
                           in ? jack_ports[jack_port_index] : full_port_name,
@@ -459,8 +488,8 @@ process_info_connect_port (process_info_t * procinfo,
         fprintf (stderr, "%s: error connecting ports '%s' and '%s'\n",
                  __FUNCTION__, full_port_name, jack_ports[jack_port_index]);
       else
-        ui_display_splash_text (ui, _("Connected ports '%s' and '%s'"), full_port_name, jack_ports[jack_port_index]);
-      
+	      _update_status ( _("Connected port '%s' with '%s'"), full_port_name, jack_ports[jack_port_index] );
+
       free (full_port_name);
     }
   
@@ -488,11 +517,15 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
     }
   else
     {
-      procinfo->jack_input_ports = g_realloc (procinfo->jack_input_ports, sizeof (jack_port_t *) * port_count);
-      procinfo->jack_output_ports = g_realloc (procinfo->jack_output_ports, sizeof (jack_port_t *) * port_count);
+      procinfo->jack_input_ports = g_realloc (procinfo->jack_input_ports,
+                      sizeof (jack_port_t *) * port_count);
+      procinfo->jack_output_ports = g_realloc (procinfo->jack_output_ports,
+                      sizeof (jack_port_t *) * port_count);
 
-      procinfo->jack_input_buffers = g_realloc (procinfo->jack_input_buffers, sizeof (LADSPA_Data *) * port_count);
-      procinfo->jack_output_buffers = g_realloc (procinfo->jack_output_buffers, sizeof (LADSPA_Data *) * port_count);
+      procinfo->jack_input_buffers = g_realloc (procinfo->jack_input_buffers,
+                      sizeof (LADSPA_Data *) * port_count);
+      procinfo->jack_output_buffers = g_realloc (procinfo->jack_output_buffers,
+                      sizeof (LADSPA_Data *) * port_count);
     }
   
   for (i = procinfo->port_count; i < port_count; i++)
@@ -501,8 +534,8 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
       {
         port_name = g_strdup_printf ("%s_%ld", in ? "in" : "out", i + 1);
        
-        ui_display_splash_text (ui, _("Creating %s port %s"), in ? "input" : "output", port_name);
-        
+        _update_status ( _("Creating %s port '%s'"), ( in ? "input" : "output" ), port_name );
+
         port_ptr = (in ? &procinfo->jack_input_ports[i]
                        : &procinfo->jack_output_ports[i]);
         
@@ -520,8 +553,8 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
             return 1;
           }
 
-        ui_display_splash_text (ui, _("Created %s port %s"), in ? "input" : "output", port_name);
-        
+        _update_status ( _("Created %s port '%s'"), ( in ? "input" : "output" ), port_name );
+
         if ((in && connect_inputs) || (!in && connect_outputs))
           process_info_connect_port (procinfo, ui, in, i, port_name);
         
@@ -559,22 +592,10 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   procinfo->time_runs = time_runs;
   
   /* sort out the client name */
-  jack_client_name = strdup (client_name->str);
-  for (err = 0; jack_client_name[err] != '\0'; err++)
-    {
-      if (jack_client_name[err] == ' ')
-        jack_client_name[err] = '_';
-      else if (!isalnum (jack_client_name[err]))
-        { /* shift all the chars up one (to remove the non-alphanumeric char) */
-          int i;
-          for (i = err; jack_client_name[i] != '\0'; i++)
-            jack_client_name[i] = jack_client_name[i + 1];
-        }
-      else if (isupper (jack_client_name[err]))
-        jack_client_name[err] = tolower (jack_client_name[err]);
-    }
+  jack_client_name = g_strdup ( client_name->str );
+  sanitize_client_name ( jack_client_name );
   
-  err = process_info_connect_jack (procinfo, ui);
+  err = process_info_connect_jack (procinfo, ui); 
   if (err)
     {
 /*      g_free (procinfo); */

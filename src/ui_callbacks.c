@@ -45,7 +45,9 @@
 #include "globals.h"
 #include "file.h"
 #include "ui.h"
+#include "process.h"
 #include "wet_dry_controls.h"
+
 
 void
 add_cb (GtkMenuItem * menuitem, gpointer user_data)
@@ -55,7 +57,6 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
   
   ui = (ui_t *) user_data;
   
-  /* get the selected plugin out of the gobject data thing */
   desc = g_object_get_data (G_OBJECT(menuitem), "jack-rack-plugin-desc");
   if (!desc)
     {
@@ -131,25 +132,26 @@ new_cb (GtkWidget * widget, gpointer user_data)
 static const char *
 get_filename ()
 {
-  static GtkWidget * dialog = NULL;
-  static char * file = NULL;
-  int response;
-  
+  static GtkWidget* dialog;
+  static char* file = NULL;
+  gint response;
+
   if (!dialog)
-    dialog = gtk_file_selection_new (_("Select file"));
-  
+    dialog = gtk_file_chooser_dialog_new ( _("Select File"),
+                                          NULL,
+                                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                          NULL );
   gtk_widget_show (dialog);
-  gtk_file_selection_complete (GTK_FILE_SELECTION (dialog), "*.rack");
-  response = gtk_dialog_run (GTK_DIALOG (dialog));
+  response = gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_hide (dialog);
-  
-  if (response != GTK_RESPONSE_OK)
+
+  if (response != GTK_RESPONSE_ACCEPT)
     return NULL;
 
-  if (file)
-    g_free (file);
-  
-  file = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
+  file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+
   return file;
 }
 
@@ -281,7 +283,7 @@ about_cb (GtkWidget * widget, gpointer user_data)
   dialog = gnome_about_new (PACKAGE_NAME,
                               PACKAGE_VERSION,
                               "Copyright (C) 2002,2003 Robert Ham <node@users.sourceforge.net>\n"
-			      "Copyright (C) 2005 Leslie P. Polzer <leslie.polzer@gmx.net>",
+                              "Copyright (C) 2005 Leslie P. Polzer <leslie.polzer@gmx.net>",
                               _("A LADSPA effects rack for the JACK audio API"),
                               authors,
                               documenters,
@@ -300,15 +302,12 @@ about_cb (GtkWidget * widget, gpointer user_data)
 
 #ifdef HAVE_ALSA
 void
-midi_cb           (GtkWidget * button, gpointer user_data)
+midi_cb (GtkWidget * button, gpointer user_data)
 {
   ui_t * ui = user_data;
   gtk_widget_show (ui->midi_window->window);
 }
 #endif /* HAVE_ALSA
-
-
-
 
 
 /** callback for plugin menu buttons (Add and the plugin slots' change buttons) */
@@ -330,6 +329,7 @@ plugin_button_cb (GtkWidget *widget, GdkEvent *event)
   return FALSE;
 }
 
+
 #ifdef HAVE_LADCCA
 static int
 cca_idle (ui_t * ui, cca_client_t * client)
@@ -339,32 +339,32 @@ cca_idle (ui_t * ui, cca_client_t * client)
   while ( (event = cca_get_event (client)) )
     {
       switch (cca_event_get_type (event))
-	{
-	case CCA_Save_File:
-	  ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-	  cca_send_event (global_cca_client, event);
-	  break;
-	case CCA_Restore_File:
-	  ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-	  cca_send_event (global_cca_client, event);
-	  break;
-	case CCA_Quit:
-	  quit_cb (NULL, ui);
-	  cca_event_destroy (event);
-	  break;
-	case CCA_Server_Lost:
-	  printf ("server lost\n");
-	  printf (_("LADCCA server disconnected\n"));
-	  gtk_widget_set_sensitive (ui->cca_save, FALSE);
-	  gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
-	  cca_event_destroy (event);
-	  return 0;
-	  break;
-	default:
-	  fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
-	  cca_event_destroy (event);
-	  break;
-	}
+        {
+        case CCA_Save_File:
+          ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+          cca_send_event (global_cca_client, event);
+          break;
+        case CCA_Restore_File:
+          ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
+          cca_send_event (global_cca_client, event);
+          break;
+        case CCA_Quit:
+          quit_cb (NULL, ui);
+          cca_event_destroy (event);
+          break;
+        case CCA_Server_Lost:
+          printf ("server lost\n");
+          printf (_("LADCCA server disconnected\n"));
+          gtk_widget_set_sensitive (ui->cca_save, FALSE);
+          gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
+          cca_event_destroy (event);
+          return 0;
+          break;
+        default:
+          fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
+          cca_event_destroy (event);
+          break;
+        }
     }
 
   if (!cca_enabled (client))
@@ -422,6 +422,7 @@ ui_set_wet_dry_value (ui_t *ui, midi_control_t *midi_control, LADSPA_Data value)
   plugin_slot_set_wet_dry_controls (midi_control->plugin_slot, TRUE);
 }
 
+
 static void
 midi_idle (ui_t * ui)
 {
@@ -453,25 +454,92 @@ midi_idle (ui_t * ui)
 }  
 #endif /* HAVE_ALSA */
 
-static gboolean
-reconnect_cb()
+
+static struct reconnect_data
 {
-  
+        gboolean active;
+        GtkWidget* dialog;
+        
+        ui_t* ui;
+};
+
+
+/**
+ * Attempt to reconnect to JACK.
+ *
+ * @param data Argument of type 'struct reconnect_data'
+ * 
+ * @return FALSE on success (this tells Glib to delete the timeout)
+ */
+static gboolean
+reconnect_cb ( gpointer data )
+{
+        struct reconnect_data*  rcdata = (struct reconnect_data*)data;
+
+        process_info_t*         procinfo = rcdata->ui->procinfo;
+        extern GString*         client_name;
+        
+        g_printf("reconnect_cb() called -- reconnect_active = %d\n",
+                        rcdata->active );
+        
+        if ( rcdata->active == FALSE )
+                return FALSE;
+
+        /* reconnect */
+        procinfo = process_info_new (rcdata->ui, 2);
+        
+        /* FIXME: maybe we have to restore connections here */
+        
+        
+        rcdata->ui->shutdown = FALSE;
+        
+        return FALSE;
 }
+
+
+static void
+setup_reconnect ( gpointer data )
+{
+        static GtkWidget* dialog = NULL;
+        static int active = TRUE;
+        static struct reconnect_data rcdata;
+
+        ui_t* ui = (ui_t*)data;
+        
+        rcdata.active = TRUE;
+        rcdata.ui = ui;
+        
+        if ( dialog == NULL )
+              dialog = gtk_dialog_new_with_buttons (
+                                "Reconnecting to JACK...",
+                                NULL, GTK_DIALOG_MODAL,
+                                "Cancel", GTK_RESPONSE_CANCEL,
+                                NULL );
+
+        guint tid = g_timeout_add (1000, &reconnect_cb, (gpointer)&rcdata);
+        
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        
+        active = FALSE;
+        gtk_widget_hide (dialog);
+}
+
 
 static void
 ui_check_kicked (ui_t * ui)
 {
   static gboolean shown_shutdown_msg = FALSE;
+  static gboolean reconnect_active = TRUE;
   
   if (ui->shutdown &&
       !shown_shutdown_msg &&
       ui_get_state (ui) != STATE_QUITTING)
     {
-      ui_display_error (ui, _("%s\n\n%s%s"),
+      /*ui_display_error (ui, _("%s\n\n%s%s"),
                         _("JACK client thread shut down by server"),
                         _("JACK, the bastard, kicked us out.  "),
-                        _("You'll have to restart I'm afraid.  Sorry."));
+                        _("You'll have to restart I'm afraid.  Sorry."));*/
+      setup_reconnect (ui);
     
       gtk_widget_set_sensitive (ui->plugin_box, FALSE);
       gtk_widget_set_sensitive (ui->add, FALSE);
@@ -491,6 +559,8 @@ ui_check_kicked (ui_t * ui)
 
       shown_shutdown_msg = TRUE;
     }
+
+  return;
 }
 
 
@@ -582,7 +652,7 @@ idle_cb (gpointer data)
 void
 jack_shutdown_cb (void * data)
 {
-  ui_t * ui = data;
+  ui_t * ui = (ui_t*)data;
   
   ui->shutdown = TRUE;
 }

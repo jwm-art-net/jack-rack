@@ -25,6 +25,7 @@
 #include <jack/jack.h>
 #include <ladspa.h>
 
+#include "types.h"
 #include "lock_free_fifo.h"
 #include "globals.h"
 

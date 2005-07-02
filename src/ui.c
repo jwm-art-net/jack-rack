@@ -362,7 +362,8 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   
     if (!err)
       ui_set_filename (ui, fn);
-    /* free? */
+
+    g_free (fn);
   }
 #endif /* HAVE_XML */
 }

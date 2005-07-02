@@ -22,6 +22,7 @@ jack_rack_SOURCES = \
 	wet_dry_controls.c wet_dry_controls.h \
 	file.c file.h \
 	midi.c midi.h \
+	util.c util.h \
 	plugin_settings.c plugin_settings.h \
 	process.c process.h \
 	plugin_desc.c plugin_desc.h \
