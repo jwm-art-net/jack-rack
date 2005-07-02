@@ -173,7 +173,7 @@ ui_save_file (ui_t * ui, const char * filename)
   
   err = xmlSaveFormatFile (filename, doc, TRUE);
   if (err == -1)
-    ui_display_error (ui, _("Could not save file '%s'"), filename);
+    ui_display_error (ui, E_ERROR, _("Could not save file '%s'"), filename);
   else
     err = 0;
   
@@ -211,7 +211,7 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
           desc = plugin_mgr_get_any_desc (ui->plugin_mgr, num);
           if (!desc)
             {
-              ui_display_error (ui, _("The file '%s' contains an unknown plugin with ID '%ld'; skipping"), filename, num);
+              ui_display_error (ui, E_WARNING, _("The file '%s' contains an unknown plugin with ID '%ld'; skipping"), filename, num);
               return;
             }
           
@@ -427,13 +427,13 @@ ui_open_file (ui_t * ui, const char * filename)
   doc = xmlParseFile (filename);
   if (!doc)
     {
-      ui_display_error (ui, _("Could not parse file '%s'"), filename);
+      ui_display_error (ui, E_ERROR, _("Could not parse file '%s'"), filename);
       return 1;
     }
   
   if (strcmp ( ((xmlDtdPtr)doc->children)->name, "jackrack") != 0)
     {
-      ui_display_error (ui, _("The file '%s' is not a JACK Rack settings file"), filename);
+      ui_display_error (ui, E_ERROR, _("The file '%s' is not a JACK Rack settings file"), filename);
       return 1;
     }
   

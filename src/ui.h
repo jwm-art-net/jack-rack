@@ -100,19 +100,19 @@ struct _ui
 };
 
 ui_t * ui_new     (unsigned long channels);
-void   ui_destroy (ui_t * ui);
+void   ui_destroy (ui_t* ui);
 
-void ui_set_filename (ui_t * ui, const char * filename);
-void ui_set_state    (ui_t * ui, ui_state_t state);
-void ui_set_channels (ui_t * ui, unsigned long channels);
+void ui_set_filename (ui_t* ui, const char* filename);
+void ui_set_state    (ui_t* ui, ui_state_t state);
+void ui_set_channels (ui_t* ui, unsigned long channels);
 
-ui_state_t ui_get_state (ui_t * ui);
+ui_state_t ui_get_state (ui_t* ui);
 
-plugin_t * ui_instantiate_plugin (ui_t * ui, plugin_desc_t * desc);
+plugin_t * ui_instantiate_plugin (ui_t* ui, plugin_desc_t* desc);
 
-void     ui_display_error       (ui_t * ui, const char * format, ...);
-void     ui_display_splash_text (ui_t * ui, const char * format, ...);
-gboolean ui_get_ok              (ui_t * ui, const char * format, ...);
+void     ui_display_error       (void* data, error_severity_t severity, const char* format, ...);
+void     ui_display_splash_text (void* data, const char* format, ...);
+gboolean ui_get_ok              (ui_t* ui, const char* format, ...);
 
 
 #endif /* __JR_UI_H__ */

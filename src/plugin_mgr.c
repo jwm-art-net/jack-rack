@@ -247,10 +247,7 @@ plugin_mgr_new (ui_t * ui)
   plugin_mgr_get_path_plugins (ui, pm);
   
   if (!pm->all_plugins)
-    {
-      ui_display_error (ui, "No LADSPA plugins were found!\n\nCheck your LADSPA_PATH environment variable.");
-      abort ();
-    }
+      ui_display_error (ui, E_FATAL, "No LADSPA plugins were found!\n\nCheck your LADSPA_PATH environment variable.");
   
   pm->all_plugins = g_slist_sort (pm->all_plugins, plugin_mgr_sort);
   

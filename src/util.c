@@ -1,6 +1,15 @@
 #include "util.h"
 #include "types.h"
 
+
+/**
+ * Delete the char at the specified position from a string.
+ *
+ * @param pos The position, starting from zero.
+ * @return A pointer to s
+ *
+ * TODO: realloc result to strlen(s)-1. 
+ */
 static char*
 str_delete_char ( char* s, const unsigned int pos )
 {
@@ -13,6 +22,12 @@ str_delete_char ( char* s, const unsigned int pos )
 }
 
 
+/**
+ * Prepare a string for the JACK server.
+ * The passed string is modified accordingly.
+ *
+ * @return a pointer to client_name.
+ */
 char*
 sanitize_client_name ( char* client_name )
 {
@@ -34,8 +49,13 @@ sanitize_client_name ( char* client_name )
 }
 
 
+/**
+ * Provides simple console status logging.
+ *
+ * @todo: add "last message repeated n times'' functionality.
+ */
 void
-default_status_handler (const char* format, ...)
+default_status_handler (void* data, const char* format, ...)
 {
 	gchar* msg;
 	va_list args;
@@ -48,8 +68,13 @@ default_status_handler (const char* format, ...)
 }
 
 
-void
-default_error_handler (const error_severity_t severity, const char* format, ...)
+/**
+ * Provides simple console error logging.
+ *
+ * @todo: add "last message repeated n times'' functionality.
+ */
+default_error_handler (void* data, const error_severity_t severity,
+                       const char* format, ...)
 {
 	gchar* msg;
 	va_list args;

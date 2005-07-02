@@ -400,10 +400,7 @@ plugin_create_aux_ports (plugin_t * plugin, guint copy, jack_rack_t * jack_rack)
                             0);
       
       if (!holder->aux_ports[i])
-        {
-          ui_display_error (jack_rack->ui, "Could not register jack port '%s'; aborting", port_name);
-          abort ();
-        }
+          ui_display_error (jack_rack->ui, E_FATAL, "Could not register jack port '%s'; aborting", port_name);
     }
   
   g_free (plugin_name);

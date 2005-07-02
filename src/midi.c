@@ -53,13 +53,11 @@ midi_info_connect_alsa (ui_t * ui)
   /* connect to the sequencer */
   err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
   if (err)
-    {
-      ui_display_error (ui, "Could not open ALSA sequencer, aborting\n\n%s\n\n"
+      ui_display_error (ui, E_FATAL,
+			    "Could not open ALSA sequencer, aborting\n\n%s\n\n"
                             "Make sure you have configure ALSA properly and that\n"
                             "/proc/asound/seq/clients exists and contains relevant\n"
                             "devices.", snd_strerror (err));
-      abort ();
-    }
   
   ui_display_splash_text (ui, "Connected to ALSA sequencer with id %d", snd_seq_client_id (seq));
 
@@ -85,10 +83,7 @@ midi_info_connect_alsa (ui_t * ui)
                                     SND_SEQ_PORT_CAP_SUBS_READ|SND_SEQ_PORT_CAP_SUBS_WRITE,
                                     SND_SEQ_PORT_TYPE_APPLICATION|SND_SEQ_PORT_TYPE_SPECIFIC);
   if (err)
-    {
-      ui_display_error (ui, "Could not create ALSA port, aborting\n\n%s", snd_strerror (err));
-      abort ();
-    }
+      ui_display_error (ui, E_FATAL, "Could not create ALSA port, aborting\n\n%s", snd_strerror (err));
 
   ui_display_splash_text (ui, "Created ALSA sequencer port");
   

@@ -212,6 +212,7 @@ ui_set_default_window_icon ()
   g_object_unref (icon);
 }
 
+
 static void
 ui_init_gui (ui_t * ui, unsigned long channels)
 {
@@ -309,8 +310,8 @@ ui_init_gui (ui_t * ui, unsigned long channels)
                                            _("Save the LADCCA project"),
                                            NULL, G_CALLBACK (cca_save_cb), ui, -1);
     }
-
 #endif /* HAVE_LADCCA */
+
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
   gtk_toolbar_insert_stock (GTK_TOOLBAR (toolbar),
@@ -368,6 +369,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 #endif /* HAVE_XML */
 }
 
+
 void
 ui_init_splash_screen (ui_t * ui)
 {
@@ -409,6 +411,7 @@ ui_init_splash_screen (ui_t * ui)
   gtk_window_set_position (GTK_WINDOW (ui->splash_screen), GTK_WIN_POS_CENTER_ALWAYS);
   gtk_widget_show (ui->splash_screen);
 
+  /* FIXME: now what a dirty hack is this? */
   for (i = 0; i < 20; i++)
     gtk_main_iteration_do (FALSE);
 }
@@ -416,7 +419,7 @@ ui_init_splash_screen (ui_t * ui)
 ui_t *
 ui_new (unsigned long channels)
 {
-  ui_t * ui;
+  ui_t* ui;
 
   ui = g_malloc (sizeof (ui_t));
   ui->splash_screen = NULL;
@@ -433,12 +436,16 @@ ui_new (unsigned long channels)
 
   ui->ui_to_process = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
   ui->process_to_ui = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));
+
 #ifdef HAVE_ALSA
   ui->ui_to_midi    = lff_new (MIDI_FIFO_SIZE, sizeof (ctrlmsg_t));
   ui->midi_to_ui    = lff_new (MIDI_FIFO_SIZE, sizeof (ctrlmsg_t));
 #endif
 
   ui_init_splash_screen (ui);
+
+  process_set_error_cb ((void*)ui, ui_display_error );
+  process_set_status_cb ((void*)ui, ui_display_splash_text );
   
   ui->procinfo = process_info_new (ui, channels);
   if (!ui->procinfo)
@@ -480,13 +487,22 @@ ui_destroy (ui_t * ui)
   g_free (ui);
 }
 
+
+/**
+ * Display a message box with an error message.
+ *
+ * @todo Use severity_t.
+ *
+ * @param data A ui_t*
+ */
 void
-ui_display_error (ui_t * ui, const char * format, ...)
+ui_display_error (void* data, error_severity_t severity, const char * format, ...)
 {
   va_list args;
+  ui_t* ui = (ui_t*)data;
   gchar * text;
   GtkWidget * dialog;
-  
+
   va_start(args, format);
   
   text = g_strdup_vprintf (format, args);
@@ -505,10 +521,17 @@ ui_display_error (ui_t * ui, const char * format, ...)
   va_end(args);
 }
 
+
+/**
+ * Display a text message in the splash window
+ *
+ * @param data A ui_t*
+ */
 void
-ui_display_splash_text (ui_t * ui, const char * format, ...)
+ui_display_splash_text (void* data, const char* format, ...)
 {
   va_list args;
+  ui_t* ui = (ui_t*)data; 
   gchar * text;
   short j;
   
@@ -590,11 +613,13 @@ ui_set_state    (ui_t * ui, ui_state_t state)
   ui->state = state;
 }
 
+
 ui_state_t
 ui_get_state (ui_t * ui)
 {
   return ui->state;
 }
+
 
 void
 ui_set_channels (ui_t * ui, unsigned long channels)
@@ -643,8 +668,3 @@ ui_set_channels (ui_t * ui, unsigned long channels)
   
   jack_activate (ui->procinfo->jack_client);
 }
-
-/* EOF */
-
-
-

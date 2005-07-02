@@ -44,27 +44,42 @@
 #define TIME_RUN_SKIP_COUNT  5
 
 
-extern void default_status_handler (const char*, ...);
-extern void default_error_handler (error_severity_t, const char*, ...);
+extern void default_status_handler (void*, const char*, ...);
+extern void default_error_handler (void*, error_severity_t, const char*, ...);
 
 jack_nframes_t sample_rate;
 jack_nframes_t buffer_size;
 
 static char * jack_client_name;
 
-static void (*_update_status)(const char*, ...) = default_status_handler;
-static void (*_display_error)(error_severity_t, const char*, ...) = default_error_handler;
+static status_callback _update_status = default_status_handler;
+static error_callback _display_error = default_error_handler;
+
+static void* _status_cb_data = NULL;
+static void* _error_cb_data = NULL;
 
 
-void process_set_status_cb ( void (*cb)(const char*, ...) )
+/**
+ * Set the function to call when status changes 
+ *
+ * @param data The data to pass to the function
+ */
+void process_set_status_cb ( void* data, status_callback cb )
 {
 	_update_status = cb;
+        _status_cb_data = data;
 }
 
 
-void process_set_error_cb ( void (*cb)(error_severity_t, const char*, ...) )
+/**
+ * Set the function to call when an error occurs
+ *
+ * @see process_set_status_cb
+ */
+void process_set_error_cb ( void* data, error_callback cb )
 {
 	_display_error = cb;
+        _error_cb_data = data;
 }
 
 
@@ -145,7 +160,7 @@ int process_control_messages (process_info_t * procinfo)
     
     if (err)
       {
-        fprintf (stderr, "%s: gui fifo is out of space\n", __FUNCTION__);
+        _display_error ( _error_cb_data, E_ERROR, "%s: gui fifo is out of space\n", __FUNCTION__ );
         return err;
       }
       
@@ -155,7 +170,8 @@ int process_control_messages (process_info_t * procinfo)
 }
 
 /** process messages for plugins' control ports */
-void process_control_port_messages (process_info_t * procinfo) {
+void process_control_port_messages (process_info_t * procinfo)
+{
   plugin_t * plugin;
   unsigned long control;
   unsigned long channel;
@@ -190,7 +206,8 @@ void process_control_port_messages (process_info_t * procinfo) {
     }
 }
 
-int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames) {
+int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames)
+{
   unsigned long channel;
   
   for (channel = 0; channel < procinfo->channels; channel++)
@@ -213,6 +230,7 @@ int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames) {
   return 0;
 }
 
+
 plugin_t *
 get_first_enabled_plugin (process_info_t * procinfo)
 {
@@ -230,6 +248,7 @@ get_first_enabled_plugin (process_info_t * procinfo)
   return NULL;
 }
 
+
 plugin_t *
 get_last_enabled_plugin (process_info_t * procinfo)
 {
@@ -246,6 +265,7 @@ get_last_enabled_plugin (process_info_t * procinfo)
   
   return NULL;
 }
+
 
 void
 connect_chain (process_info_t * procinfo, jack_nframes_t frames)
@@ -300,6 +320,7 @@ connect_chain (process_info_t * procinfo, jack_nframes_t frames)
   /* input buffers for first plugin */
   plugin_connect_input_ports (first_enabled, procinfo->jack_input_buffers);
 }
+
 
 void
 process_chain (process_info_t * procinfo, jack_nframes_t frames)
@@ -359,7 +380,8 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
               for (i = 0; i < frames; i++)
                 {
                   plugin->audio_output_memory[channel][i] *= plugin->wet_dry_values[channel];
-                  plugin->audio_output_memory[channel][i] += plugin->audio_input_memory[channel][i] * (1.0 - plugin->wet_dry_values[channel]);
+                  plugin->audio_output_memory[channel][i] += plugin->audio_input_memory[channel][i]
+			  * (1.0 - plugin->wet_dry_values[channel]);
                 }
           
           if (plugin == last_enabled)
@@ -384,15 +406,16 @@ process_chain (process_info_t * procinfo, jack_nframes_t frames)
   
 }
 
+
 int process (jack_nframes_t frames, void * data) {
   int err, quitting;
   process_info_t * procinfo;
   
   procinfo = (process_info_t *) data;
-  
+
   if (!procinfo)
     {
-      fprintf (stderr, "%s: no process_info from jack!\n", __FUNCTION__);
+      _display_error ( _error_cb_data, E_WARNING, "%s: no process_info from jack!\n", __FUNCTION__ );
       return 1;
     }
   
@@ -406,7 +429,7 @@ int process (jack_nframes_t frames, void * data) {
   err = get_jack_buffers (procinfo, frames);
   if (err)
     {
-      fprintf(stderr, "%s: failed to get jack ports, not processing\n", __FUNCTION__);
+      _display_error ( _error_cb_data, E_WARNING, "%s: failed to get jack ports, not processing\n", __FUNCTION__ );
       return 0;
     }
   
@@ -419,10 +442,10 @@ int process (jack_nframes_t frames, void * data) {
 
 
 
-/*******************************************
- ************** non RT stuff ***************
- *******************************************/
- 
+/****
+ * Non-RT stuff starts here
+ ****/
+
 static int
 process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
@@ -431,7 +454,7 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
   while (!(procinfo->jack_client = jack_client_new (jack_client_name)))
   {
           /* FIXME: should show a dialog */
-          fprintf(stderr, "reconn...");
+          _update_status ( _status_cb_data, "Attempting to connect to JACK server");
           sleep(1); /* FIXME: interval should be configurable */
   }
 
@@ -443,13 +466,14 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
       return 1;
       }*/
 
-  _update_status ( _("Connected to JACK server") );
+  _update_status ( _status_cb_data, _("Connected to JACK server") );
 
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
-  jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
+  jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui); /* FIXME: need a generic callback for this, too */
                                             
   return 0;
 }
+
 
 static void
 process_info_connect_port (process_info_t * procinfo,
@@ -496,6 +520,7 @@ process_info_connect_port (process_info_t * procinfo,
   free (jack_ports);
 }
 
+
 int
 process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long port_count)
 {
@@ -534,7 +559,8 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
       {
         port_name = g_strdup_printf ("%s_%ld", in ? "in" : "out", i + 1);
        
-        _update_status ( _("Creating %s port '%s'"), ( in ? "input" : "output" ), port_name );
+        _update_status ( _status_cb_data, _("Creating %s port '%s'"),
+                        ( in ? "input" : "output" ), port_name );
 
         port_ptr = (in ? &procinfo->jack_input_ports[i]
                        : &procinfo->jack_output_ports[i]);
@@ -549,11 +575,13 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
           {
             fprintf (stderr, "%s: could not register port '%s'; aborting\n",
                      __FUNCTION__, port_name);
-            ui_display_error (ui, "Could not register JACK port '%s'; aborting", port_name);
+            ui_display_error ( _error_cb_data, E_FATAL,
+                               "Could not register JACK port '%s'; aborting",
+                               port_name);
             return 1;
           }
 
-        _update_status ( _("Created %s port '%s'"), ( in ? "input" : "output" ), port_name );
+        _update_status ( _status_cb_data, _("Created %s port '%s'"), ( in ? "input" : "output" ), port_name );
 
         if ((in && connect_inputs) || (!in && connect_outputs))
           process_info_connect_port (procinfo, ui, in, i, port_name);
@@ -567,6 +595,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
   return 0;
 }
 
+
 void
 process_info_set_channels (process_info_t * procinfo, ui_t * ui, unsigned long channels)
 {
@@ -574,10 +603,11 @@ process_info_set_channels (process_info_t * procinfo, ui_t * ui, unsigned long c
   procinfo->channels = channels; 
 }
 
+
 process_info_t *
-process_info_new (ui_t * ui, unsigned long rack_channels)
+process_info_new (ui_t* ui, unsigned long rack_channels)
 {
-  process_info_t * procinfo;
+  process_info_t* procinfo;
   int err;
 
   procinfo = g_malloc (sizeof (process_info_t));
@@ -626,10 +656,11 @@ process_info_new (ui_t * ui, unsigned long rack_channels)
   return procinfo;
 }
 
+
 void
-process_info_destroy (process_info_t * procinfo) {
+process_info_destroy (process_info_t * procinfo)
+{
   jack_deactivate (procinfo->jack_client);
   jack_client_close (procinfo->jack_client);
   g_free (procinfo);
 }
-
