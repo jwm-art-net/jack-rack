@@ -1,3 +1,9 @@
+! I can't keep the change log up-to-date right now, so you'll have to
+! stick with CVS logs.
+! If I get support in the form of patches or money, I will probably
+! pick it up again. Code is more important than change logs.
+!    -- Leslie
+
 2005-06-06  Leslie Polzer <leslie.polzer@gmx.net>
 	* src/ui_callbacks.c: adjusted web site and authors
 
