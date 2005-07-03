@@ -53,7 +53,7 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
   doc = xmlNewDoc(XML_DEFAULT_VERSION);
 
   /* dtd */
-  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://purge.bash.sh/~rah/jack_rack_1.2.dtd");
+  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://jack-rack.sf.net/DTD/jack_rack_1.2.dtd");
   doc->intSubset = dtd;
   xmlAddChild ((xmlNodePtr)doc, (xmlNodePtr)dtd);
   
