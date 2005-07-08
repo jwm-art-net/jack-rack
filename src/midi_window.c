@@ -34,6 +34,9 @@ static void channel_cb (GtkCellRendererText *channel_renderer, gchar *arg1, gcha
 static void param_cb   (GtkCellRendererText *param_renderer, gchar *arg1, gchar *arg2, gpointer user_data);
 
 
+/**
+ * Creates the tree view.
+ */
 static void
 midi_window_create_control_view (midi_window_t *mwin)
 {
@@ -104,8 +107,11 @@ midi_window_create_control_view (midi_window_t *mwin)
 }
 
 
+/**
+ * Creates the window.
+ */
 midi_window_t *
-midi_window_new     (ui_t *ui)
+midi_window_new (ui_t *ui)
 {
   midi_window_t *mwin;
   GtkWidget *button_box;
@@ -164,14 +170,19 @@ midi_window_new     (ui_t *ui)
   return mwin;
 }
 
+
 void
 midi_window_destroy (midi_window_t * mwin)
 {
   g_free (mwin);
 }
 
+
+/**
+ * Walks the tree view and deletes a control.
+ */
 void
-midi_window_remove_control (midi_window_t *mwin, midi_control_t *midi_ctrl)
+midi_window_remove_control (midi_window_t* mwin, midi_control_t* midi_ctrl)
 {
   GtkTreeIter iter;
   gboolean succ;
@@ -307,7 +318,7 @@ param_cb (GtkCellRendererText *cell,
   gtk_tree_model_get_iter (GTK_TREE_MODEL (mwin->controls), &iter, path);
   
   param = atof (new_text);
-  if (param < 1 || param > 128)
+  if (param < 0 || param > 127)
     return;
   
   gtk_tree_model_get (GTK_TREE_MODEL (mwin->controls), &iter,

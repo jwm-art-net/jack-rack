@@ -135,7 +135,7 @@ midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data va
   snd_seq_ev_set_source (&event, 0);
   snd_seq_ev_set_controller (&event,
                              midi_control_get_midi_channel (midi_ctrl) - 1,
-                             midi_control_get_midi_param (midi_ctrl) - 1,
+                             midi_control_get_midi_param (midi_ctrl),
                              midi_value);
 
   err = snd_seq_event_output (minfo->seq, &event);
@@ -191,7 +191,7 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
     {
       midi_ctrl = (midi_control_t *) list->data;
       
-      if (event->param + 1 == midi_control_get_midi_param (midi_ctrl) &&
+      if (event->param == midi_control_get_midi_param (midi_ctrl) &&
           event->channel + 1 == midi_control_get_midi_channel (midi_ctrl))
         {
           value = midi_ctrl->min + ((midi_ctrl->max - midi_ctrl->min) / 127.0) * event->value;
@@ -219,6 +219,9 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
     }
 }
 
+/**
+ * Check for new events in the sequencer's event queue
+ */
 static void
 midi_get_events (midi_info_t *minfo)
 {
@@ -240,6 +243,9 @@ midi_get_events (midi_info_t *minfo)
   while (snd_seq_event_input_pending (minfo->seq, 0) > 0);
 }
 
+/**
+ * Poll the sequencer's file descriptors
+ */
 static void
 midi_process (midi_info_t *minfo)
 {
@@ -298,7 +304,7 @@ midi_run (void * data)
 {
   midi_info_t * minfo = (midi_info_t *) data;
   
-  /* this is dealt with by the jack thread */
+  /* this is dealt with by the JACK thread */
   signal (SIGHUP, SIG_IGN);
   
   midi_realise_time (minfo);
