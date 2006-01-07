@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-06 20:56+0200\n"
+"POT-Creation-Date: 2006-01-07 18:43+0100\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -14,75 +14,75 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.1\n"
 
-#: src/ui.c:79
+#: src/ui.c:75
 msgid "File"
 msgstr "Файл"
 
-#: src/ui.c:83
+#: src/ui.c:79
 msgid "Rack"
 msgstr "Эффект-процессор"
 
-#: src/ui.c:89
+#: src/ui.c:85
 msgid "Help"
 msgstr "Справка"
 
-#: src/ui.c:131
+#: src/ui.c:127
 msgid "Save project"
 msgstr "Сохранить·проект"
 
-#: src/ui.c:161 src/ui.c:270
+#: src/ui.c:157 src/ui.c:267
 msgid "Channels"
 msgstr "Каналы"
 
-#: src/ui.c:168
+#: src/ui.c:164
 msgid "MIDI Controls"
 msgstr "MIDI-регуляторы"
 
-#: src/ui.c:180
+#: src/ui.c:176
 msgid "About"
 msgstr "О программе"
 
-#: src/ui.c:255
+#: src/ui.c:252
 msgid "Add a plugin"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:271
+#: src/ui.c:268
 msgid "Change the number of I/O channels the rack has"
 msgstr "Изменить·количество·I/O·портов·эффект-процессора"
 
-#: src/ui.c:282
+#: src/ui.c:279
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
-#: src/ui.c:288
+#: src/ui.c:285
 msgid "Open a rack configuration file"
 msgstr "Открыть·файл·настроек·эффект-процессора"
 
-#: src/ui.c:293
+#: src/ui.c:290
 msgid "Save the rack configuration to the current file"
 msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
 
-#: src/ui.c:298
+#: src/ui.c:295
 msgid "Save the rack configuration to a file"
 msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#: src/ui.c:309
+#: src/ui.c:306
 msgid "Save the LADCCA project"
 msgstr "Сохранить·LADCCA-проект"
 
-#: src/ui.c:318
+#: src/ui.c:315
 msgid "Quit JACK Rack"
 msgstr "Выйти·из·JACK Rack"
 
-#: src/ui.c:348
+#: src/ui.c:345
 msgid "Add MIDI control"
 msgstr "Добавить·MIDI-регулятор"
 
-#: src/plugin_mgr.c:338
+#: src/plugin_mgr.c:335
 msgid ", NOT RT"
 msgstr ", НЕ RT"
 
-#: src/plugin_mgr.c:350
+#: src/plugin_mgr.c:347
 msgid "ch"
 msgstr "к"
 
@@ -98,11 +98,11 @@ msgstr "Вкл"
 msgid "Wet/dry"
 msgstr "Wet/dry"
 
-#: src/ui_callbacks.c:81
+#: src/ui_callbacks.c:78
 msgid "I/O Channels"
 msgstr "I/O·каналы"
 
-#: src/ui_callbacks.c:94
+#: src/ui_callbacks.c:91
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
@@ -110,41 +110,28 @@ msgstr ""
 "Предупреждение: изменение·количества·каналов приведёт\n"
 "к·стиранию·текущих·настроек·эффект-процессора"
 
-#: src/ui_callbacks.c:139
-msgid "Select file"
+#: src/ui_callbacks.c:136
+#, fuzzy
+msgid "Select File"
 msgstr "Выберите файл"
 
-#: src/ui_callbacks.c:284
-msgid "An LADSPA effects rack for the JACK audio API"
+#: src/ui_callbacks.c:283
+#, fuzzy
+msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
 
-#: src/ui_callbacks.c:356
+#: src/ui_callbacks.c:286
+msgid "__TRANSLATOR_CREDITS"
+msgstr ""
+
+#: src/ui_callbacks.c:353
 #, c-format
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
-#: src/ui_callbacks.c:464
-#, c-format
-msgid ""
-"%s\n"
-"\n"
-"%s%s"
+#: src/ui_callbacks.c:516
+msgid "Reconnecting to JACK..."
 msgstr ""
-"%s\n"
-"\n"
-"%s%s"
-
-#: src/ui_callbacks.c:465
-msgid "JACK client thread shut down by server"
-msgstr "Нить процесса JACK-клиент уничтожена сервером"
-
-#: src/ui_callbacks.c:466
-msgid "JACK, the bastard, kicked us out.  "
-msgstr "JACK нас \"выкинул\".  "
-
-#: src/ui_callbacks.c:467
-msgid "You'll have to restart I'm afraid.  Sorry."
-msgstr "Боюсь, вам придётся перезагрузить программу..."
 
 #: src/file.c:176
 #, c-format
@@ -176,15 +163,15 @@ msgstr ""
 " ·\n"
 " ·Вы·уверены,·что·хотите·продолжить?"
 
-#: src/plugin_slot.c:248
+#: src/plugin_slot.c:272
 msgid "Lock All"
 msgstr "Блокировать·все"
 
-#: src/plugin_slot.c:360
+#: src/plugin_slot.c:384
 msgid "Enable"
 msgstr "Разрешить"
 
-#: src/plugin_slot.c:371
+#: src/plugin_slot.c:395
 msgid "Wet/Dry"
 msgstr "Wet/Dry"
 
@@ -192,107 +179,124 @@ msgstr "Wet/Dry"
 msgid "Channel"
 msgstr "Канал"
 
-#: src/main.c:74
+#: src/main.c:70
 #, c-format
 msgid "Compiled with:\n"
 msgstr "Скомпилировано·с:\n"
 
-#: src/main.c:96
+#: src/main.c:92
 msgid "Display this help info"
 msgstr "Отображать·эту справку"
 
-#: src/main.c:98
+#: src/main.c:94
 msgid "Use the pid in the JACK client name (default)"
 msgstr "Использовать·этот pid в·имени·JACK-клиенте (по·умолчанию)"
 
-#: src/main.c:99
+#: src/main.c:95
 msgid "Use <string> in the JACK client name"
 msgstr "Использовать·<string> в·имени JACK-клиента"
 
-#: src/main.c:100
+#: src/main.c:96
 msgid "Use just jack_rack as the client name"
 msgstr "Использовать·только·jack_rack·в·качестве·имени·клиента"
 
-#: src/main.c:102
+#: src/main.c:98
 msgid "Connected inputs to the first two physical capture ports"
 msgstr "Входы·подключены·к·первым·двум·физическим·портам·записи"
 
-#: src/main.c:103
+#: src/main.c:99
 msgid "Connected outputs to the first two physical playback ports"
 msgstr "Выходы·подключены·к·первым·двум·физическим·портам·воспроизведения"
 
-#: src/main.c:104
+#: src/main.c:100
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
 
-#: src/main.c:199
+#: src/main.c:195
 #, c-format
 msgid "there must be at least one channel\n"
 msgstr "должно·быть·не·менее·одного·канала\n"
 
-#: src/process.c:406
+#: src/process.c:452
 #, c-format
 msgid "Connecting to JACK server with client name '%s'"
 msgstr "Устанавливается соединение клиента '%s' с JACK-сервером"
 
-#: src/process.c:413
-msgid ""
-"Could not create JACK client\n"
-"\n"
-"Is the jackd server running?"
-msgstr ""
-"Не удалось создать JACK-клиент\n"
-"\n"
-"Загружен ли jackd (JACK-сервер)?"
-
-#: src/process.c:417
+#: src/process.c:457
 msgid "Connected to JACK server"
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/process.c:452
-#, c-format
-msgid "Connecting ports '%s' and '%s'"
+#: src/process.c:493
+#, fuzzy, c-format
+msgid "Connecting port '%s' with '%s'"
 msgstr "Соединяются порты '%s' и '%s'"
 
-#: src/process.c:462
-#, c-format
-msgid "Connected ports '%s' and '%s'"
+#: src/process.c:503
+#, fuzzy, c-format
+msgid "Connected port '%s' with '%s'"
 msgstr "Соединены порты '%s' и '%s'"
 
-#: src/process.c:504
-#, c-format
-msgid "Creating %s port %s"
+#: src/process.c:550
+#, fuzzy, c-format
+msgid "Creating %s port '%s'"
 msgstr "Создаётся %s порт %s"
 
-#: src/process.c:523
-#, c-format
-msgid "Created %s port %s"
+#: src/process.c:572
+#, fuzzy, c-format
+msgid "Created %s port '%s'"
 msgstr "Создан %s порт %s"
 
-#: src/midi_window.c:70
+#: src/midi_window.c:73
 msgid "Plugin"
 msgstr "Модуль"
 
-#: src/midi_window.c:75
+#: src/midi_window.c:78
 msgid "Control"
 msgstr "Регулятор"
 
-#: src/midi_window.c:80
+#: src/midi_window.c:83
 msgid "Index"
 msgstr "Индекс"
 
-#: src/midi_window.c:91
+#: src/midi_window.c:94
 msgid "MIDI Channel"
 msgstr "MIDI-канал"
 
-#: src/midi_window.c:101
+#: src/midi_window.c:104
 msgid "MIDI Controller"
 msgstr "MIDI-контроллер"
 
-#: src/midi_window.c:122
+#: src/midi_window.c:128
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
+
+#~ msgid ""
+#~ "%s\n"
+#~ "\n"
+#~ "%s%s"
+#~ msgstr ""
+#~ "%s\n"
+#~ "\n"
+#~ "%s%s"
+
+#~ msgid "JACK client thread shut down by server"
+#~ msgstr "Нить процесса JACK-клиент уничтожена сервером"
+
+#~ msgid "JACK, the bastard, kicked us out.  "
+#~ msgstr "JACK нас \"выкинул\".  "
+
+#~ msgid "You'll have to restart I'm afraid.  Sorry."
+#~ msgstr "Боюсь, вам придётся перезагрузить программу..."
+
+#~ msgid ""
+#~ "Could not create JACK client\n"
+#~ "\n"
+#~ "Is the jackd server running?"
+#~ msgstr ""
+#~ "Не удалось создать JACK-клиент\n"
+#~ "\n"
+#~ "Загружен ли jackd (JACK-сервер)?"
 
 #~ msgid "Tell JACK to use <dir> for its temporary files"
 #~ msgstr "Заставить JACK использовать·<dir> для·хранения·временных·файлов"

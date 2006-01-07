@@ -1,3 +1,12 @@
+1.4.5:
+* JACK connection loss now employs automatic reconnect
+* widgets controlled via MIDI now get all channels updated
+* added french translation
+* applied patch from Mark Vitek that supports the latest LASH API changes
+* corrected MIDI controller numbering (reported by James Stones)
+* internal: introduced flexible status and error handlers
+
+
 1.4.4:
 * user may specify a rack file to be loaded at startup now
 * removed references to jack_set_server_dir

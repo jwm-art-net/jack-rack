@@ -30,10 +30,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-#ifdef HAVE_LADCCA
-#include <ladcca/ladcca.h>
-#endif
-
 #ifdef HAVE_GNOME
 #include <libgnomeui/libgnomeui.h>
 #endif
@@ -139,7 +135,7 @@ get_filename ()
   if (!dialog)
     dialog = gtk_file_chooser_dialog_new ( _("Select File"),
                                           NULL,
-                                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          GTK_FILE_CHOOSER_ACTION_SAVE,
                                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                           GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
                                           NULL );
@@ -310,7 +306,7 @@ midi_cb (GtkWidget * button, gpointer user_data)
 #endif /* HAVE_ALSA
 
 
-/** callback for plugin menu buttons (Add and the plugin slots' change buttons) */
+/** callback for plugin menu buttons ("Add" and the plugin slots' change buttons) */
 gint
 plugin_button_cb (GtkWidget *widget, GdkEvent *event)
 {
@@ -479,20 +475,26 @@ reconnect_cb ( gpointer data )
         process_info_t*         procinfo = rcdata->ui->procinfo;
         extern GString*         client_name;
         
-        g_printf("reconnect_cb() called -- reconnect_active = %d\n",
-                        rcdata->active );
+        //g_printf("reconnect_cb() called -- reconnect_active = %d\n",
+        //                rcdata->active );
         
         if ( rcdata->active == FALSE )
                 return FALSE;
 
         /* reconnect */
+        //g_printf("%s: reconnect attempt\n", __func__);
         procinfo = process_info_new (rcdata->ui, 2);
+        /*gtk_main_iteration_do (FALSE);*/
         
-        /* FIXME: maybe we have to restore connections here */
+        if (!procinfo)
+                /* attempt not successful, maintain callback */
+                return TRUE;
         
+        /* attempt successful */
         
+        gtk_widget_hide (rcdata->dialog);
         rcdata->ui->shutdown = FALSE;
-        
+
         return FALSE;
 }
 
@@ -511,14 +513,30 @@ setup_reconnect ( gpointer data )
         
         if ( dialog == NULL )
               dialog = gtk_dialog_new_with_buttons (
-                                "Reconnecting to JACK...",
+                                _("Reconnecting to JACK..."),
                                 NULL, GTK_DIALOG_MODAL,
-                                "Cancel", GTK_RESPONSE_CANCEL,
+                                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                 NULL );
-
+        GtkWidget* rcnotice = gtk_label_new("Reconnecting to JACK server...");
+        //gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, rcnotice,
+        //                TRUE, FALSE, 10);
+        gtk_container_add (GTK_DIALOG(dialog)->vbox, rcnotice);
+        gtk_container_set_border_width (GTK_DIALOG(dialog)->vbox, 50);
+        gtk_widget_set_size_request (GTK_DIALOG(dialog)->vbox, 250, 100); 
+        gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
+        rcdata.dialog = dialog;
+        
         guint tid = g_timeout_add (1000, &reconnect_cb, (gpointer)&rcdata);
         
-        gtk_dialog_run(GTK_DIALOG(dialog));
+        gint answer = gtk_dialog_run (GTK_DIALOG(dialog));
+        
+        //g_printf("%s: dialog finished\n", __func__);
+        
+        if (answer == GTK_RESPONSE_CANCEL)
+        {
+                /* FIXME show notice */
+                rcdata.active = FALSE;
+        }
         
         active = FALSE;
         gtk_widget_hide (dialog);
@@ -535,10 +553,6 @@ ui_check_kicked (ui_t * ui)
       !shown_shutdown_msg &&
       ui_get_state (ui) != STATE_QUITTING)
     {
-      /*ui_display_error (ui, _("%s\n\n%s%s"),
-                        _("JACK client thread shut down by server"),
-                        _("JACK, the bastard, kicked us out.  "),
-                        _("You'll have to restart I'm afraid.  Sorry."));*/
       setup_reconnect (ui);
     
       gtk_widget_set_sensitive (ui->plugin_box, FALSE);

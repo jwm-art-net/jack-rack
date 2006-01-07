@@ -451,21 +451,9 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
   _update_status ( _("Connecting to JACK server with client name '%s'"), jack_client_name );
 
-  while (!(procinfo->jack_client = jack_client_new (jack_client_name)))
-  {
-          /* FIXME: should show a dialog */
-          _update_status ( _status_cb_data, "Attempting to connect to JACK server");
-          sleep(1); /* FIXME: interval should be configurable */
-  }
-
+  if (!(procinfo->jack_client = jack_client_new (jack_client_name)))
+        return -1;
   
-  /*if (!procinfo->jack_client)
-    {
-      fprintf (stderr, "%s: could not create jack client; exiting\n", __FUNCTION__);
-      ui_display_error (ui, _("Could not create JACK client\n\nIs the jackd server running?"));
-      return 1;
-      }*/
-
   _update_status ( _status_cb_data, _("Connected to JACK server") );
 
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
@@ -627,15 +615,14 @@ process_info_new (ui_t* ui, unsigned long rack_channels)
   
   err = process_info_connect_jack (procinfo, ui); 
   if (err)
-    {
-/*      g_free (procinfo); */
-      return NULL;
-/*      abort (); */
-    }
+  {
+        g_free (procinfo);
+        return NULL;
+  }
   
   err = process_info_set_port_count (procinfo, ui, rack_channels);
   if (err)
-    return NULL;
+        return NULL;
   
   sample_rate = jack_get_sample_rate (procinfo->jack_client);
   buffer_size = jack_get_sample_rate (procinfo->jack_client);

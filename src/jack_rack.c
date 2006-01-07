@@ -29,10 +29,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-#ifdef HAVE_LADCCA
-#include <ladcca/ladcca.h>
-#endif
-
 #include "jack_rack.h"
 #include "lock_free_fifo.h"
 #include "control_message.h"
@@ -61,6 +57,7 @@ jack_rack_destroy (jack_rack_t * jack_rack)
   g_free (jack_rack);
 }
 
+
 plugin_t *
 jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
 {
@@ -75,7 +72,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
                GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                GTK_MESSAGE_WARNING,
                GTK_BUTTONS_YES_NO,
-               "Plugin not RT capable\n\nThe plugin '%s' does not describe itself as being capable of real-time operation.  You may experience drop outs or jack may even kick us out if you use it.\n\nAre you sure you want to add this plugin?",
+               "Plugin not RT capable\n\nThe plugin '%s' does not describe itself as being capable of real-time operation.  You may experience drop-outs or jack may even kick us out if you use it.\n\nAre you sure you want to add this plugin?",
                desc->name);
     response = gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
@@ -105,6 +102,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   return plugin;
 }
 
+
 void
 jack_rack_send_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
 {
@@ -121,6 +119,7 @@ jack_rack_send_add_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
   ctrlmsg.data.add.plugin = plugin;
   lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
+
 
 void
 jack_rack_add_saved_plugin (jack_rack_t * jack_rack, saved_plugin_t * saved_plugin)
@@ -163,6 +162,7 @@ jack_rack_add_plugin (jack_rack_t * jack_rack, plugin_t * plugin)
                       plugin_slot->main_vbox, FALSE, FALSE, 0);
 }
 
+
 void
 jack_rack_send_remove_plugin_slot (jack_rack_t *jack_rack, plugin_slot_t *plugin_slot)
 {
@@ -179,6 +179,7 @@ jack_rack_send_remove_plugin_slot (jack_rack_t *jack_rack, plugin_slot_t *plugin
   lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
 
+
 void
 jack_rack_remove_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot)
 {
@@ -187,13 +188,14 @@ jack_rack_remove_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_sl
   plugin_slot_destroy (plugin_slot);
 }
 
+
 void
 jack_rack_send_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up)
 {
   ctrlmsg_t ctrlmsg;
   GList * slot_list_data;
 
-  /* this is because we use indicies */
+  /* this is because we use indices */
   if (ui_get_state (jack_rack->ui)  == STATE_RACK_CHANGE)
     return;
                                                                                                                
@@ -212,6 +214,7 @@ jack_rack_send_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin
                                                                                                                
   lff_write (jack_rack->ui->ui_to_process, &ctrlmsg);
 }
+
 
 void
 jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, gint up)
@@ -233,12 +236,12 @@ jack_rack_move_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot
 }
 
 
-
 void
 jack_rack_change_plugin_slot (jack_rack_t * jack_rack, plugin_slot_t * plugin_slot, plugin_t * plugin)
 {
   plugin_slot_change_plugin (plugin_slot, plugin);
 }
+
 
 void
 jack_rack_send_clear_plugins (jack_rack_t * jack_rack)
@@ -249,11 +252,13 @@ jack_rack_send_clear_plugins (jack_rack_t * jack_rack)
     jack_rack_send_remove_plugin_slot (jack_rack, (plugin_slot_t *) slot->data);
 }
 
+
 plugin_slot_t *
 jack_rack_get_plugin_slot (jack_rack_t * jack_rack, unsigned long plugin_index)
 {
   return (plugin_slot_t *) g_list_nth_data (jack_rack->slots, plugin_index);
 }
+
 
 #ifdef HAVE_ALSA
 unsigned int

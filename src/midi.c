@@ -30,13 +30,9 @@
 #include <pthread.h>
 #include <string.h>
 
-#ifdef HAVE_LADCCA
-#include <ladcca/ladcca.h>
-#endif
-
+#include "globals.h"
 #include "midi.h"
 #include "ui.h"
-#include "globals.h"
 #include "control_message.h"
 
 static void * midi_run (void * data);
@@ -90,6 +86,7 @@ midi_info_connect_alsa (ui_t * ui)
   return seq;
 }
 
+
 midi_info_t *
 midi_info_new (struct _ui * ui)
 {
@@ -110,6 +107,7 @@ midi_info_new (struct _ui * ui)
   return minfo;  
 }
 
+
 void
 midi_info_destroy (midi_info_t * minfo)
 {
@@ -119,6 +117,7 @@ midi_info_destroy (midi_info_t * minfo)
   
   g_free (minfo);
 }
+
 
 static void
 midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data value)
@@ -147,6 +146,7 @@ midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data va
   
   snd_seq_drain_output (minfo->seq);
 }
+
 
 static void
 midi_process_ctrlmsgs (midi_info_t *minfo)
@@ -210,6 +210,13 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
                 lff_write (midi_ctrl->fifos + i, &value);
             }
           
+	  /* FIXME: need to send to all copies
+	   * number of channels is in minfo->ui->jack_rack->channels
+	   * (midi_control.midi_channel)
+	   */
+
+	  //for ( i = 0; i <= 
+
           /* send the value to the ui */
           ctrlmsg.type = CTRLMSG_MIDI_CTRL;
           ctrlmsg.data.midi.midi_control = midi_ctrl;
@@ -218,6 +225,7 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
         }
     }
 }
+
 
 /**
  * Check for new events in the sequencer's event queue
@@ -243,6 +251,7 @@ midi_get_events (midi_info_t *minfo)
   while (snd_seq_event_input_pending (minfo->seq, 0) > 0);
 }
 
+
 /**
  * Poll the sequencer's file descriptors
  */
@@ -258,6 +267,7 @@ midi_process (midi_info_t *minfo)
       if (minfo->pfds[i].revents > 0)
         midi_get_events (minfo);
 }
+
 
 static void
 midi_realise_time (midi_info_t *minfo)
@@ -298,6 +308,7 @@ midi_realise_time (midi_info_t *minfo)
     fprintf (stderr, "%s: could not set SCHED_FIFO for midi thread: %s\n",
              __FUNCTION__, strerror (errno));
 }
+
 
 static void *
 midi_run (void * data)

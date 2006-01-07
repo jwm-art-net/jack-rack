@@ -27,9 +27,42 @@
 
 
 #ifdef HAVE_LADCCA
-	#include <ladcca/ladcca.h>
-	extern cca_client_t * global_cca_client;
+#   ifdef HAVE_LASH
+       #include <lash/lash.h>
+       #define cca_client_t lash_client_t
+       #define cca_event_t lash_event_t
+       #define cca_enabled lash_enabled
+
+       #define CCA_Save LASH_Save
+       #define CCA_Save_File LASH_Save_File
+       #define CCA_Restore_File LASH_Restore_File
+       #define CCA_Quit LASH_Quit
+       #define CCA_Server_Lost LASH_Server_Lost
+
+       #define cca_args_t lash_args_t
+       #define CCA_Config_File LASH_Config_File
+       #define CCA_Client_Name LASH_Client_Name
+       #define CCA_PROTOCOL LASH_PROTOCOL
+       
+       #define cca_alsa_client_id lash_alsa_client_id
+       #define cca_jack_client_name lash_jack_client_name
+       #define cca_event_new_with_type lash_event_new_with_type
+       #define cca_get_event lash_get_event
+       #define cca_event_get_type lash_event_get_type
+       #define cca_event_destroy lash_event_destroy
+       #define cca_event_get_string lash_event_get_string
+       #define cca_get_fqn lash_get_fqn
+       #define cca_send_event lash_send_event
+       #define cca_extract_args lash_extract_args
+       #define cca_init lash_init
+       #define cca_event_new_with_type lash_event_new_with_type
+       #define cca_event_set_string lash_event_set_string
+#   else
+       #include <ladcca/ladcca.h>
+#   endif
+    extern cca_client_t * global_cca_client;
 #endif
+
 
 #define JACK_RACK_LOGO_FILE "jack-rack-logo.png"
 #define JACK_RACK_ICON_FILE "jack-rack-icon.png"
@@ -48,18 +81,17 @@
     (property) = NULL;
     
 //#ifdef HAVE_GNOME
-#if 0
-	#include <libgnome/gnome-i18n.h>
-#else
-	#ifdef ENABLE_NLS
-		#include <libintl.h>
-		#define _(x) gettext(x)
-	#else
-		#define _(x) x
-	#endif
-
-	#define N_(x) x
-#endif
+//#if 0
+//	#include <libgnome/gnome-i18n.h>
+//#else
+#       ifdef ENABLE_NLS
+#               include <libintl.h>
+#               define _(x) gettext(x)
+#       else
+#               define _(x) x
+#       endif
+#       define N_(x) x
+//#endif
 
 extern struct _ui *global_ui;
 extern gboolean   connect_inputs;
@@ -69,3 +101,4 @@ extern GString    *client_name;
 extern GString    *initial_filename;
 
 #endif /* __JLH_GLOBALS_H__ */
+

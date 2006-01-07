@@ -103,7 +103,7 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
   return widget;
 }
 
-/** create a control for int ports */
+/** create a control for integer ports */
 static GtkWidget *
 create_int_control (plugin_desc_t * desc, unsigned long port_index)
 {

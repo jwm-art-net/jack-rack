@@ -1,6 +1,9 @@
 for 1.4.5:
 ----------
 * code custom about dialogue (removes dep on libgnomeui)
+* automatic reconnect on disconnect
+* documentation
+* JACK-Rack 1.4 DTD and file writing/reading code 
 
 
 eventually

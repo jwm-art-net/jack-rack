@@ -39,6 +39,7 @@
 #include "ui.h"
 #include "wet_dry_controls.h"
 
+
 /* lock a specific control with a click+ctrl */
 gboolean
 control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer user_data)
@@ -86,9 +87,11 @@ control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer us
       
       ui = port_controls->plugin_slot->jack_rack->ui;
       
-      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control", GINT_TO_POINTER (TRUE));
+      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control",
+			 GINT_TO_POINTER (TRUE));
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-controls", port_controls);
-      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-plugin-copy", GUINT_TO_POINTER (copy));
+      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-plugin-copy",
+			 GUINT_TO_POINTER (copy));
       gtk_menu_popup (GTK_MENU (ui->midi_menu), NULL, NULL, NULL, NULL, event->button, event->time);
         
       return TRUE;
@@ -111,7 +114,8 @@ wet_dry_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer us
       wet_dry = (wet_dry_controls_t *) user_data;
       ui = wet_dry->plugin_slot->jack_rack->ui;
       
-      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control", GINT_TO_POINTER (FALSE));
+      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control",
+			 GINT_TO_POINTER (FALSE));
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-wet-dry", wet_dry);
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-wet-dry-channel",
                          g_object_get_data (G_OBJECT(widget), "jack-rack-wet-dry-channel"));
@@ -154,7 +158,8 @@ control_add_midi_cb (GtkMenuItem * menuitem, gpointer user_data)
       unsigned long channel;
       
       wet_dry = g_object_get_data (G_OBJECT(menuitem), "jack-rack-wet-dry");
-      channel = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem), "jack-rack-wet-dry-channel"));
+      channel = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem),
+						     "jack-rack-wet-dry-channel"));
       plugin_slot = wet_dry->plugin_slot;
       
       midi_ctrl = wet_dry_midi_control_new (plugin_slot, channel);
@@ -187,6 +192,7 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   guint copy;
   gchar *str;
 
+  g_print("float value-changed cb... "); fflush(stdout);
   
   port_controls = (port_controls_t *) user_data;
   value = gtk_range_get_value (range);
@@ -205,6 +211,8 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   if (port_controls->plugin_slot->plugin->copies > 1
       && port_controls->locked)
     {
+      g_printf("setting %d peers... ", port_controls->plugin_slot->plugin->copies);
+      fflush(stdout);
       guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {

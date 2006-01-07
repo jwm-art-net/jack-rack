@@ -38,13 +38,15 @@ jack_rack_SOURCES = \
 	control_callbacks.c control_callbacks.h \
 	control_message.h \
 	main.c \
-	globals.h
+	globals.h \
+	types.h
 
 jack_rack_CFLAGS = \
 	$(GTK_CFLAGS) \
 	$(GNOMEUI_CFLAGS) \
 	$(JACK_CFLAGS) \
 	$(LADCCA_CFLAGS) \
+	$(LASH_CFLAGS) \
 	$(LRDF_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(XML_CFLAGS) \
@@ -63,6 +65,7 @@ jack_rack_LDFLAGS = \
 	$(GTK_LIBS) \
 	$(GNOMEUI_LIBS) \
 	$(LADCCA_LIBS) \
+	$(LASH_LIBS) \
 	$(LRDF_LIBS) \
 	$(ALSA_LIBS) \
 	$(XML_LIBS)

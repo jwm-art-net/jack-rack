@@ -2,9 +2,9 @@
 #gettextize --no-changelog \
 true \
   && aclocal -I m4 \
-  && libtoolize \
+  && libtoolize -f -c \
   && autoheader \
-  && automake -a \
+  && automake -a -c \
   && autoconf
 
 if test x$1 != x--no-conf; then

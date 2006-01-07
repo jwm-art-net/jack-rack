@@ -4,6 +4,7 @@ EXTRA_DIST = \
 	config.rpath \
 	autogen.sh \
 	BUGS \
+	WISHLIST \
 	jack-rack.desktop
 
 

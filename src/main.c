@@ -32,10 +32,6 @@
 #include <signal.h>
 #include <locale.h>
 
-#ifdef HAVE_LADCCA
-#include <ladcca/ladcca.h>
-#endif
-
 #ifdef HAVE_GNOME
 #include <libgnome/libgnome.h>
 #include <libgnomeui/libgnomeui.h>

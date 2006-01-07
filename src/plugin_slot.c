@@ -79,6 +79,7 @@ plugin_slot_show_wet_dry_controls (plugin_slot_t * plugin_slot)
     gtk_widget_hide (plugin_slot->wet_dry_controls->control_box);
 }
 
+
 void
 plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
 {
@@ -129,6 +130,9 @@ plugin_slot_show_controls (plugin_slot_t * plugin_slot, guint copy_to_show)
 }
 
 
+/**
+ * Adjust GUI controls to reflect plugin settings
+ */
 void
 plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
                                port_controls_t *port_controls,
@@ -151,6 +155,24 @@ plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
               port_controls_block_float_callback (port_controls, copy);
             gtk_range_set_value (GTK_RANGE (port_controls->controls[copy].control),
                                  logval);
+
+  /* XXX <EXPERIMENTAL> */
+  /* possibly set our peers */
+  if (port_controls->plugin_slot->plugin->copies > 1
+      && port_controls->locked)
+    {
+      /*g_printf("plugin_slot_set_port_controls(): setting %d peers... ",
+	       port_controls->plugin_slot->plugin->copies);*/
+      fflush(stdout);
+      guint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+        {
+          if (i != copy)
+            gtk_range_set_value (GTK_RANGE(port_controls->controls[i].control),
+                                 gtk_range_get_value (GTK_RANGE (port_controls->controls[copy].control)));
+        }
+    }
+  /* </EXPERIMENTAL> */
             if (block_callbacks)
               port_controls_unblock_float_callback (port_controls, copy);
               
@@ -181,6 +203,7 @@ plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
     }
 }
 
+
 void
 plugin_slot_set_wet_dry_controls (plugin_slot_t *plugin_slot, gboolean block_callbacks)
 {
@@ -200,6 +223,7 @@ plugin_slot_set_wet_dry_controls (plugin_slot_t *plugin_slot, gboolean block_cal
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (plugin_slot->wet_dry_controls->lock), 
                                   settings_get_wet_dry_locked (plugin_slot->settings));
 }
+
 
 static void
 plugin_slot_set_controls (plugin_slot_t * plugin_slot, settings_t * settings)

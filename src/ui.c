@@ -31,10 +31,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-#ifdef HAVE_LADCCA
-#include <ladcca/ladcca.h>
-#endif
-
 #include "ui.h"
 #include "control_message.h"
 #include "ui_callbacks.h"
@@ -444,8 +440,8 @@ ui_new (unsigned long channels)
 
   ui_init_splash_screen (ui);
 
-  process_set_error_cb ((void*)ui, ui_display_error );
-  process_set_status_cb ((void*)ui, ui_display_splash_text );
+  //process_set_error_cb ((void*)ui, ui_display_error );
+  //process_set_status_cb ((void*)ui, ui_display_splash_text );
   
   ui->procinfo = process_info_new (ui, channels);
   if (!ui->procinfo)

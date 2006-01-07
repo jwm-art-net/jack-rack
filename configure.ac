@@ -1,16 +1,12 @@
-AC_INIT([JACK Rack], 1.4.4)
+AC_INIT([JACK Rack], 1.4.5rc1)
 AC_CONFIG_SRCDIR(src/lock_free_fifo.h)
 AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/ac_config.h)
 AM_MAINTAINER_MODE
 
 AC_PROG_CC
-AC_PROG_LIBTOOL
+#AC_PROG_LIBTOOL
 
-##############
-### LADSPA ###
-##############
-AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([ladspa is required]))
 
 ############
 ### JACK ###
@@ -140,6 +136,7 @@ if test x$XML_FOUND = xyes; then
   [  --disable-ladcca        disable LADCCA support],[
     case "$enableval" in
       "yes")
+        jr_enable_ladcca="yes"
         ;;
       "no")
         jr_enable_ladcca="no"
@@ -159,6 +156,7 @@ if test x$XML_FOUND = xyes; then
       AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LADCCA_VERSION", [The version of ladcca we're compiling against])
       AC_SUBST(LADCCA_CFLAGS)
       AC_SUBST(LADCCA_LIBS)
+      #AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([ladspa is required]))
     fi
   else
     AC_MSG_WARN([LADCCA support is disabled])
@@ -167,7 +165,62 @@ if test x$XML_FOUND = xyes; then
 else
   LADCCA_FOUND="no"
 fi
+
 AM_CONDITIONAL(HAVE_LADCCA, test "$LADCCA_FOUND" = "yes")
+
+
+##############
+### LASH ###
+##############
+if test x$XML_FOUND = xyes; then
+  jr_enable_lash="no"
+  AC_ARG_ENABLE(lash,
+  [  --disable-lash        disable LASH support],[
+    case "$enableval" in
+      "yes")
+        jr_enable_lash="yes"
+        ;;
+      "no")
+        jr_enable_lash="no"
+        ;;
+      *)
+        AC_MSG_ERROR([must use --enable-lash(=yes/no) or --disable-lash])
+        ;;
+    esac
+  ])
+
+  if test "$jr_enable_lash" = "yes"; then
+    PKG_CHECK_MODULES(LASH, lash-1.0 >= 0.5.0, LASH_FOUND="yes", LASH_FOUND="no")
+  
+    if test "$LASH_FOUND" = "yes"; then
+      AC_DEFINE(HAVE_LASH, 1, [whether or not we are supporting lash])
+      LASH_VERSION=$( pkg-config --modversion lash-1.0 )
+      AC_DEFINE_UNQUOTED(LASH_VERSION, "$LASH_VERSION", [The version of lash we're compiling against])
+      AC_SUBST(LASH_CFLAGS)
+      AC_SUBST(LASH_LIBS)
+      LADCCA_CFLAGS=""
+      LADCCA_LIBS=""
+      #AC_CHECK_HEADER(lash.h, true, AC_MSG_ERROR([lash is required]))
+    fi
+  else
+    AC_MSG_WARN([LASH support is disabled])
+    LASH_FOUND="no"
+  fi
+else
+  LASH_FOUND="no"
+fi
+
+AM_CONDITIONAL(HAVE_LASH, test "$LASH_FOUND" = "yes")
+
+#if test x$LADCCA_FOUND" = xyes; then
+#   if x$LASH_FOUND = xyes; then
+#   fi
+#fi
+#
+#if x$LASH_FOUND = xyes; then
+#   if x$LADCCA_FOUND = xyes; then
+#   fi
+#fi
 
 
 ############
@@ -257,6 +310,7 @@ AC_MSG_RESULT([
   XML support:             $XML_FOUND
   LRDF support:            $LRDF_FOUND
   LADCCA support:          $LADCCA_FOUND
+  LASH support:            $LASH_FOUND
   GNOME 2 support:         $GNOME_FOUND
   
   Installation prefix:     $prefix
