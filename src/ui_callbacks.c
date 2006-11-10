@@ -257,14 +257,11 @@ window_destroy_cb (GtkWidget *widget,
 void
 about_cb (GtkWidget * widget, gpointer user_data)
 {
-  GtkWidget * dialog;
-  const char * authors[] = { "Bob Ham <node@users.sourceforge.net>", "Leslie P. Polzer <leslie.polzer@gmx.net>", NULL };
-  const char * documenters[] = { "", NULL };
-  GtkWidget * url;
+  const char * authors[] = { "Bob Ham <node@users.sourceforge.net>", "Leslie P. Polzer <leslie.polzer@gmx.net>", "Adam Sampson <ats@offog.org>", NULL };
   gchar * logo_file;
   GdkPixbuf * logo;
   GError * err = NULL;
-  
+
   logo_file = g_strdup_printf ("%s/%s", PKGDATADIR, JACK_RACK_LOGO_FILE);
   logo = gdk_pixbuf_new_from_file (logo_file, &err);
   if (err)
@@ -274,23 +271,21 @@ about_cb (GtkWidget * widget, gpointer user_data)
       g_error_free (err);
     }
   g_free (logo_file);
- 
-  dialog = gnome_about_new (PACKAGE_NAME,
-                              PACKAGE_VERSION,
-                              "Copyright (C) 2002,2003 Robert Ham <node@users.sourceforge.net>\n"
-                              "Copyright (C) 2005 Leslie P. Polzer <leslie.polzer@gmx.net>",
-                              _("A LADSPA effects rack for the JACK audio API"),
-                              authors,
-                              documenters,
-                              _("__TRANSLATOR_CREDITS"),
-                              logo);
-  
-  url = gnome_href_new (JACK_RACK_URL, JACK_RACK_URL);
-  gtk_widget_show (url);
-  GTK_WIDGET_UNSET_FLAGS (url, GTK_CAN_FOCUS);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG(dialog)->vbox), url, FALSE, FALSE, 0);
-  
-  gtk_dialog_run (GTK_DIALOG (dialog));
+
+  gtk_show_about_dialog (NULL,
+                         "authors", authors,
+                         "comments", _("A LADSPA effects rack for the JACK audio API"),
+                         "copyright",
+                           "Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>\n"
+                           "Copyright (C) 2005, 2006 Leslie P. Polzer <leslie.polzer@gmx.net>\n"
+                           "Copyright (C) 2006 Adam Sampson <ats@offog.org>",
+                         "logo", logo,
+                         "name", PACKAGE_NAME,
+                         "translator-credits", _("__TRANSLATOR_CREDITS"),
+                         "version", PACKAGE_VERSION,
+                         "website", JACK_RACK_URL,
+                         NULL);
+
 }
 #endif /* HAVE_GNOME */
 
