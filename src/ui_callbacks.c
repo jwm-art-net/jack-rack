@@ -216,6 +216,7 @@ quit_cb (GtkButton * button, gpointer user_data)
   if (ui->shutdown)
     {
       gtk_main_quit ();
+      process_info_destroy (ui->procinfo);
       return;
     }
   
@@ -625,6 +626,7 @@ idle_cb (gpointer data)
 
       case CTRLMSG_QUIT:
         gtk_main_quit ();
+        process_info_destroy (ui->procinfo);
         break;
         
       default:
