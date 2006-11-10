@@ -556,7 +556,6 @@ setup_reconnect ( gpointer data )
 #endif
         }
         
-leave:
         active = FALSE;
         gtk_widget_hide (dialog);
 }

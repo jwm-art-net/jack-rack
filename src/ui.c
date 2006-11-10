@@ -48,7 +48,6 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *file_menuitem;
   
   GtkWidget *file_menu;
-  GtkWidget *reconnect;
 #ifdef HAVE_XML
   GtkWidget *save;
   GtkWidget *save_as;
