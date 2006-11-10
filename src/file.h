@@ -56,9 +56,6 @@ struct _saved_rack
   GSList *       plugins;
 };
 
-int ui_save_file (ui_t * ui, const char * filename);
-int ui_open_file (ui_t * ui, const char * filename);
-
 
 #endif /* HAVE_XML */
 

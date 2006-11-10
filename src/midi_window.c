@@ -126,7 +126,6 @@ midi_window_new (ui_t *ui)
   mwin->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size        (GTK_WINDOW (mwin->window), 400, 200);
   gtk_window_set_title               (GTK_WINDOW (mwin->window), _("JACK Rack MIDI Controls"));
-  gtk_window_set_policy              (GTK_WINDOW (mwin->window), FALSE, TRUE, FALSE);
   gtk_window_set_transient_for       (GTK_WINDOW (mwin->window), GTK_WINDOW (ui->main_window));
   gtk_window_set_destroy_with_parent (GTK_WINDOW (mwin->window), TRUE);
   g_signal_connect (G_OBJECT (mwin->window), "delete_event",

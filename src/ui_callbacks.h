@@ -52,7 +52,6 @@ void     midi_cb           (GtkWidget * button, gpointer user_data);
 gint plugin_button_cb (GtkWidget *widget, GdkEvent *event);
 
 gboolean idle_cb (gpointer data);
-static gboolean is_connected = FALSE;
 
 void jack_shutdown_cb (void * data);
 

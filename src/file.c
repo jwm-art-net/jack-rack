@@ -65,7 +65,7 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
   xmlNewChild (jackrack, NULL, "channels", num);
   
   /* samplerate */
-  sprintf (num, "%ld", sample_rate);
+  sprintf (num, "%ld", (long) sample_rate);
   xmlNewChild (jackrack, NULL, "samplerate", num);
   
   for (list = jack_rack->slots; list; list = g_list_next (list))
@@ -188,8 +188,6 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
 {
   plugin_desc_t * desc;
   settings_t * settings = NULL;
-  xmlNodePtr controlrow;
-  xmlNodePtr value;
   xmlNodePtr node;
   xmlNodePtr sub_node;
   xmlChar *content;
@@ -405,12 +403,6 @@ saved_rack_new (ui_t * ui, const char * filename, xmlDocPtr doc)
 static void
 saved_rack_destroy (saved_rack_t * saved_rack)
 {
-  GSList * list;
-  
-/*  for (list = saved_rack->settings; list; list = g_slist_next (list))
-    settings_destroy ((settings_t *) list->data); */
-/*  g_slist_free (saved_rack->settings); */
-  
   g_free (saved_rack);
 }
 
@@ -420,7 +412,6 @@ ui_open_file (ui_t * ui, const char * filename)
 {
   xmlDocPtr doc;
   saved_rack_t * saved_rack;
-  ctrlmsg_t ctrlmsg;
   GSList * list;
   saved_plugin_t * saved_plugin;
 

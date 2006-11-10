@@ -382,7 +382,6 @@ ui_init_splash_screen (ui_t * ui)
   gtk_window_set_resizable (GTK_WINDOW (ui->splash_screen), FALSE);
   gtk_window_set_title (GTK_WINDOW (ui->splash_screen), PACKAGE_NAME);
   gtk_container_set_resize_mode (GTK_CONTAINER (ui->splash_screen), GTK_RESIZE_IMMEDIATE);
-  gtk_window_set_policy (GTK_WINDOW (ui->splash_screen), FALSE, TRUE, FALSE);
   
   box = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (box), 3);
@@ -397,7 +396,6 @@ ui_init_splash_screen (ui_t * ui)
   ui->splash_screen_text = gtk_label_new (NULL);
   gtk_widget_show (ui->splash_screen_text);
   gtk_box_pack_start (GTK_BOX (box), ui->splash_screen_text, TRUE, TRUE, 0);
-  //  gtk_misc_set_alignment (GTK_MISC (ui->splash_screen_text), 0.0, 0.5);
   gtk_label_set_justify (GTK_LABEL (ui->splash_screen_text), GTK_JUSTIFY_CENTER);
   
   gtk_window_get_size (GTK_WINDOW (ui->splash_screen), &w, &h);
@@ -470,7 +468,7 @@ ui_new (unsigned long channels)
   plugin_mgr_set_plugins (ui->plugin_mgr, channels);
   ui->jack_rack = jack_rack_new (ui, channels);
 
-  gtk_idle_add (idle_cb, ui);
+  g_idle_add (idle_cb, ui);
 
   ui_init_gui (ui, channels);
 

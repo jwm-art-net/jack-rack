@@ -114,5 +114,7 @@ void     ui_display_error       (void* data, error_severity_t severity, const ch
 void     ui_display_splash_text (void* data, const char* format, ...);
 gboolean ui_get_ok              (ui_t* ui, const char* format, ...);
 
+int ui_save_file (ui_t * ui, const char * filename);
+int ui_open_file (ui_t * ui, const char * filename);
 
 #endif /* __JR_UI_H__ */

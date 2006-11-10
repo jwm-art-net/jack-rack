@@ -192,8 +192,6 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   guint copy;
   gchar *str;
 
-  //g_print("float value-changed cb... "); fflush(stdout);
-  
   port_controls = (port_controls_t *) user_data;
   value = gtk_range_get_value (range);
   if (port_controls->logarithmic)
@@ -211,8 +209,6 @@ void control_float_cb (GtkRange * range, gpointer user_data) {
   if (port_controls->plugin_slot->plugin->copies > 1
       && port_controls->locked)
     {
-      //g_printf("setting %d peers... ", port_controls->plugin_slot->plugin->copies);
-      fflush(stdout);
       guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {

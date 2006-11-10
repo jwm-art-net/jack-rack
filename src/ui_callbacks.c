@@ -115,7 +115,6 @@ void
 new_cb (GtkWidget * widget, gpointer user_data)
 {
   ui_t * ui;
-  ctrlmsg_t ctrlmsg;
   
   ui = (ui_t *) user_data;
   
@@ -303,7 +302,7 @@ midi_cb (GtkWidget * button, gpointer user_data)
   ui_t * ui = user_data;
   gtk_widget_show (ui->midi_window->window);
 }
-#endif /* HAVE_ALSA
+#endif /* HAVE_ALSA */
 
 
 /** callback for plugin menu buttons ("Add" and the plugin slots' change buttons) */
@@ -400,8 +399,6 @@ ui_set_port_value (ui_t *ui, midi_control_t *midi_control, LADSPA_Data value)
 static void
 ui_set_wet_dry_value (ui_t *ui, midi_control_t *midi_control, LADSPA_Data value)
 {
-  GtkWidget * widget;
-  
   if (!midi_control_get_locked (midi_control))
     settings_set_wet_dry_value (midi_control->plugin_slot->settings,
                                 midi_control->control.wet_dry.channel,
@@ -445,13 +442,15 @@ midi_idle (ui_t * ui)
           else
             ui_set_wet_dry_value (ui, ctrlmsg.data.midi.midi_control, ctrlmsg.data.midi.value);
           break;
+        default:
+          break;
         }
     }
 }  
 #endif /* HAVE_ALSA */
 
 
-static struct reconnect_data
+struct reconnect_data
 {
         gboolean active;
         GtkWidget* dialog;
@@ -473,18 +472,12 @@ reconnect_cb ( gpointer data )
         struct reconnect_data*  rcdata = (struct reconnect_data*)data;
 
         process_info_t*         procinfo = rcdata->ui->procinfo;
-        extern GString*         client_name;
-        
-        //g_printf("reconnect_cb() called -- reconnect_active = %d\n",
-        //                rcdata->active );
         
         if ( rcdata->active == FALSE )
                 return FALSE;
 
         /* reconnect */
-        //g_printf("%s: reconnect attempt\n", __func__);
         procinfo = process_info_new (rcdata->ui, 2);
-        /*gtk_main_iteration_do (FALSE);*/
         
         if (!procinfo)
                 /* attempt not successful, maintain callback */
@@ -505,6 +498,9 @@ setup_reconnect ( gpointer data )
         static GtkWidget* dialog = NULL;
         static int active = TRUE;
         static struct reconnect_data rcdata;
+	guint tid;
+	gint answer;
+	GtkWidget *rcnotice;
 
         ui_t* ui = (ui_t*)data;
         
@@ -517,16 +513,16 @@ setup_reconnect ( gpointer data )
                                 NULL, GTK_DIALOG_MODAL,
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                 NULL );
-        GtkWidget* rcnotice = gtk_label_new("Connecting to JACK server...");
-        gtk_container_add (GTK_DIALOG(dialog)->vbox, rcnotice);
-        gtk_container_set_border_width (GTK_DIALOG(dialog)->vbox, 50);
+        rcnotice = gtk_label_new("Connecting to JACK server...");
+        gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), rcnotice);
+        gtk_container_set_border_width (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 50);
         gtk_widget_set_size_request (GTK_DIALOG(dialog)->vbox, 250, 100); 
         gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
         rcdata.dialog = dialog;
         
-        guint tid = g_timeout_add (1000, &reconnect_cb, (gpointer)&rcdata);
+        tid = g_timeout_add (1000, &reconnect_cb, (gpointer)&rcdata);
         
-        gint answer = gtk_dialog_run (GTK_DIALOG(dialog));
+        answer = gtk_dialog_run (GTK_DIALOG(dialog));
         
         if (answer == GTK_RESPONSE_CANCEL)
         {
@@ -565,7 +561,6 @@ static void
 ui_check_kicked (ui_t * ui)
 {
         static gboolean shown_shutdown_msg = FALSE;
-        static gboolean reconnect_active = TRUE;
   
         if (ui->shutdown && !shown_shutdown_msg
             && ui_get_state (ui) != STATE_QUITTING)
@@ -585,7 +580,6 @@ idle_cb (gpointer data)
   ctrlmsg_t ctrlmsg;
   ui_t * ui;
   jack_rack_t * jack_rack;
-  gboolean enabled;
 #ifdef HAVE_LADCCA
   static int call_cca_idle = 1;
 #endif /* HAVE_LADCCA */
@@ -650,6 +644,8 @@ idle_cb (gpointer data)
         gtk_main_quit ();
         break;
         
+      default:
+        break;
       }
     }
 

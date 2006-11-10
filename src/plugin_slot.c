@@ -161,9 +161,6 @@ plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
   if (port_controls->plugin_slot->plugin->copies > 1
       && port_controls->locked)
     {
-      /*g_printf("plugin_slot_set_port_controls(): setting %d peers... ",
-	       port_controls->plugin_slot->plugin->copies);*/
-      fflush(stdout);
       guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         {

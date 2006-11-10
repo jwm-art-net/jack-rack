@@ -1,3 +1,7 @@
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "util.h"
 #include "types.h"
 
@@ -62,7 +66,7 @@ default_status_handler (void* data, const char* format, ...)
 	va_start(args, format);
 	msg = g_strdup_vprintf (format, args);
 
-	g_printf("Status update: %s\n", msg);
+	printf("Status update: %s\n", msg);
 
 	g_free (msg);
 }
@@ -73,6 +77,7 @@ default_status_handler (void* data, const char* format, ...)
  *
  * @todo: add "last message repeated n times'' functionality.
  */
+void
 default_error_handler (void* data, const error_severity_t severity,
                        const char* format, ...)
 {
@@ -102,7 +107,7 @@ default_error_handler (void* data, const error_severity_t severity,
 			break;
 			
 		case E_BUG:
-			printf ("BUG: ", msg);
+			printf ("BUG: %s\n", msg);
 			break;
 	}
 

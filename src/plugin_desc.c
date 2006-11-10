@@ -19,6 +19,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <string.h>
 
 #include "plugin_desc.h"
 #include "globals.h"

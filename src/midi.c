@@ -91,7 +91,6 @@ midi_info_t *
 midi_info_new (struct _ui * ui)
 {
   midi_info_t * minfo;
-  snd_seq_t * seq;
   
   minfo = g_malloc (sizeof (midi_info_t));
   
@@ -232,7 +231,6 @@ static void
 midi_get_events (midi_info_t *minfo)
 {
   snd_seq_event_t *event;
-  int i;
   
   do
     {
@@ -278,9 +276,6 @@ midi_realise_time (midi_info_t *minfo)
    
   memset(&rt_param, 0, sizeof(rt_param));
   
-  /* need to wait until after jack_activate() has been run */
-  //sleep (3);
-
   jack_thread = jack_client_thread_id (minfo->ui->procinfo->jack_client);
   err = pthread_getschedparam (jack_thread, &policy, &rt_param);
   if (err)

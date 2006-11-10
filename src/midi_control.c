@@ -24,6 +24,7 @@
 
 #include <math.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "midi_control.h"
 #include "plugin_slot.h"

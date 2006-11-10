@@ -156,6 +156,9 @@ int process_control_messages (process_info_t * procinfo)
         quitting = 1;
         err = lff_write (procinfo->process_to_ui, &ctrlmsg);
         return 1;
+
+      default:
+        break;
       }
     
     if (err)
@@ -273,7 +276,6 @@ connect_chain (process_info_t * procinfo, jack_nframes_t frames)
   plugin_t * first_enabled, * last_enabled, * plugin;
   gint copy;
   unsigned long channel;
-  unsigned long rack_channel;
   if (!procinfo->chain) return;
   
   first_enabled = get_first_enabled_plugin (procinfo);
@@ -518,7 +520,7 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
   gshort in;
   
   if (procinfo->port_count >= port_count)
-      return;
+      return 0;
   
   if (procinfo->port_count == 0)
     {

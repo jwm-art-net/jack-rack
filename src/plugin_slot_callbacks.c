@@ -60,7 +60,6 @@ slot_change_cb (GtkMenuItem * menuitem, gpointer user_data)
 void
 slot_move_cb (GtkButton * button, gpointer user_data)
 {
-  ctrlmsg_t ctrlmsg;
   plugin_slot_t * plugin_slot;
   gboolean up;
 
@@ -161,7 +160,6 @@ slot_lock_all_cb (GtkToggleButton * button, gpointer user_data)
 {
   gboolean lock_all;
   plugin_slot_t * plugin_slot;
-  unsigned long i;
   guint lock_copy;
   
   lock_all = gtk_toggle_button_get_active (button);

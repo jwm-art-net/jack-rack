@@ -320,7 +320,7 @@ settings_get_control_value (settings_t * settings, guint copy, unsigned long con
 gboolean
 settings_get_lock          (const settings_t * settings, unsigned long control_index)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, FALSE);
   
   return settings->locks[control_index]; 
 }
@@ -328,7 +328,7 @@ settings_get_lock          (const settings_t * settings, unsigned long control_i
 gboolean
 settings_get_lock_all      (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, FALSE);
 
   return settings->lock_all;
 }
@@ -336,7 +336,7 @@ settings_get_lock_all      (const settings_t * settings)
 gboolean
 settings_get_enabled      (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, FALSE);
   
   return settings->enabled;
 }
@@ -344,7 +344,7 @@ settings_get_enabled      (const settings_t * settings)
 guint
 settings_get_copies        (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, 0);
   
   return settings->copies;
 }
@@ -353,7 +353,7 @@ settings_get_copies        (const settings_t * settings)
 unsigned long
 settings_get_channels        (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, 0);
   
   return settings->channels;
 }
@@ -361,7 +361,7 @@ settings_get_channels        (const settings_t * settings)
 gboolean
 settings_get_wet_dry_enabled (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, FALSE);
 
   return settings->wet_dry_enabled;
 }
@@ -369,7 +369,7 @@ settings_get_wet_dry_enabled (const settings_t * settings)
 gboolean
 settings_get_wet_dry_locked  (const settings_t * settings)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, FALSE);
   
   return settings->wet_dry_locked;
 }
@@ -377,7 +377,7 @@ settings_get_wet_dry_locked  (const settings_t * settings)
 LADSPA_Data
 settings_get_wet_dry_value   (settings_t * settings, unsigned long channel)
 {
-  g_return_if_fail (settings != NULL);
+  g_return_val_if_fail (settings != NULL, 0);
 
   if (channel >= settings->channels)
     settings_set_channels (settings, channel + 1);
