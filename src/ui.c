@@ -48,6 +48,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *file_menuitem;
   
   GtkWidget *file_menu;
+  GtkWidget *reconnect;
 #ifdef HAVE_XML
   GtkWidget *save;
   GtkWidget *save_as;
@@ -442,10 +443,26 @@ ui_new (unsigned long channels)
 
   //process_set_error_cb ((void*)ui, ui_display_error );
   //process_set_status_cb ((void*)ui, ui_display_splash_text );
-  
-  ui->procinfo = process_info_new (ui, channels);
+ 
+
+  ui->procinfo = process_info_new(ui, channels);
+
   if (!ui->procinfo)
-    return NULL;
+  {
+          /* FIXME: show message, free lffs */
+          g_free(ui);
+          return NULL;
+  }
+  
+  //setup_reconnect(ui);
+  
+  if (ui->state == STATE_QUITTING)
+  {
+          /* connect failed */
+          g_free(ui);
+          /* FIXME free lffs */
+          return NULL;
+  }
 
 #ifdef HAVE_ALSA
   ui->midi_info   = midi_info_new (ui);
