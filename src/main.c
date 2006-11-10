@@ -59,7 +59,7 @@ cca_client_t * global_cca_client;
 
 #define CLIENT_NAME_BASE      "JACK Rack"
 
-void print_help () {
+void print_help (void) {
   printf("%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   printf("Copyright (C) 2002, 2003 Robert Ham (node@users.sourceforge.net)\n");
   printf("\n");

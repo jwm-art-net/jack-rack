@@ -182,7 +182,7 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 }
 
 static void
-ui_set_default_window_icon ()
+ui_set_default_window_icon (void)
 {
   gchar * icon_file;
   GError * icon_error = NULL;

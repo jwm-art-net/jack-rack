@@ -125,7 +125,7 @@ new_cb (GtkWidget * widget, gpointer user_data)
 
 #ifdef HAVE_XML
 static const char *
-get_filename ()
+get_filename (void)
 {
   static GtkWidget* dialog;
   static char* file = NULL;

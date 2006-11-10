@@ -77,7 +77,7 @@ plugin_desc_free (plugin_desc_t * pd)
 }
 
 plugin_desc_t *
-plugin_desc_new ()
+plugin_desc_new (void)
 {
   plugin_desc_t * pd;
   pd = g_malloc (sizeof (plugin_desc_t));
