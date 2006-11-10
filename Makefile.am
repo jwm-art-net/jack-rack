@@ -1,7 +1,6 @@
 SUBDIRS = pixmaps src po 
 
-EXTRA_DIST = \
-	config.rpath \
+EXTRA_DIST = config.rpath mkinstalldirs \
 	autogen.sh \
 	BUGS \
 	WISHLIST \

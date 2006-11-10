@@ -264,6 +264,7 @@ AM_CONDITIONAL(HAVE_LRDF, test "$LRDF_FOUND" = "yes")
 ### gettext ###
 ###############
 AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.14.5])
 
 #######################
 ### desktop install ###
