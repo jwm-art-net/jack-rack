@@ -285,7 +285,6 @@ midi_cb (GtkWidget * button, gpointer user_data)
 gint
 plugin_button_cb (GtkWidget *widget, GdkEvent *event)
 {
-
   if (event->type == GDK_BUTTON_PRESS)
     {
       GdkEventButton * bevent = (GdkEventButton *) event;
@@ -298,6 +297,14 @@ plugin_button_cb (GtkWidget *widget, GdkEvent *event)
   
   /* Tell calling code that we have not handled this event; pass it on. */
   return FALSE;
+}
+
+
+void
+plugin_add_button_cb (GtkWidget *widget, gpointer user_data)
+{
+  gtk_menu_popup (GTK_MENU (user_data), NULL, NULL, NULL, NULL,
+                  0, gtk_get_current_event_time ());
 }
 
 
@@ -512,18 +519,18 @@ setup_reconnect ( gpointer data )
                 }
                 
                 gtk_widget_set_sensitive (ui->plugin_box, FALSE);
-                gtk_widget_set_sensitive (ui->add, FALSE);
+                gtk_widget_set_sensitive (GTK_WIDGET (ui->add), FALSE);
                 gtk_widget_set_sensitive (ui->add_menuitem, FALSE);
-                gtk_widget_set_sensitive (ui->channels, FALSE);
+                gtk_widget_set_sensitive (GTK_WIDGET (ui->channels), FALSE);
                 gtk_widget_set_sensitive (ui->channels_menuitem, FALSE);
-                gtk_widget_set_sensitive (ui->new, FALSE);
+                gtk_widget_set_sensitive (GTK_WIDGET (ui->new), FALSE);
                 gtk_widget_set_sensitive (ui->new_menuitem, FALSE);
 #ifdef HAVE_ALSA
                 gtk_widget_set_sensitive (ui->midi_menuitem, FALSE);
                 gtk_widget_set_sensitive (ui->midi_window->main_box, FALSE);
 #endif
 #ifdef HAVE_XML
-                gtk_widget_set_sensitive (ui->open, FALSE);
+                gtk_widget_set_sensitive (GTK_WIDGET (ui->open), FALSE);
                 gtk_widget_set_sensitive (ui->open_menuitem, FALSE);
 #endif
         }

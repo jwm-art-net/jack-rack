@@ -71,22 +71,22 @@ struct _ui
   GtkWidget *       add_menu;
 
 /* all the widgets that can be desensitized */
-  GtkWidget *       add;
+  GtkToolItem *     add;
   GtkWidget *       add_menuitem;
   GtkWidget *       channels_menuitem;
-  GtkWidget *       channels;
+  GtkToolItem *     channels;
 #ifdef HAVE_ALSA
   GtkWidget         *midi_menuitem;
 #endif
   GtkWidget *       new_menuitem;
-  GtkWidget *       new;
+  GtkToolItem *     new;
 #ifdef HAVE_XML
   GtkWidget *       open_menuitem;
-  GtkWidget *       open;
+  GtkToolItem *     open;
 #endif
 
 #ifdef HAVE_LADCCA
-  GtkWidget *       cca_save;
+  GtkToolItem *     cca_save;
   GtkWidget *       cca_save_menu_item;
 #endif
 

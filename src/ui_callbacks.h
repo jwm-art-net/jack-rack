@@ -50,6 +50,7 @@ void     midi_cb           (GtkWidget * button, gpointer user_data);
 #endif
 
 gint plugin_button_cb (GtkWidget *widget, GdkEvent *event);
+void plugin_add_button_cb (GtkWidget *widget, gpointer user_data);
 
 gboolean idle_cb (gpointer data);
 
