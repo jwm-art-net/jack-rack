@@ -215,8 +215,6 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
 	   * (midi_control.midi_channel)
 	   */
 
-	  //for ( i = 0; i <= 
-
           /* send the value to the ui */
           ctrlmsg.type = CTRLMSG_MIDI_CTRL;
           ctrlmsg.data.midi.midi_control = midi_ctrl;
@@ -281,8 +279,8 @@ midi_realise_time (midi_info_t *minfo)
   memset(&rt_param, 0, sizeof(rt_param));
   
   /* need to wait until after jack_activate() has been run */
-/*  sleep (1); */
- 
+  //sleep (3);
+
   jack_thread = jack_client_thread_id (minfo->ui->procinfo->jack_client);
   err = pthread_getschedparam (jack_thread, &policy, &rt_param);
   if (err)
