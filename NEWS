@@ -1,9 +1,9 @@
 1.4.5:
 * JACK connection loss now employs automatic reconnect
-* widgets controlled via MIDI now get all channels updated
+* widgets controlled via MIDI now get all their channels updated
 * added french translation
 * applied patch from Mark Vitek that supports the latest LASH API changes
-* corrected MIDI controller numbering (reported by James Stones)
+* corrected MIDI controller numbering (reported by James Stone)
 * internal: introduced flexible status and error handlers
 
 
