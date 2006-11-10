@@ -499,7 +499,7 @@ reconnect_cb ( gpointer data )
 }
 
 
-static void
+void
 setup_reconnect ( gpointer data )
 {
         static GtkWidget* dialog = NULL;
@@ -513,13 +513,11 @@ setup_reconnect ( gpointer data )
         
         if ( dialog == NULL )
               dialog = gtk_dialog_new_with_buttons (
-                                _("Reconnecting to JACK..."),
+                                _("Connecting to JACK..."),
                                 NULL, GTK_DIALOG_MODAL,
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                 NULL );
-        GtkWidget* rcnotice = gtk_label_new("Reconnecting to JACK server...");
-        //gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, rcnotice,
-        //                TRUE, FALSE, 10);
+        GtkWidget* rcnotice = gtk_label_new("Connecting to JACK server...");
         gtk_container_add (GTK_DIALOG(dialog)->vbox, rcnotice);
         gtk_container_set_border_width (GTK_DIALOG(dialog)->vbox, 50);
         gtk_widget_set_size_request (GTK_DIALOG(dialog)->vbox, 250, 100); 
@@ -530,14 +528,35 @@ setup_reconnect ( gpointer data )
         
         gint answer = gtk_dialog_run (GTK_DIALOG(dialog));
         
-        //g_printf("%s: dialog finished\n", __func__);
-        
         if (answer == GTK_RESPONSE_CANCEL)
         {
                 /* FIXME show notice */
                 rcdata.active = FALSE;
+
+                if (ui->main_window == NULL)
+                {
+                        ui_set_state (ui, STATE_QUITTING);
+                        return;
+                }
+                
+                gtk_widget_set_sensitive (ui->plugin_box, FALSE);
+                gtk_widget_set_sensitive (ui->add, FALSE);
+                gtk_widget_set_sensitive (ui->add_menuitem, FALSE);
+                gtk_widget_set_sensitive (ui->channels, FALSE);
+                gtk_widget_set_sensitive (ui->channels_menuitem, FALSE);
+                gtk_widget_set_sensitive (ui->new, FALSE);
+                gtk_widget_set_sensitive (ui->new_menuitem, FALSE);
+#ifdef HAVE_ALSA
+                gtk_widget_set_sensitive (ui->midi_menuitem, FALSE);
+                gtk_widget_set_sensitive (ui->midi_window->main_box, FALSE);
+#endif
+#ifdef HAVE_XML
+                gtk_widget_set_sensitive (ui->open, FALSE);
+                gtk_widget_set_sensitive (ui->open_menuitem, FALSE);
+#endif
         }
         
+leave:
         active = FALSE;
         gtk_widget_hide (dialog);
 }
@@ -546,35 +565,17 @@ setup_reconnect ( gpointer data )
 static void
 ui_check_kicked (ui_t * ui)
 {
-  static gboolean shown_shutdown_msg = FALSE;
-  static gboolean reconnect_active = TRUE;
+        static gboolean shown_shutdown_msg = FALSE;
+        static gboolean reconnect_active = TRUE;
   
-  if (ui->shutdown &&
-      !shown_shutdown_msg &&
-      ui_get_state (ui) != STATE_QUITTING)
-    {
-      setup_reconnect (ui);
-    
-      gtk_widget_set_sensitive (ui->plugin_box, FALSE);
-      gtk_widget_set_sensitive (ui->add, FALSE);
-      gtk_widget_set_sensitive (ui->add_menuitem, FALSE);
-      gtk_widget_set_sensitive (ui->channels, FALSE);
-      gtk_widget_set_sensitive (ui->channels_menuitem, FALSE);
-      gtk_widget_set_sensitive (ui->new, FALSE);
-      gtk_widget_set_sensitive (ui->new_menuitem, FALSE);
-#ifdef HAVE_ALSA
-      gtk_widget_set_sensitive (ui->midi_menuitem, FALSE);
-      gtk_widget_set_sensitive (ui->midi_window->main_box, FALSE);
-#endif
-#ifdef HAVE_XML
-      gtk_widget_set_sensitive (ui->open, FALSE);
-      gtk_widget_set_sensitive (ui->open_menuitem, FALSE);
-#endif
+        if (ui->shutdown && !shown_shutdown_msg
+            && ui_get_state (ui) != STATE_QUITTING)
+        {
+                setup_reconnect (ui);
+                shown_shutdown_msg = TRUE;
+        }
 
-      shown_shutdown_msg = TRUE;
-    }
-
-  return;
+        return;
 }
 
 
