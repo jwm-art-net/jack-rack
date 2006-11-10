@@ -614,8 +614,9 @@ process_info_new (ui_t* ui, unsigned long rack_channels)
   sanitize_client_name ( jack_client_name );
   
   err = process_info_connect_jack (procinfo, ui); 
-  if (err)
+  if (err == -1)
   {
+        g_free (jack_client_name);
         g_free (procinfo);
         return NULL;
   }
