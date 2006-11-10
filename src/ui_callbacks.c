@@ -124,59 +124,36 @@ new_cb (GtkWidget * widget, gpointer user_data)
 }
 
 #ifdef HAVE_XML
-static const char *
-get_filename (void)
-{
-  static GtkWidget* dialog;
-  static char* file = NULL;
-  gint response;
-
-  if (!dialog)
-    dialog = gtk_file_chooser_dialog_new ( _("Select File"),
-                                          NULL,
-                                          GTK_FILE_CHOOSER_ACTION_SAVE,
-                                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-                                          NULL );
-  gtk_widget_show (dialog);
-  response = gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_hide (dialog);
-
-  if (response != GTK_RESPONSE_ACCEPT)
-    return NULL;
-
-  file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-
-  return file;
-}
-
-
 void
 open_cb (GtkButton * button, gpointer user_data)
 {
-  const char * filename;
-  ui_t * ui;
-  int err;
-  
-  ui = (ui_t *) user_data;
-  
-  filename = get_filename ();
-  
-  if (!filename)
-    return;
-  
-  err = ui_open_file (ui, filename);
-  
-  if (!err)
-    ui_set_filename (ui, filename);
+  ui_t * ui = (ui_t *) user_data;
+  GtkWidget * dialog;
+
+  dialog = gtk_file_chooser_dialog_new (_("Open File"), NULL,
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                        NULL);
+
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+      char * filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+
+      if (!ui_open_file (ui, filename))
+        ui_set_filename (ui, filename);
+
+      g_free (filename);
+    }
+
+  gtk_widget_destroy (dialog);
 }
- 
+
+
 void
 save_cb (GtkButton * button, gpointer user_data)
 {
-  ui_t * ui;
-  
-  ui = (ui_t *) user_data;
+  ui_t * ui = (ui_t *) user_data;
   
   if (!ui->filename)
     {
@@ -188,25 +165,29 @@ save_cb (GtkButton * button, gpointer user_data)
 }
 
 
- 
 void
 save_as_cb (GtkButton * button, gpointer user_data)
 {
-  const char * filename;
-  ui_t * ui;
-  int err;
-  
-  ui = (ui_t *) user_data;
-  
-  filename = get_filename (ui->jack_rack);
-  
-  if (!filename)
-    return;
-  
-  err = ui_save_file (ui, filename);
-  
-  if (!err)
-    ui_set_filename (ui, filename);
+  ui_t * ui = (ui_t *) user_data;
+  GtkWidget * dialog;
+
+  dialog = gtk_file_chooser_dialog_new (_("Save File"), NULL,
+                                        GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                        GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                        NULL);
+
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+      char * filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+
+      if (!ui_save_file (ui, filename))
+        ui_set_filename (ui, filename);
+
+      g_free (filename);
+    }
+
+  gtk_widget_destroy (dialog);
 }
 #endif /* HAVE_XML */
  
