@@ -22,3 +22,10 @@ DTD -> Schema
 - lirc support
 
 rack file repo 
+
+- Make strict ANSI C (remove C99 comments, etc.)
+- Check for FIXMEs
+- Pixmap dir should default to being inside $(prefix)
+- Update README
+- Solo button to just hear one plugin
+
