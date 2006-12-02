@@ -1,0 +1,24 @@
+GET RID OF ALL WARNINGS
+
+Changes in file format v1.4:
+- added author, description, notes
+- identify plugins by .so name and label instead of UID
+
+- documentation (manual, tool tips, recipes)
+
+DTD -> Schema
+
+- sort CAPS plugins
+- dssi support
+- list of favorite plugins
+- about dialogue
+- options dialogue (reconnect behavior)
+- german translation
+- remember last directory
+- list of recent rack files
+- static binary
+- MDI
+- drag'n'drop window for plugins
+- lirc support
+
+rack file repo 
