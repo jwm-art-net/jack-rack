@@ -69,6 +69,7 @@ struct _ui
   GtkWidget *       main_window;
   GtkWidget *       plugin_box;
   GtkWidget *       add_menu;
+  GtkWidget *       toolbar_add_menu;
 
 /* all the widgets that can be desensitized */
   GtkToolItem *     add;

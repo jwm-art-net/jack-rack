@@ -254,7 +254,8 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_tool_item_set_tooltip (ui->add, toolbar_tips,
                              _("Add a plugin"),
                              _("Add a new plugin to the rack"));
-  gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ui->add), ui->add_menu);
+  ui->toolbar_add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
+  gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ui->add), ui->toolbar_add_menu);
   g_signal_connect (G_OBJECT (ui->add), "clicked",
                     G_CALLBACK (plugin_add_button_cb), ui->add_menu);
 
