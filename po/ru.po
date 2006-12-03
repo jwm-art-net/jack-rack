@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-10 21:35+0000\n"
+"POT-Creation-Date: 2006-12-02 23:33+0000\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Справка"
 msgid "Save project"
 msgstr "Сохранить·проект"
 
-#: src/ui.c:157 src/ui.c:267
+#: src/ui.c:157 src/ui.c:266 src/ui.c:268
 msgid "Channels"
 msgstr "Каналы"
 
@@ -42,39 +42,72 @@ msgstr "MIDI-регуляторы"
 msgid "About"
 msgstr "О программе"
 
-#: src/ui.c:252
+#: src/ui.c:255
 msgid "Add a plugin"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:268
+#: src/ui.c:256
+#, fuzzy
+msgid "Add a new plugin to the rack"
+msgstr "Добавить·модуль"
+
+#: src/ui.c:269
 msgid "Change the number of I/O channels the rack has"
 msgstr "Изменить·количество·I/O·портов·эффект-процессора"
 
-#: src/ui.c:279
+#: src/ui.c:278
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
-#: src/ui.c:285
+#: src/ui.c:279
+msgid "Remove all the plugins from the rack"
+msgstr ""
+
+#: src/ui.c:286
 msgid "Open a rack configuration file"
 msgstr "Открыть·файл·настроек·эффект-процессора"
 
-#: src/ui.c:290
+#: src/ui.c:287
+#, fuzzy
+msgid "Load a previously-saved rack configuration"
+msgstr "Открыть·файл·настроек·эффект-процессора"
+
+#: src/ui.c:293
 msgid "Save the rack configuration to the current file"
 msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
 
-#: src/ui.c:295
+#: src/ui.c:294
+#, fuzzy
+msgid "Save the rack configuration to the same file it was saved in last time"
+msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
+
+#: src/ui.c:300
 msgid "Save the rack configuration to a file"
 msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#: src/ui.c:306
+#: src/ui.c:301
+#, fuzzy
+msgid "Save the rack configuration to a new file"
+msgstr "Сохранить·настройки·эффект-процессора·в·файл"
+
+#: src/ui.c:313
 msgid "Save the LADCCA project"
 msgstr "Сохранить·LADCCA-проект"
 
-#: src/ui.c:315
+#: src/ui.c:314
+#, fuzzy
+msgid "Save the current LADCCA project"
+msgstr "Сохранить·LADCCA-проект"
+
+#: src/ui.c:325
 msgid "Quit JACK Rack"
 msgstr "Выйти·из·JACK Rack"
 
-#: src/ui.c:345
+#: src/ui.c:326
+msgid "Exit the program"
+msgstr ""
+
+#: src/ui.c:355
 msgid "Add MIDI control"
 msgstr "Добавить·MIDI-регулятор"
 
@@ -94,7 +127,7 @@ msgstr "Блокировать"
 msgid "On"
 msgstr "Вкл"
 
-#: src/midi_control.c:233
+#: src/midi_control.c:234
 msgid "Wet/dry"
 msgstr "Wet/dry"
 
@@ -110,26 +143,31 @@ msgstr ""
 "Предупреждение: изменение·количества·каналов приведёт\n"
 "к·стиранию·текущих·настроек·эффект-процессора"
 
-#: src/ui_callbacks.c:136
+#: src/ui_callbacks.c:133
 #, fuzzy
-msgid "Select File"
+msgid "Open File"
+msgstr "Файл"
+
+#: src/ui_callbacks.c:174
+#, fuzzy
+msgid "Save File"
 msgstr "Выберите файл"
 
-#: src/ui_callbacks.c:283
+#: src/ui_callbacks.c:259
 #, fuzzy
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
 
-#: src/ui_callbacks.c:286
+#: src/ui_callbacks.c:266
 msgid "__TRANSLATOR_CREDITS"
 msgstr ""
 
-#: src/ui_callbacks.c:353
+#: src/ui_callbacks.c:336
 #, c-format
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
-#: src/ui_callbacks.c:516
+#: src/ui_callbacks.c:496
 #, fuzzy
 msgid "Connecting to JACK..."
 msgstr "Установлено соединение с JACK-сервером"
@@ -139,22 +177,22 @@ msgstr "Установлено соединение с JACK-сервером"
 msgid "Could not save file '%s'"
 msgstr "Не·удалось·сохранить·файл·'%s'"
 
-#: src/file.c:214
+#: src/file.c:212
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr "Файл·'%s' содержит·неизвестный·модуль·с·ID '%ld'·и·будет·пропущен"
 
-#: src/file.c:430
+#: src/file.c:421
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: src/file.c:436
+#: src/file.c:427
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "'%s' не·является·файлом·настроек JACK Rack"
 
-#: src/file.c:450
+#: src/file.c:441
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -164,15 +202,15 @@ msgstr ""
 " ·\n"
 " ·Вы·уверены,·что·хотите·продолжить?"
 
-#: src/plugin_slot.c:272
+#: src/plugin_slot.c:269
 msgid "Lock All"
 msgstr "Блокировать·все"
 
-#: src/plugin_slot.c:384
+#: src/plugin_slot.c:381
 msgid "Enable"
 msgstr "Разрешить"
 
-#: src/plugin_slot.c:395
+#: src/plugin_slot.c:392
 msgid "Wet/Dry"
 msgstr "Wet/Dry"
 
@@ -219,31 +257,31 @@ msgstr ""
 msgid "there must be at least one channel\n"
 msgstr "должно·быть·не·менее·одного·канала\n"
 
-#: src/process.c:452
+#: src/process.c:454
 #, c-format
 msgid "Connecting to JACK server with client name '%s'"
 msgstr "Устанавливается соединение клиента '%s' с JACK-сервером"
 
-#: src/process.c:457
+#: src/process.c:459
 msgid "Connected to JACK server"
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/process.c:493
+#: src/process.c:495
 #, fuzzy, c-format
 msgid "Connecting port '%s' with '%s'"
 msgstr "Соединяются порты '%s' и '%s'"
 
-#: src/process.c:503
+#: src/process.c:505
 #, fuzzy, c-format
 msgid "Connected port '%s' with '%s'"
 msgstr "Соединены порты '%s' и '%s'"
 
-#: src/process.c:550
+#: src/process.c:552
 #, fuzzy, c-format
 msgid "Creating %s port '%s'"
 msgstr "Создаётся %s порт %s"
 
-#: src/process.c:572
+#: src/process.c:574
 #, fuzzy, c-format
 msgid "Created %s port '%s'"
 msgstr "Создан %s порт %s"
