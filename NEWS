@@ -5,6 +5,15 @@
 * applied patch from Mark Vitek that supports the latest LASH API changes
 * corrected MIDI controller numbering (reported by James Stone)
 * internal: introduced flexible status and error handlers
+* (now maintained by Adam Sampson)
+* Various cleanups to the source code.
+* Use the new GTK about dialog and toolbar APIs (the major effect of
+  which is that the "add" button in the toolbar now looks different).
+* Use the correct dialogs when opening and saving files.
+* Disconnect safely from JACK upon shutdown (patch from Florian Paul
+  Schmidt).
+* Make the configure script check for the LADSPA header.
+
 
 
 1.4.4:
