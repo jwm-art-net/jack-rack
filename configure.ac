@@ -18,6 +18,14 @@ AC_DEFINE_UNQUOTED(JACK_VERSION, "$JACK_VERSION", [The version of jack we're com
 AC_SUBST(JACK_CFLAGS)
 AC_SUBST(JACK_LIBS)
 
+
+##############
+### LADSPA ###
+##############
+
+AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([LADSPA is required  see http://www.ladspa.org/]))
+
+
 ############
 ### ALSA ###
 ############
@@ -156,7 +164,6 @@ if test x$XML_FOUND = xyes; then
       AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LADCCA_VERSION", [The version of ladcca we're compiling against])
       AC_SUBST(LADCCA_CFLAGS)
       AC_SUBST(LADCCA_LIBS)
-      #AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([ladspa is required]))
     fi
   else
     AC_MSG_WARN([LADCCA support is disabled])
