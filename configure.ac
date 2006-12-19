@@ -201,8 +201,10 @@ if test x$XML_FOUND = xyes; then
   
     if test "$LASH_FOUND" = "yes"; then
       AC_DEFINE(HAVE_LASH, 1, [whether or not we are supporting lash])
+      AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])
       LASH_VERSION=$( pkg-config --modversion lash-1.0 )
       AC_DEFINE_UNQUOTED(LASH_VERSION, "$LASH_VERSION", [The version of lash we're compiling against])
+      AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LASH_VERSION", [The version of ladcca we're compiling against])
       AC_SUBST(LASH_CFLAGS)
       AC_SUBST(LASH_LIBS)
       LADCCA_CFLAGS=""

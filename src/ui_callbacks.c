@@ -334,8 +334,8 @@ cca_idle (ui_t * ui, cca_client_t * client)
         case CCA_Server_Lost:
           printf ("server lost\n");
           printf (_("LADCCA server disconnected\n"));
-          gtk_widget_set_sensitive (ui->cca_save, FALSE);
-          gtk_widget_set_sensitive (ui->cca_save_menu_item, FALSE);
+          gtk_widget_set_sensitive (GTK_WIDGET (ui->cca_save), FALSE);
+          gtk_widget_set_sensitive (GTK_WIDGET (ui->cca_save_menu_item), FALSE);
           cca_event_destroy (event);
           return 0;
           break;

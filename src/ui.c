@@ -309,9 +309,9 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
       ui->cca_save = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
       gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->cca_save, -1);
-      gtk_ui->cca_save_set_tooltip (ui->cca_save, toolbar_tips,
-                                _("Save the LADCCA project"),
-                                _("Save the current LADCCA project"));
+      gtk_tool_item_set_tooltip (ui->cca_save, toolbar_tips,
+                                 _("Save the LADCCA project"),
+                                 _("Save the current LADCCA project"));
       g_signal_connect (G_OBJECT (ui->cca_save), "clicked", G_CALLBACK (cca_save_cb), ui);
 
     }

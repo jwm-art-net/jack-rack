@@ -13,6 +13,7 @@
 * Disconnect safely from JACK upon shutdown (patch from Florian Paul
   Schmidt).
 * Make the configure script check for the LADSPA header.
+* Fix LASH support (reported by Brian Dunn).
 
 
 
