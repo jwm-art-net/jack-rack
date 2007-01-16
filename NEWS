@@ -1,3 +1,7 @@
+1.4.6:
+* Updated fr_FR translation (patch from Raphaël Doursenaud).
+
+
 1.4.5:
 * JACK connection loss now employs automatic reconnect
 * widgets controlled via MIDI now get all their channels updated

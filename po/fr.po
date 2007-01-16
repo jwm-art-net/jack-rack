@@ -9,308 +9,307 @@ msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-02 23:33+0000\n"
-"PO-Revision-Date: 2005-07-13 15:52+0200\n"
+"POT-Creation-Date: 2007-01-09 05:08+0100\n"
+"PO-Revision-Date: 2007-01-09 05:42+0100\n"
 "Last-Translator: Raphaël Doursenaud <rdoursenaud@free.fr>\n"
-"Language-Team: French <fr@li.org>\n"
+"Language-Team: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Encoding: 8bit"
 
-#: src/ui.c:75
+#: ../src/ui.c:75
 msgid "File"
 msgstr "Fichier"
 
-#: src/ui.c:79
+#: ../src/ui.c:79
 msgid "Rack"
 msgstr "Rack"
 
-#: src/ui.c:85
+#: ../src/ui.c:85
 msgid "Help"
 msgstr "Aide"
 
-#: src/ui.c:127
+#: ../src/ui.c:127
 msgid "Save project"
 msgstr "Sauvegarder le projet"
 
-#: src/ui.c:157 src/ui.c:266 src/ui.c:268
+#: ../src/ui.c:157 ../src/ui.c:266 ../src/ui.c:268
 msgid "Channels"
 msgstr "Canaux"
 
-#: src/ui.c:164
+#: ../src/ui.c:164
 msgid "MIDI Controls"
 msgstr "Contrôles MIDI"
 
-#: src/ui.c:176
+#: ../src/ui.c:176
 msgid "About"
 msgstr "À propos"
 
-#: src/ui.c:255
+#: ../src/ui.c:255
 msgid "Add a plugin"
-msgstr "Ajoute un greffon"
+msgstr "Ajouter un greffon"
 
-#: src/ui.c:256
-#, fuzzy
+#: ../src/ui.c:256
 msgid "Add a new plugin to the rack"
-msgstr "Ajoute un greffon"
+msgstr "Ajouter un nouveau greffon dans le rack"
 
-#: src/ui.c:269
+#: ../src/ui.c:269
 msgid "Change the number of I/O channels the rack has"
-msgstr "Change le nombre de canaux d'E/S du rack"
+msgstr "Changer le nombre de canaux d'E/S du rack"
 
-#: src/ui.c:278
+#: ../src/ui.c:278
 msgid "Clear the rack"
-msgstr "Vide le rack"
+msgstr "Vider le rack"
 
-#: src/ui.c:279
+#: ../src/ui.c:279
 msgid "Remove all the plugins from the rack"
-msgstr ""
+msgstr "Enlever tous les greffons du RACK"
 
-#: src/ui.c:286
+#: ../src/ui.c:286
 msgid "Open a rack configuration file"
-msgstr "Ouvre un fichier de configuration du rack"
+msgstr "Ouvrir un fichier de configuration du rack"
 
-#: src/ui.c:287
-#, fuzzy
+#: ../src/ui.c:287
 msgid "Load a previously-saved rack configuration"
-msgstr "Ouvre un fichier de configuration du rack"
+msgstr "Ouvrir une configuration du rack précédemment sauvegardée"
 
-#: src/ui.c:293
+#: ../src/ui.c:293
 msgid "Save the rack configuration to the current file"
-msgstr "Sauvegarde la configuration du rack dans le fichier courant"
+msgstr "Sauvegarder la configuration du rack dans le fichier courant"
 
-#: src/ui.c:294
-#, fuzzy
+#: ../src/ui.c:294
 msgid "Save the rack configuration to the same file it was saved in last time"
-msgstr "Sauvegarde la configuration du rack dans le fichier courant"
-
-#: src/ui.c:300
-msgid "Save the rack configuration to a file"
-msgstr "Sauvegarde la configuration du rack dans un fichier"
-
-#: src/ui.c:301
-#, fuzzy
-msgid "Save the rack configuration to a new file"
-msgstr "Sauvegarde la configuration du rack dans un fichier"
-
-#: src/ui.c:313
-msgid "Save the LADCCA project"
-msgstr "Sauvegarde le projet LADCCA"
-
-#: src/ui.c:314
-#, fuzzy
-msgid "Save the current LADCCA project"
-msgstr "Sauvegarde le projet LADCCA"
-
-#: src/ui.c:325
-msgid "Quit JACK Rack"
-msgstr "Quitte JACK Rack"
-
-#: src/ui.c:326
-msgid "Exit the program"
 msgstr ""
+"Sauvegarder la configuration du rack dans le même fichier que la dernière "
+"sauvegarde"
 
-#: src/ui.c:355
+#: ../src/ui.c:300
+msgid "Save the rack configuration to a file"
+msgstr "Sauvegarder la configuration du rack dans un fichier"
+
+#: ../src/ui.c:301
+msgid "Save the rack configuration to a new file"
+msgstr "Sauvegarder la configuration du rack dans un nouveau fichier"
+
+#: ../src/ui.c:313
+msgid "Save the LADCCA project"
+msgstr "Sauvegarder le projet LADCCA"
+
+#: ../src/ui.c:314
+msgid "Save the current LADCCA project"
+msgstr "Sauvegarder le projet LADCCA actuel"
+
+#: ../src/ui.c:325
+msgid "Quit JACK Rack"
+msgstr "Quitter JACK Rack"
+
+#: ../src/ui.c:326
+msgid "Exit the program"
+msgstr "Sortir du programme"
+
+#: ../src/ui.c:355
 msgid "Add MIDI control"
-msgstr "Ajoute un contrôle MIDI"
+msgstr "Ajouter un contrôle MIDI"
 
-#: src/plugin_mgr.c:335
+#: ../src/plugin_mgr.c:335
 msgid ", NOT RT"
 msgstr ", NON TR"
 
-#: src/plugin_mgr.c:347
+#: ../src/plugin_mgr.c:347
 msgid "ch"
 msgstr "can"
 
-#: src/port_controls.c:247 src/wet_dry_controls.c:89
+#. lock control
+#. lock
+#: ../src/port_controls.c:247 ../src/wet_dry_controls.c:89
 msgid "Lock"
 msgstr "Verrouiller"
 
-#: src/port_controls.c:323
+#: ../src/port_controls.c:323
 msgid "On"
 msgstr "Activé"
 
-#: src/midi_control.c:234
+#: ../src/midi_control.c:234
 msgid "Wet/dry"
 msgstr "Traité/Direct"
 
-#: src/ui_callbacks.c:78
+#: ../src/ui_callbacks.c:78
 msgid "I/O Channels"
 msgstr "Canaux d'E/S"
 
-#: src/ui_callbacks.c:91
+#: ../src/ui_callbacks.c:91
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
 msgstr ""
 "Attention: changer le nombre de\n"
-"canaux videra le rack courant"
+"canaux videra le rack actuel"
 
-#: src/ui_callbacks.c:133
-#, fuzzy
+#: ../src/ui_callbacks.c:133
 msgid "Open File"
-msgstr "Fichier"
+msgstr "Ouvrir un fichier"
 
-#: src/ui_callbacks.c:174
-#, fuzzy
+#: ../src/ui_callbacks.c:174
 msgid "Save File"
-msgstr "Sélectionnez un fichier"
+msgstr "Sauvegarder un fichier"
 
-#: src/ui_callbacks.c:259
-#, fuzzy
+#: ../src/ui_callbacks.c:259
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Un rack d'effets LADSPA pour l'API audio JACK"
 
-#: src/ui_callbacks.c:266
+#: ../src/ui_callbacks.c:266
 msgid "__TRANSLATOR_CREDITS"
-msgstr ""
+msgstr "Raphaël Doursenaud"
 
-#: src/ui_callbacks.c:336
+#: ../src/ui_callbacks.c:336
 #, c-format
 msgid "LADCCA server disconnected\n"
 msgstr "Serveur LADCCA déconnecté\n"
 
-#: src/ui_callbacks.c:496
-#, fuzzy
+#: ../src/ui_callbacks.c:496
 msgid "Connecting to JACK..."
-msgstr "Connecté au serveur JACK"
+msgstr "Connexion à JACK..."
 
-#: src/file.c:176
+#: ../src/file.c:176
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Impossible de sauvegarder le fichier '%s'"
 
-#: src/file.c:212
+#: ../src/file.c:212
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr ""
 "Le fichier '%s' contient un greffon inconnu portant l'ID '%ld'; je passe"
 
-#: src/file.c:421
+#: ../src/file.c:421
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Impossible d'analyser le fichier '%s'"
 
-#: src/file.c:427
+#: ../src/file.c:427
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "Le fichier '%s' n'est pas un fichier de configuration JACK Rack"
 
-#: src/file.c:441
+#: ../src/file.c:441
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
 "Are you sure you want to continue?"
 msgstr ""
-"Le rack courant sera vidé.\n"
+"Le rack actuel sera vidé.\n"
 "\n"
-"Êtes-vous sûr de vouloir continuer?"
+"Êtes-vous sûr de vouloir continuer­?"
 
-#: src/plugin_slot.c:269
+#: ../src/plugin_slot.c:269
 msgid "Lock All"
 msgstr "Tout Verrouiller"
 
-#: src/plugin_slot.c:381
+#. enable button
+#: ../src/plugin_slot.c:381
 msgid "Enable"
 msgstr "Activer"
 
-#: src/plugin_slot.c:392
+#. wet/dry button
+#: ../src/plugin_slot.c:392
 msgid "Wet/Dry"
 msgstr "Traité/Direct"
 
-#: src/wet_dry_controls.c:105
+#. the label
+#: ../src/wet_dry_controls.c:105
 msgid "Channel"
 msgstr "Canal"
 
-#: src/main.c:70
+#: ../src/main.c:70
 #, c-format
 msgid "Compiled with:\n"
 msgstr "Compilé avec :\n"
 
-#: src/main.c:92
+#: ../src/main.c:92
 msgid "Display this help info"
 msgstr "Afficher ce message d'aide"
 
-#: src/main.c:94
+#: ../src/main.c:94
 msgid "Use the pid in the JACK client name (default)"
 msgstr "Utiliser le pid dans le nom de client JACK (défaut)"
 
-#: src/main.c:95
+#: ../src/main.c:95
 msgid "Use <string> in the JACK client name"
 msgstr "Utiliser <string> dans le nom de client JACK"
 
-#: src/main.c:96
+#: ../src/main.c:96
 msgid "Use just jack_rack as the client name"
 msgstr "Utiliser simplement jack_rack en tant que nom de client"
 
-#: src/main.c:98
+#: ../src/main.c:98
 msgid "Connected inputs to the first two physical capture ports"
 msgstr "Entrées connectées aux deux premiers ports de capture physiques"
 
-#: src/main.c:99
+#: ../src/main.c:99
 msgid "Connected outputs to the first two physical playback ports"
 msgstr "orties connectées aux deux premiers ports de reproduction physiques"
 
-#: src/main.c:100
+#: ../src/main.c:100
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
-"Combien de canaux d'entrée et de sortie le rack doit-il utiliser (défaut:2)"
+"Combien de canaux d'entrée et de sortie le rack doit-il utiliser­? (par "
+"défaut:2)"
 
-#: src/main.c:195
+#: ../src/main.c:195
 #, c-format
 msgid "there must be at least one channel\n"
 msgstr "il doit y avoir au moins un canal\n"
 
-#: src/process.c:454
+#: ../src/process.c:454
 #, c-format
 msgid "Connecting to JACK server with client name '%s'"
-msgstr "Connection au serveur JACK avec le nom de client '%s'"
+msgstr "Connexion au serveur JACK avec le nom de client '%s'"
 
-#: src/process.c:459
+#: ../src/process.c:459
 msgid "Connected to JACK server"
 msgstr "Connecté au serveur JACK"
 
-#: src/process.c:495
-#, fuzzy, c-format
+#: ../src/process.c:495
+#, c-format
 msgid "Connecting port '%s' with '%s'"
-msgstr "Connection des ports '%s' et '%s'"
+msgstr "Connexion des ports '%s' avec '%s'"
 
-#: src/process.c:505
-#, fuzzy, c-format
+#: ../src/process.c:505
+#, c-format
 msgid "Connected port '%s' with '%s'"
-msgstr "Ports '%s' et '%s' connectés"
+msgstr "Ports '%s' connectés avec '%s'"
 
-#: src/process.c:552
-#, fuzzy, c-format
+#: ../src/process.c:552
+#, c-format
 msgid "Creating %s port '%s'"
 msgstr "Création %s port %s"
 
-#: src/process.c:574
-#, fuzzy, c-format
+#: ../src/process.c:574
+#, c-format
 msgid "Created %s port '%s'"
 msgstr "%s port %s créé"
 
-#: src/midi_window.c:73
+#: ../src/midi_window.c:73
 msgid "Plugin"
 msgstr "Greffon"
 
-#: src/midi_window.c:78
+#: ../src/midi_window.c:78
 msgid "Control"
 msgstr "Contrôle"
 
-#: src/midi_window.c:83
+#: ../src/midi_window.c:83
 msgid "Index"
 msgstr "Index"
 
-#: src/midi_window.c:94
+#: ../src/midi_window.c:94
 msgid "MIDI Channel"
 msgstr "Canal MIDI"
 
-#: src/midi_window.c:104
+#: ../src/midi_window.c:104
 msgid "MIDI Controller"
 msgstr "Contrôleur MIDI"
 
-#: src/midi_window.c:128
+#: ../src/midi_window.c:128
 msgid "JACK Rack MIDI Controls"
 msgstr "Contrôles MIDI Jack Rack"
 
