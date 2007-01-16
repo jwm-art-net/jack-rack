@@ -125,10 +125,10 @@ int main (int argc, char ** argv) {
   cca_event_t * cca_event;
 #endif  
 
+  gtk_set_locale ();
 #ifdef ENABLE_NLS
   bindtextdomain (PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-  bind_textdomain_codeset(PACKAGE, "UTF-8");
+  bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
   
   /* not using gnome popt */
@@ -147,7 +147,6 @@ int main (int argc, char ** argv) {
   cca_args = cca_extract_args (&argc, &argv);
 #endif  
 
-  gtk_set_locale ();
   gtk_init (&argc, &argv);
 
 #ifdef HAVE_GNOME

@@ -1,5 +1,9 @@
 1.4.6:
 * Updated fr_FR translation (patch from Raphaël Doursenaud).
+* Don't rely on being able to set and use the default gettext domain;
+  some buggy LADSPA plugins clobber it (reported by Raphaël Doursenaud).
+* Always install pixmaps and the application file into the installation
+  prefix.
 
 
 1.4.5:
