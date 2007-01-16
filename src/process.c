@@ -163,7 +163,7 @@ int process_control_messages (process_info_t * procinfo)
     
     if (err)
       {
-        _display_error ( _error_cb_data, E_ERROR, "%s: gui fifo is out of space\n", __FUNCTION__ );
+        _display_error ( _error_cb_data, E_ERROR, _("%s: GUI FIFO is out of space\n"), __FUNCTION__ );
         return err;
       }
       
@@ -218,14 +218,14 @@ int get_jack_buffers (process_info_t * procinfo, jack_nframes_t frames)
       procinfo->jack_input_buffers[channel] = jack_port_get_buffer (procinfo->jack_input_ports[channel], frames);
       if (!procinfo->jack_input_buffers[channel])
         {
-          fprintf (stderr, "%s: no jack buffer for input port %ld\n", __FUNCTION__, channel);
+          fprintf (stderr, _("%s: no JACK buffer for input port %ld\n"), __FUNCTION__, channel);
           return 1;
         }
 
       procinfo->jack_output_buffers[channel] = jack_port_get_buffer (procinfo->jack_output_ports[channel], frames);
       if (!procinfo->jack_output_buffers[channel])
         {
-          fprintf (stderr, "%s: no jack buffer for output port %ld\n", __FUNCTION__, channel);
+          fprintf (stderr, _("%s: no JACK buffer for output port %ld\n"), __FUNCTION__, channel);
           return 1;
         }
     }
@@ -417,7 +417,7 @@ int process (jack_nframes_t frames, void * data) {
 
   if (!procinfo)
     {
-      _display_error ( _error_cb_data, E_WARNING, "%s: no process_info from jack!\n", __FUNCTION__ );
+      _display_error ( _error_cb_data, E_WARNING, _("%s: no process_info from JACK!\n"), __FUNCTION__ );
       return 1;
     }
   
@@ -431,7 +431,7 @@ int process (jack_nframes_t frames, void * data) {
   err = get_jack_buffers (procinfo, frames);
   if (err)
     {
-      _display_error ( _error_cb_data, E_WARNING, "%s: failed to get jack ports, not processing\n", __FUNCTION__ );
+      _display_error ( _error_cb_data, E_WARNING, _("%s: failed to get JACK ports, not processing\n"), __FUNCTION__ );
       return 0;
     }
   
@@ -499,7 +499,7 @@ process_info_connect_port (process_info_t * procinfo,
                           in ? full_port_name : jack_ports[jack_port_index]);
 
       if (err)
-        fprintf (stderr, "%s: error connecting ports '%s' and '%s'\n",
+        fprintf (stderr, _("%s: error connecting ports '%s' and '%s'\n"),
                  __FUNCTION__, full_port_name, jack_ports[jack_port_index]);
       else
 	      _update_status ( _("Connected port '%s' with '%s'"), full_port_name, jack_ports[jack_port_index] );
@@ -549,8 +549,16 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
       {
         port_name = g_strdup_printf ("%s_%ld", in ? "in" : "out", i + 1);
        
-        _update_status ( _status_cb_data, _("Creating %s port '%s'"),
-                        ( in ? "input" : "output" ), port_name );
+        if (in)
+          {
+            _update_status (_status_cb_data, _("Creating input port '%s'"),
+                            port_name);
+          }
+        else
+          {
+            _update_status (_status_cb_data, _("Creating output port '%s'"),
+                            port_name);
+          }
 
         port_ptr = (in ? &procinfo->jack_input_ports[i]
                        : &procinfo->jack_output_ports[i]);
@@ -563,15 +571,13 @@ process_info_set_port_count (process_info_t * procinfo, ui_t * ui, unsigned long
         
         if (!*port_ptr)
           {
-            fprintf (stderr, "%s: could not register port '%s'; aborting\n",
+            fprintf (stderr, _("%s: could not register port '%s'; aborting\n"),
                      __FUNCTION__, port_name);
             ui_display_error ( _error_cb_data, E_FATAL,
-                               "Could not register JACK port '%s'; aborting",
+                               _("Could not register JACK port '%s'; aborting"),
                                port_name);
             return 1;
           }
-
-        _update_status ( _status_cb_data, _("Created %s port '%s'"), ( in ? "input" : "output" ), port_name );
 
         if ((in && connect_inputs) || (!in && connect_outputs))
           process_info_connect_port (procinfo, ui, in, i, port_name);

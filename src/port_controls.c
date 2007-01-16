@@ -84,14 +84,6 @@ create_float_control (plugin_desc_t * desc, unsigned long port_index)
     }
 
 
-/*  printf ("%s: lower: %f, upper: %f, %s\n", __FUNCTION__, lower, upper,
-  ›       LADSPA_IS_HINT_SAMPLE_RATE (desc->port_range_hints[port_index].HintDescriptor)
-          ? "sample rate adjusted" : "normal"); */
-
-  if (!(lower < upper))
-    {
-      printf ("%s: lower !< upper!\n", __FUNCTION__);
-    }
   widget = gtk_hscale_new_with_range ((gdouble) lower, (gdouble) upper, (upper - lower) / 10.0);
   gtk_scale_set_draw_value (GTK_SCALE (widget), FALSE);
   gtk_scale_set_digits (GTK_SCALE (widget), 8);
@@ -140,13 +132,6 @@ create_int_control (plugin_desc_t * desc, unsigned long port_index)
 
   if (!(lower < upper))
     {
-/*    printf("%s: lower !< upper! (%f, %f, %s, %s, %s)\n", __FUNCTION__,
-           desc->port_range_hints[port_index].LowerBound,
-           desc->port_range_hints[port_index].UpperBound,
-           LADSPA_IS_HINT_SAMPLE_RATE (desc->port_range_hints[port_index].HintDescriptor) ? "normal" : "sample rate",
-           LADSPA_IS_HINT_BOUNDED_BELOW (desc->port_range_hints[port_index].HintDescriptor) ? "use lower" : "do not use lower",
-           LADSPA_IS_HINT_BOUNDED_ABOVE (desc->port_range_hints[port_index].HintDescriptor) ? "use upper" : "do not use upper"
-           );*/
       if (!LADSPA_IS_HINT_BOUNDED_ABOVE
           (desc->port_range_hints[port_index].HintDescriptor))
         {

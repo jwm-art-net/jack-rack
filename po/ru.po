@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-02 23:33+0000\n"
+"POT-Creation-Date: 2007-01-16 06:00+0000\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "Справка"
 msgid "Save project"
 msgstr "Сохранить·проект"
 
-#: src/ui.c:157 src/ui.c:266 src/ui.c:268
+#: src/ui.c:157 src/ui.c:264 src/ui.c:266
 msgid "Channels"
 msgstr "Каналы"
 
@@ -42,94 +42,168 @@ msgstr "MIDI-регуляторы"
 msgid "About"
 msgstr "О программе"
 
-#: src/ui.c:255
+#: src/ui.c:253
 msgid "Add a plugin"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:256
+#: src/ui.c:254
 #, fuzzy
 msgid "Add a new plugin to the rack"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:269
+#: src/ui.c:267
 msgid "Change the number of I/O channels the rack has"
 msgstr "Изменить·количество·I/O·портов·эффект-процессора"
 
-#: src/ui.c:278
+#: src/ui.c:276
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
-#: src/ui.c:279
+#: src/ui.c:277
 msgid "Remove all the plugins from the rack"
 msgstr ""
 
-#: src/ui.c:286
+#: src/ui.c:284
 msgid "Open a rack configuration file"
 msgstr "Открыть·файл·настроек·эффект-процессора"
 
-#: src/ui.c:287
+#: src/ui.c:285
 #, fuzzy
 msgid "Load a previously-saved rack configuration"
 msgstr "Открыть·файл·настроек·эффект-процессора"
 
-#: src/ui.c:293
+#: src/ui.c:291
 msgid "Save the rack configuration to the current file"
 msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
 
-#: src/ui.c:294
+#: src/ui.c:292
 #, fuzzy
 msgid "Save the rack configuration to the same file it was saved in last time"
 msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
 
-#: src/ui.c:300
+#: src/ui.c:298
 msgid "Save the rack configuration to a file"
 msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#: src/ui.c:301
+#: src/ui.c:299
 #, fuzzy
 msgid "Save the rack configuration to a new file"
 msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#: src/ui.c:313
+#: src/ui.c:311
 msgid "Save the LADCCA project"
 msgstr "Сохранить·LADCCA-проект"
 
-#: src/ui.c:314
+#: src/ui.c:312
 #, fuzzy
 msgid "Save the current LADCCA project"
 msgstr "Сохранить·LADCCA-проект"
 
-#: src/ui.c:325
+#: src/ui.c:323
 msgid "Quit JACK Rack"
 msgstr "Выйти·из·JACK Rack"
 
-#: src/ui.c:326
+#: src/ui.c:324
 msgid "Exit the program"
 msgstr ""
 
-#: src/ui.c:355
+#: src/ui.c:353
 msgid "Add MIDI control"
 msgstr "Добавить·MIDI-регулятор"
 
-#: src/plugin_mgr.c:335
+#: src/plugin_mgr.c:88 src/plugin.c:293
+#, c-format
+msgid "%s: error opening shared object file '%s': %s\n"
+msgstr ""
+
+#: src/plugin_mgr.c:102
+#, c-format
+msgid "%s: error finding ladspa_descriptor symbol in object file '%s': %s\n"
+msgstr ""
+
+#: src/plugin_mgr.c:133
+#, c-format
+msgid "Plugin %ld exists in both '%s' and '%s'; using version in '%s'\n"
+msgstr ""
+"Модуль %ld существует в двух версиях: '%s' и '%s'; используем версию '%s'\n"
+
+#: src/plugin_mgr.c:146
+#, c-format
+msgid "Loaded plugin '%s'"
+msgstr "Загружен·модуль·'%s'"
+
+#: src/plugin_mgr.c:152
+#, c-format
+msgid "%s: error closing object file '%s': %s\n"
+msgstr ""
+
+#: src/plugin_mgr.c:198 src/plugin_mgr.c:615
+#, c-format
+msgid "%s: error closing directory '%s': %s\n"
+msgstr ""
+
+#: src/plugin_mgr.c:248
+msgid ""
+"No LADSPA plugins were found!\n"
+"\n"
+"Check your LADSPA_PATH environment variable."
+msgstr ""
+"Не найдено ни единого LADSPA-модуля!\n"
+"\n"
+"Проверьте переменную окружения LADSPA_PATH."
+
+#: src/plugin_mgr.c:333
 msgid ", NOT RT"
 msgstr ", НЕ RT"
 
-#: src/plugin_mgr.c:347
+#: src/plugin_mgr.c:336
+#, c-format
+msgid ", %ld aux %s"
+msgstr ""
+
+#: src/plugin_mgr.c:338
+msgid "in"
+msgstr ""
+
+#: src/plugin_mgr.c:338
+#, fuzzy
+msgid "out"
+msgstr "О программе"
+
+#: src/plugin_mgr.c:345
 msgid "ch"
 msgstr "к"
 
-#: src/port_controls.c:247 src/wet_dry_controls.c:89
+#: src/plugin_mgr.c:542
+msgid "Uncategorised"
+msgstr ""
+
+#: src/plugin_mgr.c:610
+#, c-format
+msgid "Found LRDF description file '%s'"
+msgstr "Найден файл описания LRDF '%s'"
+
+#: src/plugin_mgr.c:650
+#, fuzzy, c-format
+msgid "%s: could not parse LRDF file '%s'\n"
+msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
+
+#: src/port_controls.c:232 src/wet_dry_controls.c:89
 msgid "Lock"
 msgstr "Блокировать"
 
-#: src/port_controls.c:323
+#: src/port_controls.c:308
 msgid "On"
 msgstr "Вкл"
 
 #: src/midi_control.c:234
 msgid "Wet/dry"
 msgstr "Wet/dry"
+
+#: src/ui_callbacks.c:59
+#, c-format
+msgid "%s: no plugin description!\n"
+msgstr ""
 
 #: src/ui_callbacks.c:78
 msgid "I/O Channels"
@@ -167,9 +241,19 @@ msgstr ""
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
+#: src/ui_callbacks.c:343
+#, c-format
+msgid "Received LADCCA event of unknown type %d\n"
+msgstr ""
+
 #: src/ui_callbacks.c:496
 #, fuzzy
 msgid "Connecting to JACK..."
+msgstr "Установлено соединение с JACK-сервером"
+
+#: src/ui_callbacks.c:500
+#, fuzzy
+msgid "Connecting to JACK server..."
 msgstr "Установлено соединение с JACK-сервером"
 
 #: src/file.c:176
@@ -223,6 +307,11 @@ msgstr "Канал"
 msgid "Compiled with:\n"
 msgstr "Скомпилировано·с:\n"
 
+#: src/main.c:85
+#, c-format
+msgid "Usage: jack-rack [OPTION]..."
+msgstr ""
+
 #: src/main.c:92
 msgid "Display this help info"
 msgstr "Отображать·эту справку"
@@ -252,10 +341,99 @@ msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
 
-#: src/main.c:195
-#, c-format
-msgid "there must be at least one channel\n"
+#: src/main.c:194
+#, fuzzy, c-format
+msgid "There must be at least one channel\n"
 msgstr "должно·быть·не·менее·одного·канала\n"
+
+#: src/main.c:216
+#, c-format
+msgid "Please specify only one file to open"
+msgstr ""
+
+#: src/midi.c:47
+msgid "Connecting to ALSA sequencer"
+msgstr "Устанавливается соединение с ALSA sequencer"
+
+#: src/midi.c:53
+#, fuzzy, c-format
+msgid ""
+"Could not open ALSA sequencer, aborting:\n"
+"\n"
+"%s\n"
+"\n"
+"Please check that your ALSA configuration is correct."
+msgstr ""
+"Не удалось установить соединение с ALSA sequencer, операция прерывается\n"
+"\n"
+"%s\n"
+"\n"
+"Убедитесь в том, что вы корректно настроили ALSA, что файл\n"
+"/proc/asound/seq/clients существует и содержит требуемые устройства."
+
+#: src/midi.c:56
+#, c-format
+msgid "Connected to ALSA sequencer with id %d"
+msgstr "Установлено соединение с ALSA sequencer с id %d"
+
+#: src/midi.c:72
+msgid "Creating ALSA sequencer port"
+msgstr "Создаётся порт для ALSA sequencer"
+
+#: src/midi.c:80
+#, fuzzy, c-format
+msgid ""
+"Could not create ALSA port, aborting:\n"
+"\n"
+"%s"
+msgstr ""
+"Не удалось создать порт для ALSA port, операция прерывается\n"
+"\n"
+"%s"
+
+#: src/midi.c:82
+msgid "Created ALSA sequencer port"
+msgstr "Создан порт для ALSA sequencer"
+
+#: src/midi.c:140
+#, c-format
+msgid "%s: error sending MIDI event: %s\n"
+msgstr ""
+
+#: src/midi.c:280
+#, c-format
+msgid "%s: could not get scheduling parameters of JACK thread: %s\n"
+msgstr ""
+
+#: src/midi.c:299
+#, c-format
+msgid "%s: could not set SCHED_FIFO for MIDI thread: %s\n"
+msgstr ""
+
+#: src/process.c:166
+#, c-format
+msgid "%s: GUI FIFO is out of space\n"
+msgstr ""
+
+#: src/process.c:221
+#, c-format
+msgid "%s: no JACK buffer for input port %ld\n"
+msgstr ""
+
+#: src/process.c:228
+#, c-format
+msgid "%s: no JACK buffer for output port %ld\n"
+msgstr ""
+
+#: src/process.c:420
+#, c-format
+msgid "%s: no process_info from JACK!\n"
+msgstr ""
+
+#: src/process.c:434
+#, c-format
+msgid "%s: failed to get JACK ports, not processing\n"
+msgstr ""
 
 #: src/process.c:454
 #, c-format
@@ -271,20 +449,35 @@ msgstr "Установлено соединение с JACK-сервером"
 msgid "Connecting port '%s' with '%s'"
 msgstr "Соединяются порты '%s' и '%s'"
 
+#: src/process.c:502
+#, fuzzy, c-format
+msgid "%s: error connecting ports '%s' and '%s'\n"
+msgstr "Соединяются порты '%s' и '%s'"
+
 #: src/process.c:505
 #, fuzzy, c-format
 msgid "Connected port '%s' with '%s'"
 msgstr "Соединены порты '%s' и '%s'"
 
-#: src/process.c:552
+#: src/process.c:554
 #, fuzzy, c-format
-msgid "Creating %s port '%s'"
+msgid "Creating input port '%s'"
+msgstr "Создаётся %s порт %s"
+
+#: src/process.c:559
+#, fuzzy, c-format
+msgid "Creating output port '%s'"
 msgstr "Создаётся %s порт %s"
 
 #: src/process.c:574
 #, fuzzy, c-format
-msgid "Created %s port '%s'"
-msgstr "Создан %s порт %s"
+msgid "%s: could not register port '%s'; aborting\n"
+msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+
+#: src/process.c:577
+#, fuzzy, c-format
+msgid "Could not register JACK port '%s'; aborting"
+msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
 
 #: src/midi_window.c:73
 msgid "Plugin"
@@ -309,6 +502,55 @@ msgstr "MIDI-контроллер"
 #: src/midi_window.c:128
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
+
+#: src/jack_rack.c:75
+#, fuzzy, c-format
+msgid ""
+"Plugin not RT capable\n"
+"\n"
+"The plugin '%s' does not describe itself as being capable of real-time "
+"operation.  If you use it, you may experience drop-outs or unexpected "
+"disconnection from JACK.\n"
+"\n"
+"Are you sure you want to add this plugin?"
+msgstr ""
+"Модуль не предназначен для работы в режиме реального времени\n"
+"\n"
+"Модуль '%s' не описывает себя как модуль для работы в режиме \n"
+"реального времени.  Вы можете слышать неприятные артефакты, и \n"
+"JACK-сервер может даже отключитm JACK Rack, если вы попытаетесь \n"
+"использовать этот модуль.\n"
+"\n"
+"Вы действительно хотите добавить этот модуль?"
+
+#: src/jack_rack.c:95
+#, c-format
+msgid "Error loading file plugin '%s' from file '%s'"
+msgstr "Ошибка при загрузке модуля '%s' из файла '%s'"
+
+#: src/plugin.c:308
+#, c-format
+msgid "%s: error finding descriptor symbol in object file '%s': %s\n"
+msgstr ""
+
+#: src/plugin.c:403
+#, c-format
+msgid "Could not register jack port '%s'; aborting"
+msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+
+#: src/plugin.c:581
+#, fuzzy, c-format
+msgid "%s: could not unregister jack port\n"
+msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+
+#: src/plugin.c:609
+#, c-format
+msgid "%s: error closing shared object '%s': %s\n"
+msgstr ""
+
+#, fuzzy
+#~ msgid "Created %s port '%s'"
+#~ msgstr "Создан %s порт %s"
 
 #~ msgid ""
 #~ "%s\n"
@@ -339,88 +581,6 @@ msgstr "MIDI-регуляторы·JACK Rack"
 
 #~ msgid "Tell JACK to use <dir> for its temporary files"
 #~ msgstr "Заставить JACK использовать·<dir> для·хранения·временных·файлов"
-
-#~ msgid ""
-#~ "Plugin not RT capable\n"
-#~ "\n"
-#~ "The plugin '%s' does not describe itself as being capable of real-time "
-#~ "operation.  You may experience drop outs or jack may even kick us out if "
-#~ "you use it.\n"
-#~ "\n"
-#~ "Are you sure you want to add this plugin?"
-#~ msgstr ""
-#~ "Модуль не предназначен для работы в режиме реального времени\n"
-#~ "\n"
-#~ "Модуль '%s' не описывает себя как модуль для работы в режиме \n"
-#~ "реального времени.  Вы можете слышать неприятные артефакты, и \n"
-#~ "JACK-сервер может даже отключитm JACK Rack, если вы попытаетесь \n"
-#~ "использовать этот модуль.\n"
-#~ "\n"
-#~ "Вы действительно хотите добавить этот модуль?"
-
-#~ msgid "Error loading file plugin '%s' from file '%s'"
-#~ msgstr "Ошибка при загрузке модуля '%s' из файла '%s'"
-
-#~ msgid "Connecting to ALSA sequencer"
-#~ msgstr "Устанавливается соединение с ALSA sequencer"
-
-#~ msgid ""
-#~ "Could not open ALSA sequencer, aborting\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Make sure you have configure ALSA properly and that\n"
-#~ "/proc/asound/seq/clients exists and contains relevant\n"
-#~ "devices."
-#~ msgstr ""
-#~ "Не удалось установить соединение с ALSA sequencer, операция прерывается\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Убедитесь в том, что вы корректно настроили ALSA, что файл\n"
-#~ "/proc/asound/seq/clients существует и содержит требуемые устройства."
-
-#~ msgid "Connected to ALSA sequencer with id %d"
-#~ msgstr "Установлено соединение с ALSA sequencer с id %d"
-
-#~ msgid "Creating ALSA sequencer port"
-#~ msgstr "Создаётся порт для ALSA sequencer"
-
-#~ msgid ""
-#~ "Could not create ALSA port, aborting\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Не удалось создать порт для ALSA port, операция прерывается\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid "Created ALSA sequencer port"
-#~ msgstr "Создан порт для ALSA sequencer"
-
-#~ msgid "Could not register jack port '%s'; aborting"
-#~ msgstr ""
-#~ "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
-
-#~ msgid "Plugin %ld exists in both '%s' and '%s'; using version in '%s'\n"
-#~ msgstr ""
-#~ "Модуль %ld существует в двух версиях: '%s' и '%s'; используем версию '%"
-#~ "s'\n"
-
-#~ msgid "Loaded plugin '%s'"
-#~ msgstr "Загружен·модуль·'%s'"
-
-#~ msgid ""
-#~ "No LADSPA plugins were found!\n"
-#~ "\n"
-#~ "Check your LADSPA_PATH environment variable."
-#~ msgstr ""
-#~ "Не найдено ни единого LADSPA-модуля!\n"
-#~ "\n"
-#~ "Проверьте переменную окружения LADSPA_PATH."
-
-#~ msgid "Found LRDF description file '%s'"
-#~ msgstr "Найден файл описания LRDF '%s'"
 
 #~ msgid "Controller"
 #~ msgstr "Контроллер"

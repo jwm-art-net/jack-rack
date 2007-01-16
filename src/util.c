@@ -4,6 +4,7 @@
 
 #include "util.h"
 #include "types.h"
+#include "globals.h"
 
 
 /**
@@ -89,25 +90,25 @@ default_error_handler (void* data, const error_severity_t severity,
 	switch (severity)
 	{
 		case E_NOTICE:
-			printf ("Notice: %s\n", msg);
+			printf (_("Notice: %s\n"), msg);
 			break;
 
 		case E_WARNING:
-			printf ("Warning: %s\n", msg);
+			printf (_("Warning: %s\n"), msg);
 			break;
 
 		case E_ERROR:
-			printf ("Error: %s\n", msg);
+			printf (_("Error: %s\n"), msg);
 			break;
 
 		case E_FATAL:
-			printf ("FATAL ERROR: %s\n", msg);
+			printf (_("FATAL ERROR: %s\n"), msg);
 			g_free (msg);
 			abort();
 			break;
 			
 		case E_BUG:
-			printf ("BUG: %s\n", msg);
+			printf (_("BUG: %s\n"), msg);
 			break;
 	}
 

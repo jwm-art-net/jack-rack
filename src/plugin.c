@@ -290,7 +290,7 @@ plugin_open_plugin (plugin_desc_t * desc,
   dl_handle = dlopen (desc->object_file, RTLD_NOW|RTLD_GLOBAL);
   if (!dl_handle)
     {
-      fprintf (stderr, "%s: error opening shared object file '%s': %s\n",
+      fprintf (stderr, _("%s: error opening shared object file '%s': %s\n"),
                __FUNCTION__, desc->object_file, dlerror());
       return 1;
     }
@@ -305,7 +305,7 @@ plugin_open_plugin (plugin_desc_t * desc,
   dlerr = dlerror();
   if (dlerr)
     {
-      fprintf (stderr, "%s: error finding descriptor symbol in object file '%s': %s\n",
+      fprintf (stderr, _("%s: error finding descriptor symbol in object file '%s': %s\n"),
                __FUNCTION__, desc->object_file, dlerr);
       dlclose (dl_handle);
       return 1;
@@ -400,7 +400,7 @@ plugin_create_aux_ports (plugin_t * plugin, guint copy, jack_rack_t * jack_rack)
                             0);
       
       if (!holder->aux_ports[i])
-          ui_display_error (jack_rack->ui, E_FATAL, "Could not register jack port '%s'; aborting", port_name);
+          ui_display_error (jack_rack->ui, E_FATAL, _("Could not register jack port '%s'; aborting"), port_name);
     }
   
   g_free (plugin_name);
@@ -578,7 +578,7 @@ plugin_destroy (plugin_t * plugin, ui_t *ui)
                                           plugin->holders[i].aux_ports[j]);
           
               if (err)
-                fprintf (stderr, "%s: could not unregister jack port\n", __FUNCTION__);
+                fprintf (stderr, _("%s: could not unregister jack port\n"), __FUNCTION__);
             }
        
           g_free (plugin->holders[i].aux_ports);
@@ -606,7 +606,7 @@ plugin_destroy (plugin_t * plugin, ui_t *ui)
   err = dlclose (plugin->dl_handle);
   if (err)
     {
-      fprintf (stderr, "%s: error closing shared object '%s': %s\n",
+      fprintf (stderr, _("%s: error closing shared object '%s': %s\n"),
                __FUNCTION__, plugin->desc->object_file, dlerror ());
     }
    

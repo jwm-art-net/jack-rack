@@ -56,7 +56,7 @@ add_cb (GtkMenuItem * menuitem, gpointer user_data)
   desc = g_object_get_data (G_OBJECT(menuitem), "jack-rack-plugin-desc");
   if (!desc)
     {
-      fprintf (stderr, "%s: no plugin description!\n", __FUNCTION__);
+      fprintf (stderr, _("%s: no plugin description!\n"), __FUNCTION__);
       return;
     }
   
@@ -340,7 +340,7 @@ cca_idle (ui_t * ui, cca_client_t * client)
           return 0;
           break;
         default:
-          fprintf (stderr, "Recieved LADCCA event of unknown type %d\n", cca_event_get_type (event));
+          fprintf (stderr, _("Received LADCCA event of unknown type %d\n"), cca_event_get_type (event));
           cca_event_destroy (event);
           break;
         }
@@ -497,7 +497,7 @@ setup_reconnect ( gpointer data )
                                 NULL, GTK_DIALOG_MODAL,
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                 NULL );
-        rcnotice = gtk_label_new("Connecting to JACK server...");
+        rcnotice = gtk_label_new (_("Connecting to JACK server..."));
         gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), rcnotice);
         gtk_container_set_border_width (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 50);
         gtk_widget_set_size_request (GTK_DIALOG(dialog)->vbox, 250, 100); 

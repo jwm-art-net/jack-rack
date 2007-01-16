@@ -72,7 +72,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
                GTK_DIALOG_DESTROY_WITH_PARENT|GTK_DIALOG_MODAL,
                GTK_MESSAGE_WARNING,
                GTK_BUTTONS_YES_NO,
-               "Plugin not RT capable\n\nThe plugin '%s' does not describe itself as being capable of real-time operation.  You may experience drop-outs or jack may even kick us out if you use it.\n\nAre you sure you want to add this plugin?",
+               _("Plugin not RT capable\n\nThe plugin '%s' does not describe itself as being capable of real-time operation.  If you use it, you may experience drop-outs or unexpected disconnection from JACK.\n\nAre you sure you want to add this plugin?"),
                desc->name);
     response = gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
@@ -92,7 +92,7 @@ jack_rack_instantiate_plugin (jack_rack_t * jack_rack, plugin_desc_t * desc)
                GTK_DIALOG_DESTROY_WITH_PARENT,
                GTK_MESSAGE_ERROR,
                GTK_BUTTONS_CLOSE,
-               "Error loading file plugin '%s' from file '%s'",
+               _("Error loading file plugin '%s' from file '%s'"),
                desc->name, desc->object_file);
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);

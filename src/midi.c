@@ -44,18 +44,16 @@ midi_info_connect_alsa (ui_t * ui)
   snd_seq_t * seq;
   int err;
   
-  ui_display_splash_text (ui, "Connecting to ALSA sequencer");
+  ui_display_splash_text (ui, _("Connecting to ALSA sequencer"));
   
   /* connect to the sequencer */
   err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
   if (err)
       ui_display_error (ui, E_FATAL,
-			    "Could not open ALSA sequencer, aborting\n\n%s\n\n"
-                            "Make sure you have configure ALSA properly and that\n"
-                            "/proc/asound/seq/clients exists and contains relevant\n"
-                            "devices.", snd_strerror (err));
+                            _("Could not open ALSA sequencer, aborting:\n\n%s\n\nPlease check that your ALSA configuration is correct."),
+                            snd_strerror (err));
   
-  ui_display_splash_text (ui, "Connected to ALSA sequencer with id %d", snd_seq_client_id (seq));
+  ui_display_splash_text (ui, _("Connected to ALSA sequencer with id %d"), snd_seq_client_id (seq));
 
 
   
@@ -71,7 +69,7 @@ midi_info_connect_alsa (ui_t * ui)
   
   
   
-  ui_display_splash_text (ui, "Creating ALSA sequencer port");
+  ui_display_splash_text (ui, _("Creating ALSA sequencer port"));
   
   /* create a port */
   err = snd_seq_create_simple_port (seq, "Control",
@@ -79,9 +77,9 @@ midi_info_connect_alsa (ui_t * ui)
                                     SND_SEQ_PORT_CAP_SUBS_READ|SND_SEQ_PORT_CAP_SUBS_WRITE,
                                     SND_SEQ_PORT_TYPE_APPLICATION|SND_SEQ_PORT_TYPE_SPECIFIC);
   if (err)
-      ui_display_error (ui, E_FATAL, "Could not create ALSA port, aborting\n\n%s", snd_strerror (err));
+      ui_display_error (ui, E_FATAL, _("Could not create ALSA port, aborting:\n\n%s"), snd_strerror (err));
 
-  ui_display_splash_text (ui, "Created ALSA sequencer port");
+  ui_display_splash_text (ui, _("Created ALSA sequencer port"));
   
   return seq;
 }
@@ -139,7 +137,7 @@ midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data va
   err = snd_seq_event_output (minfo->seq, &event);
   if (err < 0)
     {
-      fprintf (stderr, "%s: error sending midi event: %s\n",
+      fprintf (stderr, _("%s: error sending MIDI event: %s\n"),
                __FUNCTION__, snd_strerror (err));
     }
   
@@ -279,7 +277,7 @@ midi_realise_time (midi_info_t *minfo)
   jack_thread = jack_client_thread_id (minfo->ui->procinfo->jack_client);
   err = pthread_getschedparam (jack_thread, &policy, &rt_param);
   if (err)
-    fprintf (stderr, "%s: could not get scheduling parameters of jack thread: %s\n",
+    fprintf (stderr, _("%s: could not get scheduling parameters of JACK thread: %s\n"),
              __FUNCTION__, strerror (err));
   else
     {
@@ -298,7 +296,7 @@ midi_realise_time (midi_info_t *minfo)
                                                                                                                
   err = pthread_setschedparam (pthread_self (), policy, &rt_param);
   if (err)
-    fprintf (stderr, "%s: could not set SCHED_FIFO for midi thread: %s\n",
+    fprintf (stderr, _("%s: could not set SCHED_FIFO for MIDI thread: %s\n"),
              __FUNCTION__, strerror (errno));
 }
 

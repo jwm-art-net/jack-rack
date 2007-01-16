@@ -82,7 +82,7 @@ void print_help (void) {
   printf(  "  GNOME %s\n", GNOME_VERSION);
 #endif
   printf("\n");
-  printf("Usage: jack-rack [OPTION]...");
+  printf(_("Usage: jack-rack [OPTION]..."));
 #ifdef HAVE_XML
   printf(" [file]\n");
 #else
@@ -191,7 +191,7 @@ int main (int argc, char ** argv) {
         channels = atof (optarg);
         if (channels < 1)
           {
-            fprintf (stderr, _("there must be at least one channel\n"));
+            fprintf (stderr, _("There must be at least one channel\n"));
             exit (EXIT_FAILURE);
           }
         break;
@@ -213,7 +213,7 @@ int main (int argc, char ** argv) {
   {
     if (argc - optind > 1)
     {
-      fprintf ( stderr, "Please specify only one file to open");
+      fprintf (stderr, _("Please specify only one file to open"));
       exit(EXIT_FAILURE);
     }
 

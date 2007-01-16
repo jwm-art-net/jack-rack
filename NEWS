@@ -4,6 +4,7 @@
   some buggy LADSPA plugins clobber it (reported by Raphaël Doursenaud).
 * Always install pixmaps and the application file into the installation
   prefix.
+* Mark many more messages for translation.
 
 
 1.4.5:

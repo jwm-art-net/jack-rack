@@ -85,7 +85,7 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
   dl_handle = dlopen (filename, RTLD_NOW|RTLD_GLOBAL);
   if (!dl_handle)
     {
-      fprintf (stderr, "%s: error opening shared object file '%s': %s\n",
+      fprintf (stderr, _("%s: error opening shared object file '%s': %s\n"),
                __FUNCTION__, filename, dlerror());
       return;
     }
@@ -99,7 +99,7 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
   
   dlerr = dlerror();
   if (dlerr) {
-    fprintf (stderr, "%s: error finding ladspa_descriptor symbol in object file '%s': %s\n",
+    fprintf (stderr, _("%s: error finding ladspa_descriptor symbol in object file '%s': %s\n"),
              __FUNCTION__, filename, dlerr);
     dlclose (dl_handle);
     return;
@@ -130,7 +130,7 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
       
       if (exists)
         {
-          printf ("Plugin %ld exists in both '%s' and '%s'; using version in '%s'\n",
+          printf (_("Plugin %ld exists in both '%s' and '%s'; using version in '%s'\n"),
                   descriptor->UniqueID, other_desc->object_file, filename, other_desc->object_file);
           plugin_index++;
           continue;
@@ -143,13 +143,13 @@ plugin_mgr_get_object_file_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const 
       plugin_mgr->plugin_count++;
       
       /* print in the splash screen */
-      ui_display_splash_text (ui, "Loaded plugin '%s'", desc->name);
+      ui_display_splash_text (ui, _("Loaded plugin '%s'"), desc->name);
     }
   
   err = dlclose (dl_handle);
   if (err)
     {
-      fprintf (stderr, "%s: error closing object file '%s': %s\n",
+      fprintf (stderr, _("%s: error closing object file '%s': %s\n"),
                __FUNCTION__, filename, dlerror ());
     }
 }
@@ -166,8 +166,6 @@ plugin_mgr_get_dir_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * d
   dir_stream = opendir (dir);
   if (!dir_stream)
     {
-/*      fprintf (stderr, "%s: error opening directory '%s': %s\n",
-               __FUNCTION__, dir, strerror (errno)); */
       return;
     }
   
@@ -197,7 +195,7 @@ plugin_mgr_get_dir_plugins (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * d
 
   err = closedir (dir_stream);
   if (err)
-    fprintf (stderr, "%s: error closing directory '%s': %s\n",
+    fprintf (stderr, _("%s: error closing directory '%s': %s\n"),
              __FUNCTION__, dir, strerror (errno));
 }
 
@@ -247,7 +245,7 @@ plugin_mgr_new (ui_t * ui)
   plugin_mgr_get_path_plugins (ui, pm);
   
   if (!pm->all_plugins)
-      ui_display_error (ui, E_FATAL, "No LADSPA plugins were found!\n\nCheck your LADSPA_PATH environment variable.");
+      ui_display_error (ui, E_FATAL, _("No LADSPA plugins were found!\n\nCheck your LADSPA_PATH environment variable."));
   
   pm->all_plugins = g_slist_sort (pm->all_plugins, plugin_mgr_sort);
   
@@ -335,9 +333,9 @@ plugin_mgr_create_menu_item (plugin_desc_t * plugin, GCallback callback, gpointe
   rt_component = plugin->rt ? "" : _(", NOT RT");
   aux_component = plugin->aux_channels == 0
                     ? g_strdup ("")
-                    : g_strdup_printf (", %ld aux %s",
+                    : g_strdup_printf (_(", %ld aux %s"),
                                        plugin->aux_channels,
-                                       plugin->aux_are_input ? "in" : "out");
+                                       plugin->aux_are_input ? _("in") : _("out"));
                   
   
   str = g_strdup_printf ("%s (%s, %ld %s%s%s)",
@@ -541,7 +539,7 @@ plugin_mgr_get_menu (plugin_mgr_t * plugin_mgr,
     return main_menu;
 
   /* add the alphabet menu to the bottom of the lrdf menu */
-  menu_item = gtk_menu_item_new_with_label ("Uncategorised");
+  menu_item = gtk_menu_item_new_with_label (_("Uncategorised"));
   gtk_widget_show (menu_item);
   gtk_menu_shell_append (GTK_MENU_SHELL (main_menu), menu_item);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), alphabet_menu);
@@ -609,12 +607,12 @@ plugin_mgr_get_dir_uris (ui_t * ui, plugin_mgr_t * plugin_mgr, const char * dir)
       plugin_mgr->lrdf_uris = g_slist_append (plugin_mgr->lrdf_uris, file_name);
 
       
-      ui_display_splash_text (ui, "Found LRDF description file '%s'", file_name);
+      ui_display_splash_text (ui, _("Found LRDF description file '%s'"), file_name);
     }
   
   err = closedir (dir_stream);
   if (err)
-    fprintf (stderr, "%s: error closing directory '%s': %s\n",
+    fprintf (stderr, _("%s: error closing directory '%s': %s\n"),
              __FUNCTION__, dir, strerror (errno));
 }
 
@@ -649,7 +647,7 @@ plugin_mgr_init_lrdf (ui_t * ui, plugin_mgr_t * plugin_mgr)
     {
       err = lrdf_read_file ((const char *) list->data);
       if (err)
-        fprintf (stderr, "%s: could not parse lrdf file '%s'\n", __FUNCTION__, (const char *) list->data);
+        fprintf (stderr, _("%s: could not parse LRDF file '%s'\n"), __FUNCTION__, (const char *) list->data);
     }
 }
 
