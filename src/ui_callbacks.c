@@ -257,10 +257,7 @@ about_cb (GtkWidget * widget, gpointer user_data)
   gtk_show_about_dialog (NULL,
                          "authors", authors,
                          "comments", _("A LADSPA effects rack for the JACK audio API"),
-                         "copyright",
-                           "Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>\n"
-                           "Copyright (C) 2005, 2006 Leslie P. Polzer <leslie.polzer@gmx.net>\n"
-                           "Copyright (C) 2006 Adam Sampson <ats@offog.org>",
+                         "copyright", COPYRIGHT_MESSAGE,
                          "logo", logo,
                          "name", PACKAGE_NAME,
                          "translator-credits", _("__TRANSLATOR_CREDITS"),

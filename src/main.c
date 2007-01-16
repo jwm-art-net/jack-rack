@@ -61,7 +61,7 @@ cca_client_t * global_cca_client;
 
 void print_help (void) {
   printf("%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-  printf("Copyright (C) 2002, 2003 Robert Ham (node@users.sourceforge.net)\n");
+  printf("%s\n", COPYRIGHT_MESSAGE);
   printf("\n");
   printf("This program comes with ABSOLUTELY NO WARRANTY.  You are licensed to use it\n");
   printf("under the terms of the GNU General Public License, version 2 or later.  See\n");

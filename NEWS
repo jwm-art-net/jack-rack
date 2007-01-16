@@ -5,6 +5,7 @@
 * Always install pixmaps and the application file into the installation
   prefix.
 * Mark many more messages for translation.
+* Put the user-visible copyright messages in a central place.
 
 
 1.4.5:

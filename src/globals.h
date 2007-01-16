@@ -95,5 +95,10 @@ extern gboolean   time_runs;
 extern GString    *client_name;
 extern GString    *initial_filename;
 
+#define COPYRIGHT_MESSAGE \
+	"Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>\n" \
+	"Copyright (C) 2005, 2006 Leslie P. Polzer <leslie.polzer@gmx.net>\n" \
+	"Copyright (C) 2006, 2007 Adam Sampson <ats@offog.org>"
+
 #endif /* __JLH_GLOBALS_H__ */
 
