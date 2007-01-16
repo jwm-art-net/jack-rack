@@ -275,36 +275,6 @@ AM_CONDITIONAL(HAVE_LRDF, test "$LRDF_FOUND" = "yes")
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.14.5])
 
-#######################
-### desktop install ###
-#######################
-jr_desktop_install="/usr/share"
-AC_ARG_ENABLE(desktop-inst,
-[  --disable-desktop-inst  don't install pixmap and .desktop to /usr/share],[
-  case "$enableval" in
-    "yes")
-      ;;
-    "no")
-      jr_desktop_install="no"
-      ;;
-    *)
-      AC_MSG_ERROR([must use --enable-desktop-inst(=yes/no) or --disable-desktop-inst])
-      ;;
-  esac
-])
-
-if test "x$jr_desktop_install" = xno; then
-  if test "x$prefix" != xNONE; then
-    JR_DESKTOP_PREFIX="$( eval echo $datadir )"
-  else
-    JR_DESKTOP_PREFIX="/usr/local/share"
-  fi
-else
-  JR_DESKTOP_PREFIX="$jr_desktop_install"
-fi
-AC_DEFINE_UNQUOTED(JR_DESKTOP_PREFIX, "$JR_DESKTOP_PREFIX", [Where files for desktop integration will be installed])
-AC_SUBST(JR_DESKTOP_PREFIX)
-
 
 AC_OUTPUT([ po/Makefile.in
 Makefile
@@ -324,6 +294,5 @@ AC_MSG_RESULT([
   GNOME 2 support:         $GNOME_FOUND
   
   Installation prefix:     $prefix
-  Desktop files prefix:    $JR_DESKTOP_PREFIX
 
 ])

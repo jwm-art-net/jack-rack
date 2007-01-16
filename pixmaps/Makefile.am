@@ -5,7 +5,7 @@ pkgdata_DATA = \
 	jack-rack-logo.png \
 	gnome-mixer-small.png
 
-pixmapdir = $(JR_DESKTOP_PREFIX)/pixmaps
+pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = \
 	jack-rack-icon.png
 

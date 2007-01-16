@@ -7,7 +7,7 @@ EXTRA_DIST = config.rpath mkinstalldirs \
 	jack-rack.desktop
 
 
-desktopdir = $(JR_DESKTOP_PREFIX)/applications
+desktopdir = $(datadir)/applications
 
 desktop_DATA = jack-rack.desktop
 

@@ -184,13 +184,12 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
 static void
 ui_set_default_window_icon (void)
 {
-  gchar * icon_file;
+  const char * icon_file = PIXMAPDIR "/" JACK_RACK_ICON_FILE;
   GError * icon_error = NULL;
   GList * icons = NULL;
   GdkPixbuf * icon;
 
   /* set the icons */
-  icon_file = g_strdup_printf ("%s/pixmaps/%s", JR_DESKTOP_PREFIX, JACK_RACK_ICON_FILE);
   icon = gdk_pixbuf_new_from_file (icon_file, &icon_error);
   if (icon_error)
     {
@@ -198,7 +197,6 @@ ui_set_default_window_icon (void)
                __FUNCTION__, icon_file, icon_error->message);
       g_error_free (icon_error);
     }
-  g_free (icon_file);
   
   icons = g_list_append (icons, icon);
 
