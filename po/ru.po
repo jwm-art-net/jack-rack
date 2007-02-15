@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-16 06:00+0000\n"
+"POT-Creation-Date: 2007-02-15 02:25+0000\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -196,9 +196,13 @@ msgstr "Блокировать"
 msgid "On"
 msgstr "Вкл"
 
-#: src/midi_control.c:234
+#: src/midi_control.c:254
 msgid "Wet/dry"
 msgstr "Wet/dry"
+
+#: src/midi_control.c:259 src/plugin_slot.c:381
+msgid "Enable"
+msgstr "Разрешить"
 
 #: src/ui_callbacks.c:59
 #, c-format
@@ -232,51 +236,51 @@ msgstr "Выберите файл"
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
 
-#: src/ui_callbacks.c:266
+#: src/ui_callbacks.c:263
 msgid "__TRANSLATOR_CREDITS"
 msgstr ""
 
-#: src/ui_callbacks.c:336
+#: src/ui_callbacks.c:333
 #, c-format
 msgid "LADCCA server disconnected\n"
 msgstr "Разорвано соединение с LADCCA-сервером\n"
 
-#: src/ui_callbacks.c:343
+#: src/ui_callbacks.c:340
 #, c-format
 msgid "Received LADCCA event of unknown type %d\n"
 msgstr ""
 
-#: src/ui_callbacks.c:496
+#: src/ui_callbacks.c:499
 #, fuzzy
 msgid "Connecting to JACK..."
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/ui_callbacks.c:500
+#: src/ui_callbacks.c:503
 #, fuzzy
 msgid "Connecting to JACK server..."
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/file.c:176
+#: src/file.c:191
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Не·удалось·сохранить·файл·'%s'"
 
-#: src/file.c:212
+#: src/file.c:227
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr "Файл·'%s' содержит·неизвестный·модуль·с·ID '%ld'·и·будет·пропущен"
 
-#: src/file.c:421
+#: src/file.c:440
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: src/file.c:427
+#: src/file.c:446
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "'%s' не·является·файлом·настроек JACK Rack"
 
-#: src/file.c:441
+#: src/file.c:460
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -289,10 +293,6 @@ msgstr ""
 #: src/plugin_slot.c:269
 msgid "Lock All"
 msgstr "Блокировать·все"
-
-#: src/plugin_slot.c:381
-msgid "Enable"
-msgstr "Разрешить"
 
 #: src/plugin_slot.c:392
 msgid "Wet/Dry"
@@ -400,12 +400,12 @@ msgstr "Создан порт для ALSA sequencer"
 msgid "%s: error sending MIDI event: %s\n"
 msgstr ""
 
-#: src/midi.c:280
+#: src/midi.c:330
 #, c-format
 msgid "%s: could not get scheduling parameters of JACK thread: %s\n"
 msgstr ""
 
-#: src/midi.c:299
+#: src/midi.c:349
 #, c-format
 msgid "%s: could not set SCHED_FIFO for MIDI thread: %s\n"
 msgstr ""
