@@ -95,6 +95,13 @@ extern gboolean   time_runs;
 extern GString    *client_name;
 extern GString    *initial_filename;
 
+typedef enum MIDI_CONTROL_TYPE 
+{
+   LADSPA_CONTROL,
+   WET_DRY_CONTROL,
+   PLUGIN_ENABLE_CONTROL
+} midi_control_type_t;
+
 #define COPYRIGHT_MESSAGE \
 	"Copyright (C) 2002, 2003 Robert Ham <node@users.sourceforge.net>\n" \
 	"Copyright (C) 2005, 2006 Leslie P. Polzer <leslie.polzer@gmx.net>\n" \

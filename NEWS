@@ -6,6 +6,8 @@
   prefix.
 * Mark many more messages for translation.
 * Put the user-visible copyright messages in a central place.
+* Allow effects to be toggled on and off by MIDI (patch from Scott
+  Davidson).
 
 
 1.4.5:

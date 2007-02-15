@@ -87,6 +87,8 @@ control_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer us
       
       ui = port_controls->plugin_slot->jack_rack->ui;
       
+      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-ctrl-type",
+			 GINT_TO_POINTER(0/*LADSPA_CONTROL*/));
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control",
 			 GINT_TO_POINTER (TRUE));
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-controls", port_controls);
@@ -113,9 +115,9 @@ wet_dry_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer us
       
       wet_dry = (wet_dry_controls_t *) user_data;
       ui = wet_dry->plugin_slot->jack_rack->ui;
-      
-      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-port-control",
-			 GINT_TO_POINTER (FALSE));
+
+      g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-ctrl-type",
+			 GINT_TO_POINTER(1/*WET_DRY_CONTROL*/));      
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-wet-dry", wet_dry);
       g_object_set_data (G_OBJECT (ui->midi_menu_item), "jack-rack-wet-dry-channel",
                          g_object_get_data (G_OBJECT(widget), "jack-rack-wet-dry-channel"));
@@ -130,45 +132,75 @@ wet_dry_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer us
 void
 control_add_midi_cb (GtkMenuItem * menuitem, gpointer user_data)
 {
-  gboolean port_control;
   plugin_slot_t * plugin_slot;
   midi_control_t * midi_ctrl;
+  midi_control_type_t ctrl_type = 
+    GPOINTER_TO_INT(g_object_get_data (G_OBJECT(menuitem), 
+				       "jack-rack-ctrl-type"));
   
-  port_control = GPOINTER_TO_INT (g_object_get_data (G_OBJECT(menuitem), "jack-rack-port-control"));
+  switch(ctrl_type)
+    {
+    case LADSPA_CONTROL:
+      {
+	    gboolean port_control = 
+	    GPOINTER_TO_INT (g_object_get_data (G_OBJECT(menuitem), 
+					      "jack-rack-port-control"));
   
-  if (port_control)
-    {
-      port_controls_t * port_controls;
-      guint copy;
-      
-      port_controls = g_object_get_data (G_OBJECT(menuitem), "jack-rack-port-controls");
-      copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem), "jack-rack-plugin-copy"));
-      plugin_slot = port_controls->plugin_slot;
-      
-      midi_ctrl = ladspa_midi_control_new (plugin_slot, copy, port_controls->control_index);
-      midi_control_set_midi_channel (midi_ctrl, 1);
-      midi_control_set_midi_param (midi_ctrl,
-        jack_rack_get_next_midi_param (plugin_slot->jack_rack, 1));
-      
-      plugin_slot_add_midi_control (plugin_slot, midi_ctrl);
-    }
-  else
-    {
-      wet_dry_controls_t * wet_dry;
-      unsigned long channel;
-      
-      wet_dry = g_object_get_data (G_OBJECT(menuitem), "jack-rack-wet-dry");
-      channel = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem),
-						     "jack-rack-wet-dry-channel"));
-      plugin_slot = wet_dry->plugin_slot;
-      
-      midi_ctrl = wet_dry_midi_control_new (plugin_slot, channel);
-      midi_control_set_midi_channel (midi_ctrl, 1);
-      midi_control_set_midi_param (midi_ctrl,
-        jack_rack_get_next_midi_param (plugin_slot->jack_rack, 1));
-      
-      plugin_slot_add_midi_control (plugin_slot, midi_ctrl);
-    }
+	    if (port_control)
+	      {
+	         port_controls_t * port_controls;
+	         guint copy;
+	    
+	         port_controls = g_object_get_data (G_OBJECT(menuitem), 
+					       "jack-rack-port-controls");
+	         copy = 
+	              GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem), 
+						   "jack-rack-plugin-copy"));
+	         plugin_slot = port_controls->plugin_slot;
+	    
+	         midi_ctrl = 
+	             ladspa_midi_control_new (plugin_slot, copy, 
+				       port_controls->control_index);
+	         midi_control_set_midi_channel (midi_ctrl, 1);
+	         midi_control_set_midi_param (midi_ctrl,
+		     jack_rack_get_next_midi_param (plugin_slot->jack_rack, 1));
+	    
+	         plugin_slot_add_midi_control (plugin_slot, midi_ctrl);
+	      }
+	    break;
+      }     
+    case WET_DRY_CONTROL:
+      {
+	    wet_dry_controls_t * wet_dry;
+ 	    unsigned long channel;
+	
+	    wet_dry = g_object_get_data (G_OBJECT(menuitem), 
+				     "jack-rack-wet-dry");
+	    channel = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(menuitem),
+					       "jack-rack-wet-dry-channel"));
+	    plugin_slot = wet_dry->plugin_slot;
+	
+	    midi_ctrl = wet_dry_midi_control_new (plugin_slot, channel);
+	    midi_control_set_midi_channel (midi_ctrl, 1);
+	    midi_control_set_midi_param (midi_ctrl,
+	    jack_rack_get_next_midi_param (plugin_slot->jack_rack, 1));
+	
+	    plugin_slot_add_midi_control (plugin_slot, midi_ctrl);
+	
+	    break;
+      }
+    case PLUGIN_ENABLE_CONTROL:
+      {
+	    plugin_slot = 
+	        g_object_get_data (G_OBJECT(menuitem), "jack-rack-plugin-slot");
+
+	    midi_ctrl = toggle_midi_control_new(plugin_slot);
+
+	    plugin_slot_add_midi_control (plugin_slot, midi_ctrl);
+	
+	    break;
+      }
+      }
 }
 #endif /* HAVE_ALSA */
 

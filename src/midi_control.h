@@ -30,6 +30,7 @@
 #include <pthread.h>
 
 #include "lock_free_fifo.h"
+#include "globals.h"
 
 typedef struct _midi_control midi_control_t;
 
@@ -52,7 +53,9 @@ struct _midi_control
   lff_t               *fifos;
 
   struct _plugin_slot *plugin_slot;
-  gboolean            ladspa_control;
+  
+  midi_control_type_t ctrl_type;
+
   union
   {
     struct
@@ -73,6 +76,8 @@ midi_control_t *ladspa_midi_control_new (struct _plugin_slot * plugin_slot,
                                          guint copy, unsigned long control);
 midi_control_t *wet_dry_midi_control_new (struct _plugin_slot * plugin_slot,
                                           unsigned long channel);
+midi_control_t *toggle_midi_control_new (struct _plugin_slot * plugin_slot);
+
 void            midi_control_destroy (midi_control_t * midi_ctrl);
 
 void midi_control_set_midi_channel (midi_control_t * midi_ctrl, unsigned char channel);

@@ -396,7 +396,6 @@ ui_set_wet_dry_value (ui_t *ui, midi_control_t *midi_control, LADSPA_Data value)
   plugin_slot_set_wet_dry_controls (midi_control->plugin_slot, TRUE);
 }
 
-
 static void
 midi_idle (ui_t * ui)
 {
@@ -418,11 +417,18 @@ midi_idle (ui_t * ui)
           midi_control_destroy (ctrlmsg.data.midi.midi_control);
           break;
         case CTRLMSG_MIDI_CTRL:
-          if (ctrlmsg.data.midi.midi_control->ladspa_control)
-            ui_set_port_value (ui, ctrlmsg.data.midi.midi_control, ctrlmsg.data.midi.value);
-          else
-            ui_set_wet_dry_value (ui, ctrlmsg.data.midi.midi_control, ctrlmsg.data.midi.value);
+          if (ctrlmsg.data.midi.midi_control->ctrl_type == LADSPA_CONTROL)
+            ui_set_port_value (ui, ctrlmsg.data.midi.midi_control, 
+			       ctrlmsg.data.midi.value);
+          else if(ctrlmsg.data.midi.midi_control->ctrl_type == WET_DRY_CONTROL)
+            ui_set_wet_dry_value (ui, ctrlmsg.data.midi.midi_control, 
+				  ctrlmsg.data.midi.value);
           break;
+	    case CTRLMSG_MIDI_ABLE:
+	      gtk_toggle_button_set_active (
+		          GTK_TOGGLE_BUTTON(ctrlmsg.data.ablise.plugin_slot->enable),
+		          ctrlmsg.data.ablise.enable);
+	      break; 
         default:
           break;
         }

@@ -454,20 +454,30 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, saved_plugin_t 
 #ifdef HAVE_ALSA
     GSList *list;
     midi_control_t *midi_ctrl;
-    midi_control_t *new_midi_ctrl;
+    midi_control_t *new_midi_ctrl = NULL;
     
     for (list = saved_plugin->midi_controls; list; list = g_slist_next (list))
       {
         midi_ctrl = list->data;
         
-        if (midi_ctrl->ladspa_control)
-          new_midi_ctrl =
-            ladspa_midi_control_new (plugin_slot,
-                                     midi_ctrl->control.ladspa.copy,
-                                     midi_ctrl->control.ladspa.control);
-        else
-          new_midi_ctrl =
-            wet_dry_midi_control_new (plugin_slot, midi_ctrl->control.wet_dry.channel);
+	switch(midi_ctrl->ctrl_type)
+	  {
+	  case LADSPA_CONTROL:
+	    new_midi_ctrl =
+	      ladspa_midi_control_new (plugin_slot,
+				       midi_ctrl->control.ladspa.copy,
+				       midi_ctrl->control.ladspa.control);
+	    break;
+	  case WET_DRY_CONTROL:
+	    new_midi_ctrl =
+	      wet_dry_midi_control_new (plugin_slot, 
+					midi_ctrl->control.wet_dry.channel);
+	    break;
+	  case PLUGIN_ENABLE_CONTROL:
+	    new_midi_ctrl =
+	      toggle_midi_control_new (plugin_slot);
+	    break;
+	  }
         
         midi_control_set_midi_channel (new_midi_ctrl, midi_ctrl->midi_channel);
         midi_control_set_midi_param   (new_midi_ctrl, midi_ctrl->midi_param);
@@ -607,7 +617,7 @@ plugin_slot_set_wet_dry_locked (plugin_slot_t *plugin_slot, gboolean locked)
     {
       midi_ctrl = (midi_control_t *) list->data;
       
-      if (!midi_ctrl->ladspa_control)
+      if (midi_ctrl->ctrl_type == WET_DRY_CONTROL)
         midi_control_set_locked (midi_ctrl, locked);
     }
 #endif
@@ -638,9 +648,11 @@ plugin_slot_set_lock_all (plugin_slot_t *plugin_slot, gboolean lock_all, guint l
     {
       midi_ctrl = (midi_control_t *) list->data;
       
-      if (midi_ctrl->ladspa_control)
-        midi_control_set_locked (midi_ctrl,
-          lock_all ? TRUE : plugin_slot->port_controls[midi_ctrl->control.ladspa.control].locked);
+      if (midi_ctrl->ctrl_type == LADSPA_CONTROL)
+	    {
+	      midi_control_set_locked (midi_ctrl,
+				   lock_all ? TRUE : plugin_slot->port_controls[midi_ctrl->control.ladspa.control].locked);
+	    }
     }
 #endif /* HAVE_ALSA */
   

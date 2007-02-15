@@ -40,7 +40,8 @@ typedef enum _ctrlmsg_type
 #ifdef HAVE_ALSA  
   CTRLMSG_MIDI_ADD,
   CTRLMSG_MIDI_REMOVE,
-  CTRLMSG_MIDI_CTRL
+  CTRLMSG_MIDI_CTRL,
+  CTRLMSG_MIDI_ABLE
 #endif
 
 } ctrlmsg_type_t;

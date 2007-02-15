@@ -130,7 +130,7 @@ midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data va
   snd_seq_ev_set_subs   (&event);
   snd_seq_ev_set_source (&event, 0);
   snd_seq_ev_set_controller (&event,
-                             midi_control_get_midi_channel (midi_ctrl) - 1,
+                             midi_control_get_midi_channel (midi_ctrl),
                              midi_control_get_midi_param (midi_ctrl),
                              midi_value);
 
@@ -165,6 +165,7 @@ midi_process_ctrlmsgs (midi_info_t *minfo)
           lff_write (minfo->midi_to_ui, &ctrlmsg);
           break;
         case CTRLMSG_MIDI_CTRL:
+	    case CTRLMSG_MIDI_ABLE:
           midi_send_control (minfo, ctrlmsg.data.midi.midi_control, ctrlmsg.data.midi.value);
           break;
         case CTRLMSG_QUIT:
@@ -177,47 +178,95 @@ midi_process_ctrlmsgs (midi_info_t *minfo)
 }
 
 static void
-midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event)
+midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event, 
+	      snd_seq_event_type_t type)
 {
   GSList *list;
   midi_control_t *midi_ctrl;
   LADSPA_Data value;
   ctrlmsg_t ctrlmsg;
-  
+
   for (list = minfo->midi_controls; list; list = g_slist_next (list))
     {
       midi_ctrl = (midi_control_t *) list->data;
       
-      if (event->param == midi_control_get_midi_param (midi_ctrl) &&
-          event->channel + 1 == midi_control_get_midi_channel (midi_ctrl))
+      int param = midi_control_get_midi_param (midi_ctrl);
+      int channel = midi_control_get_midi_channel (midi_ctrl);
+      
+      /* Note: this might seem a bit swilly, but it was useful for me to 
+         be able to use program change events to toggle the enabled state.
+         (my midi controller only had 12 controller change triggers, but 120
+         program change triggers...)  Might be useful for others too....
+         Hopefully, not too confusing though. */
+      if ( ( type == SND_SEQ_EVENT_CONTROLLER &&
+	     event->param == param &&
+	     event->channel+1 == channel )  /* control change */
+	   ||
+	     ( type == SND_SEQ_EVENT_PGMCHANGE &&
+	     event->value == param ) )  /* prog change stores our 'param' in 
+	                                   'value'. ignore channel. */
         {
           value = midi_ctrl->min + ((midi_ctrl->max - midi_ctrl->min) / 127.0) * event->value;
-          
+	            
           /* send the value to the process callback */
-          if (!midi_control_get_locked (midi_ctrl))
-            lff_write (midi_ctrl->fifo, &value);
-          else
-            {
-              unsigned long i;
-              unsigned long limit = midi_ctrl->ladspa_control
-                                      ? midi_ctrl->plugin_slot->plugin->desc->control_port_count
-                                      : midi_ctrl->plugin_slot->jack_rack->channels;
-              
-              for (i = 0; i < limit; i++)
-                lff_write (midi_ctrl->fifos + i, &value);
-            }
-          
-	  /* FIXME: need to send to all copies
-	   * number of channels is in minfo->ui->jack_rack->channels
-	   * (midi_control.midi_channel)
-	   */
+	  if(midi_ctrl->ctrl_type != PLUGIN_ENABLE_CONTROL)
+	    {
+	      if (!midi_control_get_locked (midi_ctrl))
+		    lff_write (midi_ctrl->fifo, &value);
+	      else
+		    {
+		      unsigned long i;
+		      unsigned long limit = midi_ctrl->ctrl_type == LADSPA_CONTROL
+		           ? midi_ctrl->plugin_slot->plugin->desc->control_port_count
+		           : midi_ctrl->plugin_slot->jack_rack->channels;
+		  
+		      for (i = 0; i < limit; i++)
+		        lff_write (midi_ctrl->fifos + i, &value);
+		    }
+	    
+	      /* FIXME: need to send to all copies
+	       * number of channels is in minfo->ui->jack_rack->channels
+	       * (midi_control.midi_channel)
+	       */
 
           /* send the value to the ui */
-          ctrlmsg.type = CTRLMSG_MIDI_CTRL;
-          ctrlmsg.data.midi.midi_control = midi_ctrl;
-          ctrlmsg.data.midi.value = value;
-          lff_write (minfo->midi_to_ui, &ctrlmsg);
-        }
+	      ctrlmsg.type = CTRLMSG_MIDI_CTRL;
+	      ctrlmsg.data.midi.midi_control = midi_ctrl;
+	      ctrlmsg.data.midi.value = value;
+	      lff_write (minfo->midi_to_ui, &ctrlmsg);
+	    }
+	  else 
+	    {
+	      /* This is an 'Enable' midi message */
+	      plugin_t * plugin;
+	      
+	      /* TODO: add fifo */
+	      plugin = midi_ctrl->plugin_slot->plugin;
+	      
+	      /* For control change, off = 0, on = 127.
+	         For prog change, just flip the state */
+	      if(type == SND_SEQ_EVENT_CONTROLLER)
+		    {
+		      if(event->value == 0)
+		        plugin->enabled = FALSE;
+		      else if(event->value == 127)
+		        plugin->enabled = TRUE;
+		      else
+		        return;
+		    }
+	      else if(type == SND_SEQ_EVENT_PGMCHANGE)
+		    {
+		      gboolean wasEnabled = plugin->enabled;	      
+		      plugin->enabled = !wasEnabled;
+		    }
+
+	      ctrlmsg.type =  CTRLMSG_MIDI_ABLE;
+	      ctrlmsg.data.ablise.plugin = plugin;
+	      ctrlmsg.data.ablise.enable = plugin->enabled;
+	      ctrlmsg.data.ablise.plugin_slot = midi_ctrl->plugin_slot;
+	      lff_write (minfo->midi_to_ui, &ctrlmsg);	      
+	    }
+    }
     }
 }
 
@@ -231,12 +280,13 @@ midi_get_events (midi_info_t *minfo)
   snd_seq_event_t *event;
   
   do
-    {
+    { 
       snd_seq_event_input (minfo->seq, &event);
       switch (event->type)
         {
         case SND_SEQ_EVENT_CONTROLLER:
-          midi_control (minfo, &event->data.control);
+	    case SND_SEQ_EVENT_PGMCHANGE: 
+          midi_control (minfo, &event->data.control, event->type);
           break;
         default:
           break;

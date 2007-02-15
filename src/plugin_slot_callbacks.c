@@ -83,17 +83,44 @@ slot_remove_cb (GtkButton * button, gpointer user_data)
 gboolean
 slot_ablise_cb (GtkWidget * button, GdkEventButton *event, gpointer user_data)
 {
-  if (event->type == GDK_BUTTON_PRESS) {
-    plugin_slot_t * plugin_slot; 
-    gboolean ablise;
-  
-    plugin_slot = (plugin_slot_t *) user_data;
-    ablise = settings_get_enabled (plugin_slot->settings) ? FALSE : TRUE;
-  
-    plugin_slot_send_ablise (plugin_slot, ablise);
-  
-    return TRUE;
-  }
+  if (event->type == GDK_BUTTON_PRESS)
+    {
+      switch (event->button)
+	    {
+	  case 1:
+	    {
+	      plugin_slot_t * plugin_slot; 
+	      gboolean ablise;
+
+          plugin_slot = (plugin_slot_t *) user_data;
+	      ablise = settings_get_enabled (plugin_slot->settings) ? FALSE : TRUE;
+	    
+	      plugin_slot_send_ablise (plugin_slot, ablise);
+	    
+	      return TRUE;
+	    }
+	  case 3:
+	    {
+	      ui_t * ui;
+	    
+	      plugin_slot_t * plugin_slot; 
+	    
+	      plugin_slot = (plugin_slot_t *) user_data;
+	    
+	      ui = plugin_slot->jack_rack->ui;
+	    
+	      g_object_set_data (G_OBJECT (ui->midi_menu_item), 
+			       "jack-rack-ctrl-type",
+			       GINT_TO_POINTER(2/*PLUGIN_ENABLE_CONTROL*/)); 
+	      g_object_set_data (G_OBJECT (ui->midi_menu_item), 
+			       "jack-rack-plugin-slot",
+			       plugin_slot);
+	      gtk_menu_popup (GTK_MENU (ui->midi_menu), NULL, NULL, NULL, NULL, event->button, event->time);
+	    
+	      return TRUE;
+	    }
+      }
+    }
   
   return FALSE;
 }

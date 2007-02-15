@@ -131,30 +131,45 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
           sprintf (num, "%d", midi_control_get_midi_param (midi_ctrl));
           xmlNewChild (midi_control, NULL, "midi_param", num);
           
-          if (midi_ctrl->ladspa_control)
+          switch(midi_ctrl->ctrl_type)
             {
-              xmlNodePtr ladspa;
-              
-              ladspa = xmlNewChild (midi_control, NULL, "ladspa", NULL);
-              
-              /* copy */
-              sprintf (num, "%d", midi_ctrl->control.ladspa.copy);
-              xmlNewChild (ladspa, NULL, "copy", num);
+	      case LADSPA_CONTROL:
+	        {
+		      xmlNodePtr ladspa;
+		
+		      ladspa = xmlNewChild (midi_control, NULL, "ladspa", NULL);
+		
+		      /* copy */
+		      sprintf (num, "%d", midi_ctrl->control.ladspa.copy);
+		      xmlNewChild (ladspa, NULL, "copy", num);
+		
+		      /* control */
+		      sprintf (num, "%ld", midi_ctrl->control.ladspa.control);
+		      xmlNewChild (ladspa, NULL, "control", num);
+		
+		      break;
+	        }
+	      case WET_DRY_CONTROL:
+	        {
+		      xmlNodePtr wet_dry;
+		
+		      wet_dry = xmlNewChild (midi_control, NULL, "wet_dry", NULL);
+		
+		      /* channel */
+		      sprintf (num, "%ld", midi_ctrl->control.wet_dry.channel);
+		      xmlNewChild (wet_dry, NULL, "channel", num);
 
-              /* control */
-              sprintf (num, "%ld", midi_ctrl->control.ladspa.control);
-              xmlNewChild (ladspa, NULL, "control", num);
-            }
-          else
-            {
-              xmlNodePtr wet_dry;
-              
-              wet_dry = xmlNewChild (midi_control, NULL, "wet_dry", NULL);
-              
-              /* channel */
-              sprintf (num, "%ld", midi_ctrl->control.wet_dry.channel);
-              xmlNewChild (wet_dry, NULL, "channel", num);
-            }
+		      break;
+	        }
+	      case PLUGIN_ENABLE_CONTROL:
+	        {		
+		      xmlNodePtr enable;
+		
+		      enable = xmlNewChild (midi_control, NULL, "enable", NULL);
+		
+		      break;
+	        }
+	        }
         }
 #endif /* HAVE_ALSA */
 
@@ -302,7 +317,7 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
                 }
               else if (strcmp (sub_node->name, "ladspa") == 0)
                 {
-                  midi_ctrl->ladspa_control = TRUE;
+		          midi_ctrl->ctrl_type = LADSPA_CONTROL;
                   for (control_node = sub_node->children;
                        control_node;
                        control_node = control_node->next)
@@ -323,7 +338,7 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
                 }
               else if (strcmp (sub_node->name, "wet_dry") == 0)
                 {
-                  midi_ctrl->ladspa_control = FALSE;
+                  midi_ctrl->ctrl_type = WET_DRY_CONTROL;
                   for (control_node = sub_node->children;
                        control_node;
                        control_node = control_node->next)
@@ -336,7 +351,11 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
                         }
                     }
                 }
-            }
+	         else if (strcmp (sub_node->name, "enable") == 0)
+		       {
+		         midi_ctrl->ctrl_type = PLUGIN_ENABLE_CONTROL;
+		       }
+           }
           
           saved_plugin->midi_controls =
             g_slist_append (saved_plugin->midi_controls, midi_ctrl);

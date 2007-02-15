@@ -395,7 +395,7 @@ port_control_set_locked (port_controls_t *port_controls, gboolean locked)
     {
       midi_ctrl = (midi_control_t *) list->data;
       
-      if (midi_ctrl->ladspa_control &&
+      if (midi_ctrl->ctrl_type == LADSPA_CONTROL &&
           midi_ctrl->control.ladspa.control == port_controls->control_index)
         midi_control_set_locked (midi_ctrl, locked);
     }
@@ -487,7 +487,7 @@ port_control_send_midi_value (port_controls_t *port_controls, guint copy, LADSPA
     {
       midi_ctrl = list->data;
       
-      if (midi_ctrl->ladspa_control &&
+      if (midi_ctrl->ctrl_type == LADSPA_CONTROL &&
           midi_ctrl->control.ladspa.control == port_controls->control_index &&
           midi_ctrl->control.ladspa.copy == copy)
         {

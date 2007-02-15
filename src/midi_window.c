@@ -213,14 +213,25 @@ midi_window_add_control (midi_window_t *mwin, midi_control_t *midi_ctrl)
   GtkTreeIter iter;
   
   gtk_list_store_append (mwin->controls, &iter);
+
+  int index = 1;
+  switch(midi_ctrl->ctrl_type)
+    {
+    case LADSPA_CONTROL:
+      index = midi_ctrl->control.ladspa.copy;
+      break;
+    case WET_DRY_CONTROL:
+      index = midi_ctrl->control.wet_dry.channel + 1;
+      break;
+    case PLUGIN_ENABLE_CONTROL:
+      break;
+    }
   
   gtk_list_store_set (
     mwin->controls, &iter,
     PLUGIN_COLUMN, midi_ctrl->plugin_slot->plugin->desc->name,
     CONTROL_COLUMN, midi_control_get_control_name (midi_ctrl),
-    INDEX_COLUMN, (midi_ctrl->ladspa_control
-                    ? midi_ctrl->control.ladspa.copy
-                    : midi_ctrl->control.wet_dry.channel) + 1,
+    INDEX_COLUMN, index,
     CHANNEL_COLUMN, midi_control_get_midi_channel (midi_ctrl),
     PARAM_COLUMN, midi_control_get_midi_param (midi_ctrl),
     MIDI_CONTROL_POINTER, midi_ctrl,

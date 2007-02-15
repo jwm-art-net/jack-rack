@@ -56,7 +56,7 @@ ladspa_midi_control_new (plugin_slot_t * plugin_slot, guint copy, unsigned long 
   
   midi_ctrl->fifo = plugin_slot->plugin->holders[copy].midi_control_fifos + control;
   midi_ctrl->fifos = plugin_slot->plugin->holders[copy].midi_control_fifos;
-  midi_ctrl->ladspa_control         = TRUE;
+  midi_ctrl->ctrl_type         = LADSPA_CONTROL;
   midi_ctrl->control.ladspa.control = control;
   midi_ctrl->control.ladspa.copy    = copy;
   
@@ -100,9 +100,24 @@ wet_dry_midi_control_new (struct _plugin_slot * plugin_slot, unsigned long chann
   
   midi_ctrl->fifo = plugin_slot->plugin->wet_dry_midi_fifos + channel;
   midi_ctrl->fifos = plugin_slot->plugin->wet_dry_midi_fifos;
-  midi_ctrl->ladspa_control          = FALSE;
+  midi_ctrl->ctrl_type          = WET_DRY_CONTROL;
   midi_ctrl->control.wet_dry.channel = channel;
   
+  midi_ctrl->min = 0.0;
+  midi_ctrl->max = 1.0;
+  
+  return midi_ctrl;
+}
+
+midi_control_t *
+toggle_midi_control_new (struct _plugin_slot * plugin_slot)
+{
+  midi_control_t *midi_ctrl;
+  
+  midi_ctrl = midi_control_new (plugin_slot);
+  
+  midi_ctrl->ctrl_type          = PLUGIN_ENABLE_CONTROL;
+   
   midi_ctrl->min = 0.0;
   midi_ctrl->max = 1.0;
   
@@ -181,7 +196,7 @@ midi_control_get_locked      (midi_control_t * midi_ctrl)
 unsigned long
 midi_control_get_wet_dry_channel (midi_control_t * midi_ctrl)
 {
-  g_assert (!midi_ctrl->ladspa_control);
+  g_assert (midi_ctrl->ctrl_type == WET_DRY_CONTROL);
   
   return midi_ctrl->control.wet_dry.channel;
 }
@@ -189,7 +204,7 @@ midi_control_get_wet_dry_channel (midi_control_t * midi_ctrl)
 unsigned long
 midi_control_get_ladspa_control  (midi_control_t * midi_ctrl)
 {
-  g_assert (midi_ctrl->ladspa_control);
+  g_assert (midi_ctrl->ctrl_type == LADSPA_CONTROL);
   
   return midi_ctrl->control.ladspa.control;
 }
@@ -197,7 +212,7 @@ midi_control_get_ladspa_control  (midi_control_t * midi_ctrl)
 guint
 midi_control_get_ladspa_copy     (midi_control_t * midi_ctrl)
 {
-  g_assert (midi_ctrl->ladspa_control);
+  g_assert (midi_ctrl->ctrl_type == LADSPA_CONTROL);
   
   return midi_ctrl->control.ladspa.copy;
 }
@@ -210,28 +225,41 @@ midi_control_get_control_name    (midi_control_t * midi_ctrl)
   if (!str)
     str = g_string_new ("");
   
-  if (midi_ctrl->ladspa_control)
+  switch(midi_ctrl->ctrl_type)
     {
-      char *control;
-      char *ptr;
-      control = g_strdup (midi_ctrl->plugin_slot->plugin->desc->
+    case LADSPA_CONTROL:
+      {
+        char *control;
+        char *ptr;
+        control = g_strdup (midi_ctrl->plugin_slot->plugin->desc->
                             port_names[midi_ctrl->plugin_slot->plugin->desc->
-                              control_port_indicies[midi_ctrl->control.ladspa.control]]);
-      
-      ptr = strchr (control, '(');
-      if (ptr)
-        {
-          *ptr = '\0';
-          
-          while (isspace(*(--ptr)))
+                            control_port_indicies[midi_ctrl->control.ladspa.control]]);
+
+        ptr = strchr (control, '(');
+        if (ptr)
+          {
             *ptr = '\0';
-        }
-      
-      g_string_assign (str, control);
-      g_free (control);
+
+            while (isspace(*(--ptr)))
+              *ptr = '\0';
+          }
+
+        g_string_assign (str, control);
+        g_free (control);
+
+        break;
+      }
+    case WET_DRY_CONTROL:
+      {
+        g_string_assign (str, _("Wet/dry"));
+        break;
+      }
+    case PLUGIN_ENABLE_CONTROL:
+      {
+        g_string_assign (str, _("Enable"));
+        break;
+      }
     }
-  else
-    g_string_assign (str, _("Wet/dry"));
   
   return str->str;
 }
