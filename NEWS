@@ -11,6 +11,8 @@
 * Add de_DE translation (patch from Sebastian Arnold).
 * Assign default control values to the correct controls (reported by Tim
   Goetze).
+* Experimental support for 14-bit MIDI control messages (suggested by
+  Florent Berthaut).
 
 
 1.4.5:

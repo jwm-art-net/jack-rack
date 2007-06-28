@@ -198,7 +198,7 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event,
          (my midi controller only had 12 controller change triggers, but 120
          program change triggers...)  Might be useful for others too....
          Hopefully, not too confusing though. */
-      if ( ( type == SND_SEQ_EVENT_CONTROLLER &&
+      if ( ( (type == SND_SEQ_EVENT_CONTROLLER || type == SND_SEQ_EVENT_CONTROL14) &&
 	     event->param == param &&
 	     event->channel+1 == channel )  /* control change */
 	   ||
@@ -206,7 +206,9 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event,
 	     event->value == param ) )  /* prog change stores our 'param' in 
 	                                   'value'. ignore channel. */
         {
-          value = midi_ctrl->min + ((midi_ctrl->max - midi_ctrl->min) / 127.0) * event->value;
+          int value_max = (type == SND_SEQ_EVENT_CONTROLLER) ? 127 : 16383;
+
+          value = midi_ctrl->min + ((midi_ctrl->max - midi_ctrl->min) / ((LADSPA_Data) value_max)) * event->value;
 	            
           /* send the value to the process callback */
 	  if(midi_ctrl->ctrl_type != PLUGIN_ENABLE_CONTROL)
@@ -243,13 +245,13 @@ midi_control (midi_info_t *minfo, snd_seq_ev_ctrl_t *event,
 	      /* TODO: add fifo */
 	      plugin = midi_ctrl->plugin_slot->plugin;
 	      
-	      /* For control change, off = 0, on = 127.
+	      /* For control change, off = 0, on = value_max.
 	         For prog change, just flip the state */
-	      if(type == SND_SEQ_EVENT_CONTROLLER)
+	      if(type == SND_SEQ_EVENT_CONTROLLER || type == SND_SEQ_EVENT_CONTROL14)
 		    {
 		      if(event->value == 0)
 		        plugin->enabled = FALSE;
-		      else if(event->value == 127)
+		      else if(event->value == value_max)
 		        plugin->enabled = TRUE;
 		      else
 		        return;
@@ -285,6 +287,7 @@ midi_get_events (midi_info_t *minfo)
       switch (event->type)
         {
         case SND_SEQ_EVENT_CONTROLLER:
+        case SND_SEQ_EVENT_CONTROL14:
 	    case SND_SEQ_EVENT_PGMCHANGE: 
           midi_control (minfo, &event->data.control, event->type);
           break;
