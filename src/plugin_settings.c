@@ -34,7 +34,7 @@ settings_set_to_default (settings_t * settings, jack_nframes_t sample_rate)
   
   for (control = 0; control < settings->desc->control_port_count; control++)
     {
-      value = plugin_desc_get_default_control_value (settings->desc, control, sample_rate);
+      value = plugin_desc_get_default_control_value (settings->desc, settings->desc->control_port_indicies[control], sample_rate);
 
       for (copy = 0; copy < settings->copies; copy++)
         {
