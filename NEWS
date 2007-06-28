@@ -15,6 +15,8 @@
   Florent Berthaut).
 * Allow the range of values that MIDI controls cover to be chosen (patch
   from Dmitry Baikov).
+* Ellipsize the text in the splash screen, so that the window doesn't
+  keep resizing.
 
 
 1.4.5:

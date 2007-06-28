@@ -405,6 +405,7 @@ ui_init_splash_screen (ui_t * ui)
   gtk_widget_show (ui->splash_screen_text);
   gtk_box_pack_start (GTK_BOX (box), ui->splash_screen_text, TRUE, TRUE, 0);
   gtk_label_set_justify (GTK_LABEL (ui->splash_screen_text), GTK_JUSTIFY_CENTER);
+  gtk_label_set_ellipsize (GTK_LABEL (ui->splash_screen_text), PANGO_ELLIPSIZE_END);
   
   gtk_window_get_size (GTK_WINDOW (ui->splash_screen), &w, &h);
   gtk_window_move (GTK_WINDOW (ui->splash_screen),
