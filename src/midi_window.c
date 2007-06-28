@@ -32,6 +32,8 @@ static void ok_cb      (GtkButton *button, gpointer user_data);
 static void remove_cb  (GtkButton *button, gpointer user_data);
 static void channel_cb (GtkCellRendererText *channel_renderer, gchar *arg1, gchar *arg2, gpointer user_data);
 static void param_cb   (GtkCellRendererText *param_renderer, gchar *arg1, gchar *arg2, gpointer user_data);
+static void minvalue_cb(GtkCellRendererText *param_renderer, gchar *arg1, gchar *arg2, gpointer user_data);
+static void maxvalue_cb(GtkCellRendererText *param_renderer, gchar *arg1, gchar *arg2, gpointer user_data);
 
 
 /**
@@ -44,6 +46,8 @@ midi_window_create_control_view (midi_window_t *mwin)
   GtkCellRenderer *renderer;
   GtkCellRenderer *channel_renderer;
   GtkCellRenderer *param_renderer;
+  GtkCellRenderer *minvalue_renderer;
+  GtkCellRenderer *maxvalue_renderer;
   GtkTreeViewColumn *column;
 
   /* scroll window for the list */
@@ -60,6 +64,8 @@ midi_window_create_control_view (midi_window_t *mwin)
                                        G_TYPE_INT,
                                        G_TYPE_INT,
                                        G_TYPE_INT,
+				       G_TYPE_FLOAT,
+				       G_TYPE_FLOAT,
                                        G_TYPE_POINTER);
   /* the view */
   mwin->controls_view = gtk_tree_view_new_with_model (GTK_TREE_MODEL (mwin->controls));
@@ -102,6 +108,26 @@ midi_window_create_control_view (midi_window_t *mwin)
   
   column = gtk_tree_view_column_new_with_attributes (
              _("MIDI Controller"), param_renderer, "text", PARAM_COLUMN, NULL);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (mwin->controls_view), column);
+
+  /* minvalue column */
+  minvalue_renderer = gtk_cell_renderer_text_new ();
+  g_object_set (minvalue_renderer, "editable", TRUE, NULL);
+  g_signal_connect (G_OBJECT (minvalue_renderer), "edited",
+                    G_CALLBACK (minvalue_cb), mwin);
+  
+  column = gtk_tree_view_column_new_with_attributes (
+             _("Min Value"), minvalue_renderer, "text", MINVALUE_COLUMN, NULL);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (mwin->controls_view), column);
+
+  /* maxvalue column */
+  maxvalue_renderer = gtk_cell_renderer_text_new ();
+  g_object_set (maxvalue_renderer, "editable", TRUE, NULL);
+  g_signal_connect (G_OBJECT (maxvalue_renderer), "edited",
+                    G_CALLBACK (maxvalue_cb), mwin);
+  
+  column = gtk_tree_view_column_new_with_attributes (
+             _("Max Value"), maxvalue_renderer, "text", MAXVALUE_COLUMN, NULL);
   gtk_tree_view_append_column (GTK_TREE_VIEW (mwin->controls_view), column);
 
 }
@@ -234,6 +260,8 @@ midi_window_add_control (midi_window_t *mwin, midi_control_t *midi_ctrl)
     INDEX_COLUMN, index,
     CHANNEL_COLUMN, midi_control_get_midi_channel (midi_ctrl),
     PARAM_COLUMN, midi_control_get_midi_param (midi_ctrl),
+    MINVALUE_COLUMN, midi_ctrl->min,
+    MAXVALUE_COLUMN, midi_ctrl->max,
     MIDI_CONTROL_POINTER, midi_ctrl,
     -1);
   
@@ -341,6 +369,57 @@ param_cb (GtkCellRendererText *cell,
                       -1);
 }
 
+static void
+minvalue_cb(GtkCellRendererText *cell,
+            gchar *path_string,
+            gchar *new_text,
+            gpointer user_data)
+{
+  midi_window_t *mwin = user_data;
+  midi_control_t *midi_ctrl;
+  GtkTreePath *path = gtk_tree_path_new_from_string (path_string);
+  GtkTreeIter iter;
+  LADSPA_Data value;
+
+  gtk_tree_model_get_iter (GTK_TREE_MODEL (mwin->controls), &iter, path);
+  
+  gtk_tree_model_get (GTK_TREE_MODEL (mwin->controls), &iter,
+                      MIDI_CONTROL_POINTER, &midi_ctrl,
+                      -1);
+
+  value = atof(new_text);
+  value = midi_control_set_min_value(midi_ctrl, value);
+  
+  gtk_list_store_set (mwin->controls, &iter,
+                      MINVALUE_COLUMN, value,
+                      -1);
+}
+
+static void
+maxvalue_cb(GtkCellRendererText *cell,
+            gchar *path_string,
+            gchar *new_text,
+            gpointer user_data)
+{
+  midi_window_t *mwin = user_data;
+  midi_control_t *midi_ctrl;
+  GtkTreePath *path = gtk_tree_path_new_from_string (path_string);
+  GtkTreeIter iter;
+  LADSPA_Data value;
+
+  gtk_tree_model_get_iter (GTK_TREE_MODEL (mwin->controls), &iter, path);
+  
+  gtk_tree_model_get (GTK_TREE_MODEL (mwin->controls), &iter,
+                      MIDI_CONTROL_POINTER, &midi_ctrl,
+                      -1);
+
+  value = atof(new_text);
+  value = midi_control_set_max_value(midi_ctrl, value);
+  
+  gtk_list_store_set (mwin->controls, &iter,
+                      MAXVALUE_COLUMN, value,
+                      -1);
+}
 
 
 #endif /* HAVE_ALSA */

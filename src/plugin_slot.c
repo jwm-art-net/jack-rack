@@ -481,6 +481,8 @@ plugin_slot_new     (jack_rack_t * jack_rack, plugin_t * plugin, saved_plugin_t 
         
         midi_control_set_midi_channel (new_midi_ctrl, midi_ctrl->midi_channel);
         midi_control_set_midi_param   (new_midi_ctrl, midi_ctrl->midi_param);
+        midi_control_set_min_value    (new_midi_ctrl, midi_ctrl->min);
+        midi_control_set_max_value    (new_midi_ctrl, midi_ctrl->max);
         
         plugin_slot_add_midi_control (plugin_slot, new_midi_ctrl);
         

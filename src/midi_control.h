@@ -49,6 +49,9 @@ struct _midi_control
   LADSPA_Data         min;
   LADSPA_Data         max;
   
+  LADSPA_Data         real_min;
+  LADSPA_Data         real_max;
+  
   lff_t               *fifo;
   lff_t               *fifos;
 
@@ -92,6 +95,12 @@ guint         midi_control_get_ladspa_copy     (midi_control_t * midi_ctrl);
 gboolean      midi_control_get_locked          (midi_control_t * midi_ctrl);
 
 const char *  midi_control_get_control_name    (midi_control_t * midi_ctrl);
+
+LADSPA_Data   midi_control_set_min_value       (midi_control_t * midi_ctrl, LADSPA_Data value);
+LADSPA_Data   midi_control_set_max_value       (midi_control_t * midi_ctrl, LADSPA_Data value);
+
+LADSPA_Data   midi_control_get_min_value       (midi_control_t * midi_ctrl);
+LADSPA_Data   midi_control_get_max_value       (midi_control_t * midi_ctrl);
 
 #endif /* __JR_MIDI_CONTROL_H__ */
 

@@ -13,6 +13,8 @@
   Goetze).
 * Experimental support for 14-bit MIDI control messages (suggested by
   Florent Berthaut).
+* Allow the range of values that MIDI controls cover to be chosen (patch
+  from Dmitry Baikov).
 
 
 1.4.5:

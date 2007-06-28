@@ -6,13 +6,15 @@ pixmapdir = $(datadir)/pixmaps
 EXTRA_DIST = \
 	jack_rack_1.0.dtd \
 	jack_rack_1.1.dtd \
-	jack_rack_1.2.dtd
+	jack_rack_1.2.dtd \
+	jack_rack_1.3.dtd
 
 dtddir = $(datadir)/dtds
 dtd_DATA = \
 	jack_rack_1.0.dtd \
 	jack_rack_1.1.dtd \
-	jack_rack_1.2.dtd
+	jack_rack_1.2.dtd \
+	jack_rack_1.3.dtd
 
 bin_PROGRAMS = jack-rack
 

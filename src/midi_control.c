@@ -86,6 +86,8 @@ ladspa_midi_control_new (plugin_slot_t * plugin_slot, guint copy, unsigned long 
           midi_ctrl->max = exp (midi_ctrl->max);
         }
     }
+  midi_ctrl->real_min = midi_ctrl->min;
+  midi_ctrl->real_max = midi_ctrl->max;
   
   
   return midi_ctrl;
@@ -262,6 +264,60 @@ midi_control_get_control_name    (midi_control_t * midi_ctrl)
     }
   
   return str->str;
+}
+
+static LADSPA_Data
+midi_control_clip_value	(midi_control_t *midi_ctrl, LADSPA_Data value)
+{
+  if (value < midi_ctrl->real_min)
+  	value = midi_ctrl->real_min;
+  else if (value > midi_ctrl->real_max)
+  	value = midi_ctrl->real_max;
+  return value;
+}
+
+LADSPA_Data
+midi_control_set_min_value	(midi_control_t *midi_ctrl, LADSPA_Data value)
+{
+  value = midi_control_clip_value (midi_ctrl, value);
+  pthread_mutex_lock (&midi_ctrl->midi_param_lock);
+  midi_ctrl->min = value;
+  pthread_mutex_unlock (&midi_ctrl->midi_param_lock);
+  return value;
+}
+
+LADSPA_Data
+midi_control_set_max_value	(midi_control_t *midi_ctrl, LADSPA_Data value)
+{
+  value = midi_control_clip_value (midi_ctrl, value);
+  pthread_mutex_lock (&midi_ctrl->midi_param_lock);
+  midi_ctrl->max = value;
+  pthread_mutex_unlock (&midi_ctrl->midi_param_lock);
+  return value;
+}
+
+LADSPA_Data
+midi_control_get_min_value       (midi_control_t * midi_ctrl)
+{
+  LADSPA_Data value;
+  
+  pthread_mutex_lock (&midi_ctrl->midi_param_lock);
+  value = midi_ctrl->min;
+  pthread_mutex_unlock (&midi_ctrl->midi_param_lock);
+  
+  return value;
+}
+
+LADSPA_Data
+midi_control_get_max_value       (midi_control_t * midi_ctrl)
+{
+  LADSPA_Data value;
+  
+  pthread_mutex_lock (&midi_ctrl->midi_param_lock);
+  value = midi_ctrl->max;
+  pthread_mutex_unlock (&midi_ctrl->midi_param_lock);
+  
+  return value;
 }
 
 #endif /* HAVE_ALSA */

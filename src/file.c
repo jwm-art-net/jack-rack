@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 #include <libxml/tree.h>
+#include <math.h>
 
 #include "file.h"
 #include "jack_rack.h"
@@ -53,7 +54,7 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
   doc = xmlNewDoc(XML_DEFAULT_VERSION);
 
   /* dtd */
-  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://jack-rack.sf.net/DTD/jack_rack_1.2.dtd");
+  dtd = xmlNewDtd (doc, "jackrack", NULL, "http://jack-rack.sf.net/DTD/jack_rack_1.3.dtd");
   doc->intSubset = dtd;
   xmlAddChild ((xmlNodePtr)doc, (xmlNodePtr)dtd);
   
@@ -130,6 +131,14 @@ jack_rack_create_doc (jack_rack_t * jack_rack)
           /* param */
           sprintf (num, "%d", midi_control_get_midi_param (midi_ctrl));
           xmlNewChild (midi_control, NULL, "midi_param", num);
+          
+          /* minvalue */
+          sprintf (num, "%f", midi_control_get_min_value (midi_ctrl));
+          xmlNewChild (midi_control, NULL, "min_value", num);
+          
+          /* maxvalue */
+          sprintf (num, "%f", midi_control_get_max_value (midi_ctrl));
+          xmlNewChild (midi_control, NULL, "max_value", num);
           
           switch(midi_ctrl->ctrl_type)
             {
@@ -300,6 +309,8 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
           xmlNodePtr control_node;
           
           midi_ctrl = g_malloc (sizeof (midi_control_t));
+          midi_ctrl->min = -HUGE_VAL;
+          midi_ctrl->max = HUGE_VAL;
           
           for (sub_node = node->children; sub_node; sub_node = sub_node->next)
             {
@@ -313,6 +324,18 @@ saved_rack_parse_plugin (saved_rack_t * saved_rack, saved_plugin_t * saved_plugi
                 {
                   content = xmlNodeGetContent (sub_node);
                   midi_ctrl->midi_param = atoi (content);
+                  xmlFree (content);
+                }
+              else if (strcmp (sub_node->name, "min_value") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  midi_ctrl->min = atof (content);
+                  xmlFree (content);
+                }
+              else if (strcmp (sub_node->name, "max_value") == 0)
+                {
+                  content = xmlNodeGetContent (sub_node);
+                  midi_ctrl->max = atof (content);
                   xmlFree (content);
                 }
               else if (strcmp (sub_node->name, "ladspa") == 0)
