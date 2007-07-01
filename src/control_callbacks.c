@@ -343,6 +343,39 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
     }
 }
 
+
+void control_points_cb (GtkComboBox *combo, gpointer user_data) {
+  port_controls_t * port_controls = (port_controls_t *) user_data;
+  GtkTreeIter iter;
+  GtkTreeModel *model;
+  gfloat data;
+  int copy;
+
+  if (!gtk_combo_box_get_active_iter (combo, &iter)) {
+    /* Nothing selected (yet). */
+    return;
+  }
+
+  model = gtk_combo_box_get_model (combo);
+  gtk_tree_model_get (model, &iter, 1, &data, -1);
+
+  /* get which channel we're using from the g object data stuff */
+  copy = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (combo), "jack-rack-plugin-copy"));
+
+  port_control_send_value (port_controls, copy, data);
+
+  /* possibly set other controls */
+  if (port_controls->plugin_slot->plugin->copies > 1 && port_controls->locked)
+    {
+      gint active = gtk_combo_box_get_active (combo);
+      guint i;
+      for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
+        if (i != copy)
+          gtk_combo_box_set_active (GTK_COMBO_BOX (port_controls->controls[copy].control), active);
+    }
+}
+
+
 void control_lock_cb (GtkToggleButton * button, gpointer user_data) {
   port_controls_t * port_controls;
   gboolean locked;

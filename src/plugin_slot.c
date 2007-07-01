@@ -188,6 +188,37 @@ plugin_slot_set_port_controls (plugin_slot_t *plugin_slot,
               port_controls_unblock_int_callback (port_controls, copy);
           break;
 
+        case JR_CTRL_POINTS: {
+          GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX (port_controls->controls[copy].control));
+          GtkTreeIter iter;
+          gboolean is_first = TRUE, valid;
+          GtkTreeIter nearest_iter;
+          gfloat nearest_diff;
+
+          if (block_callbacks)
+              port_controls_block_points_callback (port_controls, copy);
+
+          /* Select the nearest point to the current value. */
+          gtk_tree_model_get_iter_first (model, &iter);
+          do {
+            float this_diff;
+            gtk_tree_model_get (model, &iter, 1, &this_diff, -1);
+            this_diff = fabs (this_diff - value);
+            if (is_first || this_diff < nearest_diff) {
+              nearest_iter = iter;
+              nearest_diff = this_diff;
+            }
+            is_first = FALSE;
+            valid = gtk_tree_model_iter_next (model, &iter);
+          } while (valid);
+          gtk_combo_box_set_active_iter
+            (GTK_COMBO_BOX (port_controls->controls[copy].control), &nearest_iter);
+
+          if (block_callbacks)
+              port_controls_unblock_points_callback (port_controls, copy);
+          break;
+        }
+
         case JR_CTRL_BOOL:
           if (block_callbacks)
               port_controls_block_bool_callback (port_controls, copy);

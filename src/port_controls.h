@@ -31,6 +31,7 @@ enum _control_type
 {
   JR_CTRL_FLOAT,
   JR_CTRL_INT,
+  JR_CTRL_POINTS,
   JR_CTRL_BOOL
 };
 
@@ -73,9 +74,11 @@ void gtk_widget_block_signal(GtkWidget *widget, const char *signal, GCallback ca
 void gtk_widget_unblock_signal(GtkWidget *widget, const char *signal, GCallback callback);
 void port_controls_block_float_callback (port_controls_t * port_controls, guint copy);
 void port_controls_block_int_callback (port_controls_t * port_controls, guint copy);
+void port_controls_block_points_callback (port_controls_t * port_controls, guint copy);
 void port_controls_block_bool_callback (port_controls_t * port_controls, guint copy);
 void port_controls_unblock_float_callback (port_controls_t * port_controls, guint copy);
 void port_controls_unblock_int_callback (port_controls_t * port_controls, guint copy);
+void port_controls_unblock_points_callback (port_controls_t * port_controls, guint copy);
 void port_controls_unblock_bool_callback (port_controls_t * port_controls, guint copy);
 
 #endif /* __JR_PORT_CONTROLS_H__ */

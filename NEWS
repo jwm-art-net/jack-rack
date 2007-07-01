@@ -17,6 +17,8 @@
   from Dmitry Baikov).
 * Ellipsize the text in the splash screen, so that the window doesn't
   keep resizing.
+* When the RDF description of a plugin contains named points, show the
+  value as a combo box (suggested by Tim Goetze).
 
 
 1.4.5:

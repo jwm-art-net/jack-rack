@@ -66,6 +66,24 @@ ladspa_midi_control_new (plugin_slot_t * plugin_slot, guint copy, unsigned long 
       midi_ctrl->min = 0.0;
       midi_ctrl->max = 1.0;
     }
+  else if (port_controls->type == JR_CTRL_POINTS)
+    {
+      GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX (port_controls->controls[copy].control));
+      GtkTreeIter iter;
+      gboolean is_first = TRUE, valid;
+
+      gtk_tree_model_get_iter_first (model, &iter);
+      do {
+        gfloat value;
+        gtk_tree_model_get (model, &iter, 1, &value, -1);
+        if (is_first || value < midi_ctrl->min)
+          midi_ctrl->min = value;
+        if (is_first || value > midi_ctrl->max)
+          midi_ctrl->max = value;
+        is_first = FALSE;
+        valid = gtk_tree_model_iter_next (model, &iter);
+      } while (valid);
+    }
   else
     {
       GtkAdjustment *adjustment;

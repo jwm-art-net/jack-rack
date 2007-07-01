@@ -31,6 +31,7 @@ void     control_float_cb        (GtkRange * range, gpointer user_data);
 void     control_float_text_cb   (GtkEntry * entry, gpointer user_data);
 void     control_bool_cb         (GtkToggleButton * button, gpointer user_data);
 void     control_int_cb          (GtkSpinButton * spinbutton, gpointer user_data);
+void     control_points_cb       (GtkComboBox * combo, gpointer user_data);
 
 #ifdef HAVE_ALSA
 gboolean wet_dry_button_press_cb (GtkWidget * widget, GdkEventButton * event, gpointer user_data);

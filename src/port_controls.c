@@ -34,6 +34,10 @@
 #include "control_message.h"
 #include "ui.h"
 
+#ifdef HAVE_LRDF
+#include <lrdf.h>
+#endif
+
 #define TEXT_BOX_WIDTH        75
 #define TEXT_BOX_CHARS        -1
 
@@ -146,6 +150,44 @@ create_int_control (plugin_desc_t * desc, unsigned long port_index)
     gtk_spin_button_new_with_range ((gdouble) lower, (gdouble) upper, 1.0);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (widget), TRUE);
   gtk_spin_button_set_digits (GTK_SPIN_BUTTON (widget), 0);
+
+  return widget;
+}
+
+/** create a control for points ports */
+static GtkWidget *
+create_points_control (plugin_desc_t * desc, unsigned long port_index)
+{
+  GtkWidget *widget = NULL;
+
+#ifdef HAVE_LRDF
+  GtkListStore *store;
+  lrdf_defaults *defs;
+  int i;
+  GtkCellRenderer *renderer;
+
+  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_FLOAT);
+  defs = lrdf_get_scale_values (desc->id, port_index);
+  for (i = 0; i < defs->count; i++) {
+    GtkTreeIter iter;
+
+    gtk_list_store_append (store, &iter);
+    gtk_list_store_set (store, &iter,
+                        0, defs->items[i].label,
+                        1, defs->items[i].value,
+                        -1);
+  }
+  lrdf_free_setting_values (defs);
+
+  widget = gtk_combo_box_new_with_model (GTK_TREE_MODEL (store));
+  g_object_unref (store);
+
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
+  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget), renderer,
+                                  "text", 0,
+                                  NULL);
+#endif
 
   return widget;
 }
@@ -303,6 +345,17 @@ plugin_slot_create_control_table_row (plugin_slot_t * plugin_slot, port_controls
           port_controls->controls[i].text = NULL;
           break;
 
+        case JR_CTRL_POINTS:
+          port_controls->controls[i].control =
+            create_points_control (desc, port_controls->port_index);
+          g_signal_connect (G_OBJECT
+                            (port_controls->controls[i].control),
+                            "changed",
+                            G_CALLBACK (control_points_cb),
+                            port_controls);
+          port_controls->controls[i].text = NULL;
+          break;
+
         case JR_CTRL_BOOL:
           port_controls->controls[i].control =
             gtk_toggle_button_new_with_label (_("On"));
@@ -356,6 +409,11 @@ port_controls_new	(plugin_slot_t * plugin_slot)
       port_controls->port_index = desc->control_port_indicies[i];
 
       /* get the port control type from the hints */
+#ifdef HAVE_LRDF
+      if (lrdf_get_scale_values(desc->id, port_controls->port_index) != NULL)
+        port_controls->type = JR_CTRL_POINTS;
+      else
+#endif
       if (LADSPA_IS_HINT_TOGGLED (desc->port_range_hints[port_controls->port_index].HintDescriptor))
         port_controls->type = JR_CTRL_BOOL;
       else if (LADSPA_IS_HINT_INTEGER (desc->port_range_hints[port_controls->port_index].HintDescriptor))
@@ -431,6 +489,13 @@ port_controls_block_int_callback (port_controls_t * port_controls, guint copy)
 }
 
 void
+port_controls_block_points_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_block_signal(port_controls->controls[copy].control, "changed",
+            G_CALLBACK (control_points_cb));
+}
+
+void
 port_controls_block_bool_callback (port_controls_t * port_controls, guint copy)
 {
   gtk_widget_block_signal(port_controls->controls[copy].control, "toggled",
@@ -462,6 +527,13 @@ port_controls_unblock_int_callback (port_controls_t * port_controls, guint copy)
 {
   gtk_widget_unblock_signal (port_controls->controls[copy].control, "value-changed",
             G_CALLBACK (control_int_cb));
+}
+
+void
+port_controls_unblock_points_callback (port_controls_t * port_controls, guint copy)
+{
+  gtk_widget_unblock_signal (port_controls->controls[copy].control, "changed",
+            G_CALLBACK (control_points_cb));
 }
 
 void
