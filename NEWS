@@ -22,6 +22,9 @@
 * Added a script (ecarack) to run an approximation of a JACK Rack config
   using ecasound, which lets you design an effects chain in JACK Rack
   and then run it on a headless system.
+* Fix a bug with integer controls (which I'd replicated into the points
+  controls code too), where they'd only set the first channel's value
+  when locked.
 
 
 1.4.5:

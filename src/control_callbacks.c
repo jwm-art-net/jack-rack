@@ -339,7 +339,7 @@ void control_int_cb (GtkSpinButton * spinbutton, gpointer user_data) {
       guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         if (i != copy)
-          gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[copy].control), value);
+          gtk_spin_button_set_value (GTK_SPIN_BUTTON (port_controls->controls[i].control), value);
     }
 }
 
@@ -371,7 +371,7 @@ void control_points_cb (GtkComboBox *combo, gpointer user_data) {
       guint i;
       for (i = 0; i < port_controls->plugin_slot->plugin->copies; i++)
         if (i != copy)
-          gtk_combo_box_set_active (GTK_COMBO_BOX (port_controls->controls[copy].control), active);
+          gtk_combo_box_set_active (GTK_COMBO_BOX (port_controls->controls[i].control), active);
     }
 }
 
