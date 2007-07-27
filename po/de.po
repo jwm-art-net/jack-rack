@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-06-28 19:48+0100\n"
+"POT-Creation-Date: 2007-07-27 16:08+0100\n"
 "PO-Revision-Date: 2007-01-25 16:00+0100\n"
 "Last-Translator: Sebastian Arnold <mail@sebastian-arnold.net>\n"
 "Language-Team: Sebastian Arnold <linux@sebastian-arnold.net>\n"
@@ -178,19 +178,19 @@ msgstr ""
 msgid "%s: could not parse LRDF file '%s'\n"
 msgstr "Konnte die Datei '%s' nicht auswerten"
 
-#: src/port_controls.c:232 src/wet_dry_controls.c:89
+#: src/port_controls.c:274 src/wet_dry_controls.c:89
 msgid "Lock"
 msgstr "Gruppe"
 
-#: src/port_controls.c:308
+#: src/port_controls.c:361
 msgid "On"
 msgstr "Aktiv"
 
-#: src/midi_control.c:254
+#: src/midi_control.c:274
 msgid "Wet/dry"
 msgstr "Wet/Dry"
 
-#: src/midi_control.c:259 src/plugin_slot.c:381
+#: src/midi_control.c:279 src/plugin_slot.c:412
 msgid "Enable"
 msgstr "Aktivieren"
 
@@ -246,29 +246,29 @@ msgstr "Verbinde mit JACK..."
 msgid "Connecting to JACK server..."
 msgstr "Verbinde mit JACK..."
 
-#: src/file.c:191
+#: src/file.c:200
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Konnte die Datei '%s' nicht speichern"
 
-#: src/file.c:227
+#: src/file.c:236
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr ""
 "Die Datei '%s' enthält ein unbekanntes Plugin mit der ID '%ld'; es wird "
 "übersprungen"
 
-#: src/file.c:440
+#: src/file.c:463
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Konnte die Datei '%s' nicht auswerten"
 
-#: src/file.c:446
+#: src/file.c:469
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "Die Datei '%s' ist keine JACK Rack Konfiguration"
 
-#: src/file.c:460
+#: src/file.c:483
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -278,11 +278,11 @@ msgstr ""
 "\n"
 "Wollen Sie wirklich fortfahren?"
 
-#: src/plugin_slot.c:269
+#: src/plugin_slot.c:300
 msgid "Lock All"
 msgstr "alle Gruppieren"
 
-#: src/plugin_slot.c:392
+#: src/plugin_slot.c:423
 msgid "Wet/Dry"
 msgstr "Wet/Dry"
 
@@ -460,27 +460,35 @@ msgstr ""
 msgid "Could not register JACK port '%s'; aborting"
 msgstr ""
 
-#: src/midi_window.c:73
+#: src/midi_window.c:79
 msgid "Plugin"
 msgstr "Plugin"
 
-#: src/midi_window.c:78
+#: src/midi_window.c:84
 msgid "Control"
 msgstr "Steuerung"
 
-#: src/midi_window.c:83
+#: src/midi_window.c:89
 msgid "Index"
 msgstr "Index"
 
-#: src/midi_window.c:94
+#: src/midi_window.c:100
 msgid "MIDI Channel"
 msgstr "MIDI Kanal"
 
-#: src/midi_window.c:104
+#: src/midi_window.c:110
 msgid "MIDI Controller"
 msgstr "MIDI Controller"
 
-#: src/midi_window.c:128
+#: src/midi_window.c:120
+msgid "Min Value"
+msgstr ""
+
+#: src/midi_window.c:130
+msgid "Max Value"
+msgstr ""
+
+#: src/midi_window.c:154
 msgid "JACK Rack MIDI Controls"
 msgstr "JACK Rack MIDI-Steuerung"
 

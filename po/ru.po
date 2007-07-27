@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-06-28 19:48+0100\n"
+"POT-Creation-Date: 2007-07-27 16:08+0100\n"
 "PO-Revision-Date: 2003-07-01 20:33+0400\n"
 "Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -188,19 +188,19 @@ msgstr "Найден файл описания LRDF '%s'"
 msgid "%s: could not parse LRDF file '%s'\n"
 msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: src/port_controls.c:232 src/wet_dry_controls.c:89
+#: src/port_controls.c:274 src/wet_dry_controls.c:89
 msgid "Lock"
 msgstr "Блокировать"
 
-#: src/port_controls.c:308
+#: src/port_controls.c:361
 msgid "On"
 msgstr "Вкл"
 
-#: src/midi_control.c:254
+#: src/midi_control.c:274
 msgid "Wet/dry"
 msgstr "Wet/dry"
 
-#: src/midi_control.c:259 src/plugin_slot.c:381
+#: src/midi_control.c:279 src/plugin_slot.c:412
 msgid "Enable"
 msgstr "Разрешить"
 
@@ -260,27 +260,27 @@ msgstr "Установлено соединение с JACK-сервером"
 msgid "Connecting to JACK server..."
 msgstr "Установлено соединение с JACK-сервером"
 
-#: src/file.c:191
+#: src/file.c:200
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Не·удалось·сохранить·файл·'%s'"
 
-#: src/file.c:227
+#: src/file.c:236
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr "Файл·'%s' содержит·неизвестный·модуль·с·ID '%ld'·и·будет·пропущен"
 
-#: src/file.c:440
+#: src/file.c:463
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: src/file.c:446
+#: src/file.c:469
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "'%s' не·является·файлом·настроек JACK Rack"
 
-#: src/file.c:460
+#: src/file.c:483
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -290,11 +290,11 @@ msgstr ""
 " ·\n"
 " ·Вы·уверены,·что·хотите·продолжить?"
 
-#: src/plugin_slot.c:269
+#: src/plugin_slot.c:300
 msgid "Lock All"
 msgstr "Блокировать·все"
 
-#: src/plugin_slot.c:392
+#: src/plugin_slot.c:423
 msgid "Wet/Dry"
 msgstr "Wet/Dry"
 
@@ -479,27 +479,35 @@ msgstr "Не удалось зарегистрировать порт '%s' дл�
 msgid "Could not register JACK port '%s'; aborting"
 msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
 
-#: src/midi_window.c:73
+#: src/midi_window.c:79
 msgid "Plugin"
 msgstr "Модуль"
 
-#: src/midi_window.c:78
+#: src/midi_window.c:84
 msgid "Control"
 msgstr "Регулятор"
 
-#: src/midi_window.c:83
+#: src/midi_window.c:89
 msgid "Index"
 msgstr "Индекс"
 
-#: src/midi_window.c:94
+#: src/midi_window.c:100
 msgid "MIDI Channel"
 msgstr "MIDI-канал"
 
-#: src/midi_window.c:104
+#: src/midi_window.c:110
 msgid "MIDI Controller"
 msgstr "MIDI-контроллер"
 
-#: src/midi_window.c:128
+#: src/midi_window.c:120
+msgid "Min Value"
+msgstr ""
+
+#: src/midi_window.c:130
+msgid "Max Value"
+msgstr ""
+
+#: src/midi_window.c:154
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
 

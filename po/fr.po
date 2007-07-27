@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-06-28 19:48+0100\n"
+"POT-Creation-Date: 2007-07-27 16:08+0100\n"
 "PO-Revision-Date: 2007-01-09 05:42+0100\n"
 "Last-Translator: Raphaël Doursenaud <rdoursenaud@free.fr>\n"
 "Language-Team: French\n"
@@ -184,19 +184,19 @@ msgstr ""
 msgid "%s: could not parse LRDF file '%s'\n"
 msgstr "Impossible d'analyser le fichier '%s'"
 
-#: src/port_controls.c:232 src/wet_dry_controls.c:89
+#: src/port_controls.c:274 src/wet_dry_controls.c:89
 msgid "Lock"
 msgstr "Verrouiller"
 
-#: src/port_controls.c:308
+#: src/port_controls.c:361
 msgid "On"
 msgstr "Activé"
 
-#: src/midi_control.c:254
+#: src/midi_control.c:274
 msgid "Wet/dry"
 msgstr "Traité/Direct"
 
-#: src/midi_control.c:259 src/plugin_slot.c:381
+#: src/midi_control.c:279 src/plugin_slot.c:412
 msgid "Enable"
 msgstr "Activer"
 
@@ -252,28 +252,28 @@ msgstr "Connexion à JACK..."
 msgid "Connecting to JACK server..."
 msgstr "Connexion à JACK..."
 
-#: src/file.c:191
+#: src/file.c:200
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Impossible de sauvegarder le fichier '%s'"
 
-#: src/file.c:227
+#: src/file.c:236
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr ""
 "Le fichier '%s' contient un greffon inconnu portant l'ID '%ld'; je passe"
 
-#: src/file.c:440
+#: src/file.c:463
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Impossible d'analyser le fichier '%s'"
 
-#: src/file.c:446
+#: src/file.c:469
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "Le fichier '%s' n'est pas un fichier de configuration JACK Rack"
 
-#: src/file.c:460
+#: src/file.c:483
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -283,11 +283,11 @@ msgstr ""
 "\n"
 "Êtes-vous sûr de vouloir continuer­?"
 
-#: src/plugin_slot.c:269
+#: src/plugin_slot.c:300
 msgid "Lock All"
 msgstr "Tout Verrouiller"
 
-#: src/plugin_slot.c:392
+#: src/plugin_slot.c:423
 msgid "Wet/Dry"
 msgstr "Traité/Direct"
 
@@ -466,27 +466,35 @@ msgstr ""
 msgid "Could not register JACK port '%s'; aborting"
 msgstr ""
 
-#: src/midi_window.c:73
+#: src/midi_window.c:79
 msgid "Plugin"
 msgstr "Greffon"
 
-#: src/midi_window.c:78
+#: src/midi_window.c:84
 msgid "Control"
 msgstr "Contrôle"
 
-#: src/midi_window.c:83
+#: src/midi_window.c:89
 msgid "Index"
 msgstr "Index"
 
-#: src/midi_window.c:94
+#: src/midi_window.c:100
 msgid "MIDI Channel"
 msgstr "Canal MIDI"
 
-#: src/midi_window.c:104
+#: src/midi_window.c:110
 msgid "MIDI Controller"
 msgstr "Contrôleur MIDI"
 
-#: src/midi_window.c:128
+#: src/midi_window.c:120
+msgid "Min Value"
+msgstr ""
+
+#: src/midi_window.c:130
+msgid "Max Value"
+msgstr ""
+
+#: src/midi_window.c:154
 msgid "JACK Rack MIDI Controls"
 msgstr "Contrôles MIDI Jack Rack"
 
