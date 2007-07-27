@@ -4,7 +4,8 @@ EXTRA_DIST = config.rpath mkinstalldirs \
 	autogen.sh \
 	BUGS \
 	WISHLIST \
-	jack-rack.desktop
+	jack-rack.desktop \
+	ecarack
 
 bin_SCRIPTS = ecarack
 
