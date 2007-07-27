@@ -6,6 +6,7 @@ EXTRA_DIST = config.rpath mkinstalldirs \
 	WISHLIST \
 	jack-rack.desktop
 
+bin_SCRIPTS = ecarack
 
 desktopdir = $(datadir)/applications
 

@@ -1,0 +1,62 @@
+#!/usr/bin/python
+# ecarack: use ecasound to run a saved JACK Rack configuration.
+# This is rather simplistic: it only looks at plugin controls and the Enable
+# buttons, so MIDI controls, wet/dry settings and the like will be ignored.
+# Copyright (C) 2007 Adam Sampson <ats@offog.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+import sys, os, gzip, xml.dom.minidom
+
+def main(args):
+	if len(args) != 1 or args[0] == "--help":
+		print >>sys.stderr, "Usage: ecarack RACK-FILE"
+		return 1
+
+	try:
+		f = gzip.open(args[0], "r")
+	except IOError, e:
+		print >>sys.stderr, "Failed to open %s: %s" % (args[0], e)
+		return 1
+	try:
+		dom = xml.dom.minidom.parse(f)
+	except:
+		print >>sys.stderr, "Failed to parse %s" % args[0]
+		return 1
+	f.close()
+
+	cmd = ["ecasound", "-i:jack_auto", "-o:jack_auto"]
+
+	def get(node, tag):
+		return node.getElementsByTagName(tag)
+	def text(node):
+		if node.nodeType == node.TEXT_NODE:
+			return node.data
+		else:
+			return " ".join(map(text, node.childNodes)).strip()
+	for plugin in get(dom, "plugin"):
+		if text(get(plugin, "enabled")[0]) == "false":
+			continue
+		id = text(get(plugin, "id")[0])
+		controls = [text(get(n, "value")[0])
+		            for n in get(plugin, "controlrow")]
+		cmd.append("-eli:" + id + "".join(["," + v for v in controls]))
+
+	print >>sys.stderr, "ecarack: running " + " ".join(cmd)
+	os.execvp(cmd[0], cmd)
+	return 1
+
+if __name__ == "__main__":
+	sys.exit(main(sys.argv[1:]))

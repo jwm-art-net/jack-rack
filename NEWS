@@ -19,6 +19,9 @@
   keep resizing.
 * When the RDF description of a plugin contains named points, show the
   value as a combo box (suggested by Tim Goetze).
+* Added a script (ecarack) to run an approximation of a JACK Rack config
+  using ecasound, which lets you design an effects chain in JACK Rack
+  and then run it on a headless system.
 
 
 1.4.5:
