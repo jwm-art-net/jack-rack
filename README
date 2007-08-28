@@ -2,35 +2,28 @@
   JACK Rack README
 ====================
 
-JACK Rack is a stereo LADSPA effects rack for the JACK audio API.  It uses
-GTK+ 2 (and optionally GNOME 2) for the gui.  LADSPA version 1.1 is needed. 
+JACK Rack is a LADSPA effects rack for the JACK audio API.  It uses
+GTK+ 2 (and optionally GNOME 2) for the GUI.  LADSPA version 1.1 is needed. 
 In order to save rack configurations, libxml2 is needed.
 
 It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
 needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn
 needs raptor, available from http://www.redland.opensource.ac.uk/raptor/. 
 
- Feedback
-----------
-
-It would be very much appreciated if you could provide some user-perspective
-feedback here: http://arb.bash.sh/~rah/software/feedback.html
 
  Compilation
 -------------
 
-The usual autoconf gibbins; ./configure && make && make install.  A GNOME
-.desktop file (which puts an entry in the gnome menu) and the JACK Rack icon
-are installed in /usr/share/{applications,pixmaps} by default.  You can make
-them be installed under the autoconf prefix with --disable-desktop-inst.
+The usual autoconf gubbins: ./configure && make && make install.  See
+INSTALL for more details.
 
 
  Running
 ---------
 
-Assuming you have some ladspa plugins installed, make sure you have your
+Assuming you have some LADSPA plugins installed, make sure you have your
 LADSPA_PATH environment variable set to include them.  If you don't have any
-ladspa plugins installed, head over to http://plugin.org.uk/ and grab Steve
+LADSPA plugins installed, head over to http://plugin.org.uk/ and grab Steve
 Harris's excellent plugin collection.
 
 JACK Rack searches for .rdf and .rdfs files in
@@ -54,9 +47,9 @@ Lock All instead.
 Right-clicking on plugin controls or wet/dry controls will bring up a
 context menu allowing you to add MIDI controls.
 
+
  Contact
 ---------
 
-Patches, bug reports, etc, go to jack-rack-devel@lists.sourceforge.net
-(subscribe from http://lists.sourceforge.net/lists/listinfo/jack-rack-devel)
-New versions will be available from http://arb.bash.sh/~rah/software/jack-rack/ .
+See http://jack-rack.sourceforge.net/ for new versions and details of
+the jack-rack mailing lists.
