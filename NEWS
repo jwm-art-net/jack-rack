@@ -1,3 +1,7 @@
+1.4.7:
+* Use the correct channel numbers when sending control messages
+  (reported by Danni Coy).
+
 1.4.6:
 * Updated fr_FR translation (patch from Raphaël Doursenaud).
 * Don't rely on being able to set and use the default gettext domain;

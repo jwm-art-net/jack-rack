@@ -130,7 +130,7 @@ midi_send_control (midi_info_t *minfo, midi_control_t *midi_ctrl, LADSPA_Data va
   snd_seq_ev_set_subs   (&event);
   snd_seq_ev_set_source (&event, 0);
   snd_seq_ev_set_controller (&event,
-                             midi_control_get_midi_channel (midi_ctrl),
+                             midi_control_get_midi_channel (midi_ctrl) - 1,
                              midi_control_get_midi_param (midi_ctrl),
                              midi_value);
 
