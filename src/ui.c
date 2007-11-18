@@ -212,7 +212,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 {
   GtkWidget *main_box;
   GtkWidget *toolbar_handle;
-  GtkTooltips *toolbar_tips;
   GtkWidget *toolbar;
   GtkWidget *plugin_scroll;
   GtkWidget *plugin_viewport;
@@ -242,16 +241,12 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_widget_show (toolbar_handle);
   gtk_box_pack_start (GTK_BOX (main_box), toolbar_handle, FALSE, FALSE, 0);
 
-  toolbar_tips = gtk_tooltips_new ();
-
   toolbar = gtk_toolbar_new ();
   gtk_container_add (GTK_CONTAINER (toolbar_handle), toolbar);
 
   ui->add = gtk_menu_tool_button_new_from_stock (GTK_STOCK_ADD);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->add, -1);
-  gtk_tool_item_set_tooltip (ui->add, toolbar_tips,
-                             _("Add a plugin"),
-                             _("Add a new plugin to the rack"));
+  gtk_tool_item_set_tooltip_text (ui->add, _("Add a plugin"));
   ui->toolbar_add_menu = plugin_mgr_get_menu (ui->plugin_mgr, G_CALLBACK (add_cb), ui);
   gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ui->add), ui->toolbar_add_menu);
   g_signal_connect (G_OBJECT (ui->add), "clicked",
@@ -262,9 +257,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   channel_icon = gtk_image_new_from_file (channel_icon_file);
   g_free (channel_icon_file);
   ui->channels = gtk_tool_button_new (channel_icon, _("Channels"));
-  gtk_tool_item_set_tooltip (ui->channels, toolbar_tips,
-                             _("Channels"),
-                             _("Change the number of I/O channels the rack has"));
+  gtk_tool_item_set_tooltip_text (ui->channels, _("Change the number of I/O channels the rack has"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->channels, -1);
   g_signal_connect (G_OBJECT (ui->channels), "clicked", G_CALLBACK (channel_cb), ui);
 
@@ -272,31 +265,23 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
   ui->new = gtk_tool_button_new_from_stock (GTK_STOCK_NEW);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->new, -1);
-  gtk_tool_item_set_tooltip (ui->new, toolbar_tips,
-                            _("Clear the rack"),
-                            _("Remove all the plugins from the rack"));
+  gtk_tool_item_set_tooltip_text (ui->new, _("Clear the rack"));
   g_signal_connect (G_OBJECT (ui->new), "clicked", G_CALLBACK (new_cb), ui);
 
 #ifdef HAVE_XML
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_OPEN);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
-  gtk_tool_item_set_tooltip (tool_item, toolbar_tips,
-                            _("Open a rack configuration file"),
-                            _("Load a previously-saved rack configuration"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Load a previously-saved rack configuration"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (open_cb), ui);
 
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
-  gtk_tool_item_set_tooltip (tool_item, toolbar_tips,
-                            _("Save the rack configuration to the current file"),
-                            _("Save the rack configuration to the same file it was saved in last time"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Save the rack configuration to the current file"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (save_cb), ui);
 
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE_AS);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
-  gtk_tool_item_set_tooltip (tool_item, toolbar_tips,
-                            _("Save the rack configuration to a file"),
-                            _("Save the rack configuration to a new file"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Save the rack configuration to a new file"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (save_as_cb), ui);
 #endif /* HAVE_XML */
 
@@ -307,9 +292,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
       ui->cca_save = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
       gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->cca_save, -1);
-      gtk_tool_item_set_tooltip (ui->cca_save, toolbar_tips,
-                                 _("Save the LADCCA project"),
-                                 _("Save the current LADCCA project"));
+      gtk_tool_item_set_tooltip_text (ui->cca_save, _("Save the current LADCCA project"));
       g_signal_connect (G_OBJECT (ui->cca_save), "clicked", G_CALLBACK (cca_save_cb), ui);
 
     }
@@ -319,9 +302,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_QUIT);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
-  gtk_tool_item_set_tooltip (tool_item, toolbar_tips,
-                            _("Quit JACK Rack"),
-                            _("Exit the program"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Quit JACK Rack"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (quit_cb), ui);
 
   gtk_widget_show_all (toolbar);

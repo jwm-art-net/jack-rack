@@ -1,6 +1,9 @@
 1.4.7:
 * Use the correct channel numbers when sending control messages
   (reported by Danni Coy).
+* Use the new GTK tooltips API (reported by Owen Williams and Stanislav
+  Karchebny).
+
 
 1.4.6:
 * Updated fr_FR translation (patch from Raphaël Doursenaud).
