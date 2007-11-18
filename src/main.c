@@ -53,8 +53,8 @@ gboolean time_runs = TRUE;
 GString  *client_name = NULL;
 GString  *initial_filename = NULL;
 
-#ifdef HAVE_LADCCA
-cca_client_t * global_cca_client;
+#ifdef HAVE_LASH
+lash_client_t * global_lash_client;
 #endif
 
 #define CLIENT_NAME_BASE      "JACK Rack"
@@ -72,8 +72,8 @@ void print_help (void) {
 #ifdef HAVE_ALSA
   printf(  "  ALSA %s\n", ALSA_VERSION);
 #endif
-#ifdef HAVE_LADCCA
-  printf(  "  LADCCA %s\n", LADCCA_VERSION);
+#ifdef HAVE_LASH
+  printf(  "  LASH %s\n", LASH_VERSION);
 #endif
 #ifdef HAVE_XML
   printf(  "  libxml2 %s\n", XML_VERSION);
@@ -120,9 +120,9 @@ int main (int argc, char ** argv) {
     { 0, 0, 0, 0 }
   };
 
-#ifdef HAVE_LADCCA
-  cca_args_t * cca_args;
-  cca_event_t * cca_event;
+#ifdef HAVE_LASH
+  lash_args_t * lash_args;
+  lash_event_t * lash_event;
 #endif  
 
   gtk_set_locale ();
@@ -143,8 +143,8 @@ int main (int argc, char ** argv) {
     }
 
 
-#ifdef HAVE_LADCCA
-  cca_args = cca_extract_args (&argc, &argv);
+#ifdef HAVE_LASH
+  lash_args = lash_extract_args (&argc, &argv);
 #endif  
 
   gtk_init (&argc, &argv);
@@ -221,19 +221,19 @@ int main (int argc, char ** argv) {
   }
 #endif /* HAVE_XML */
 
-#ifdef HAVE_LADCCA
+#ifdef HAVE_LASH
   {
-    int flags = CCA_Config_File;
-    global_cca_client = cca_init (cca_args, PACKAGE_NAME, flags, CCA_PROTOCOL (2,0));
+    int flags = LASH_Config_File;
+    global_lash_client = lash_init (lash_args, PACKAGE_NAME, flags, LASH_PROTOCOL (2,0));
   }
 
-  if (global_cca_client)
+  if (global_lash_client)
     {
-      cca_event = cca_event_new_with_type (CCA_Client_Name);
-      cca_event_set_string (cca_event, client_name->str);
-      cca_send_event (global_cca_client, cca_event);
+      lash_event = lash_event_new_with_type (LASH_Client_Name);
+      lash_event_set_string (lash_event, client_name->str);
+      lash_send_event (global_lash_client, lash_event);
     }
-#endif /* HAVE_LADCCA */
+#endif /* HAVE_LASH */
 
 #ifdef HAVE_XML
   xmlSetCompressMode (XML_COMPRESSION_LEVEL);

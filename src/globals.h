@@ -26,41 +26,9 @@
 #include "ac_config.h"
 
 
-#ifdef HAVE_LADCCA
-#   ifdef HAVE_LASH
-       #include <lash/lash.h>
-       #define cca_client_t lash_client_t
-       #define cca_event_t lash_event_t
-       #define cca_enabled lash_enabled
-
-       #define CCA_Save LASH_Save
-       #define CCA_Save_File LASH_Save_File
-       #define CCA_Restore_File LASH_Restore_File
-       #define CCA_Quit LASH_Quit
-       #define CCA_Server_Lost LASH_Server_Lost
-
-       #define cca_args_t lash_args_t
-       #define CCA_Config_File LASH_Config_File
-       #define CCA_Client_Name LASH_Client_Name
-       #define CCA_PROTOCOL LASH_PROTOCOL
-       
-       #define cca_alsa_client_id lash_alsa_client_id
-       #define cca_jack_client_name lash_jack_client_name
-       #define cca_event_new_with_type lash_event_new_with_type
-       #define cca_get_event lash_get_event
-       #define cca_event_get_type lash_event_get_type
-       #define cca_event_destroy lash_event_destroy
-       #define cca_event_get_string lash_event_get_string
-       #define cca_get_fqn lash_get_fqn
-       #define cca_send_event lash_send_event
-       #define cca_extract_args lash_extract_args
-       #define cca_init lash_init
-       #define cca_event_new_with_type lash_event_new_with_type
-       #define cca_event_set_string lash_event_set_string
-#   else
-       #include <ladcca/ladcca.h>
-#   endif
-    extern cca_client_t * global_cca_client;
+#ifdef HAVE_LASH
+    #include <lash/lash.h>
+    extern lash_client_t * global_lash_client;
 #endif
 
 

@@ -117,20 +117,20 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
                     G_CALLBACK (save_as_cb), ui);
 #endif /* HAVE_XML */
 
-#ifdef HAVE_LADCCA
-  if (cca_enabled (global_cca_client))
+#ifdef HAVE_LASH
+  if (lash_enabled (global_lash_client))
     {
       separator = gtk_separator_menu_item_new ();
       gtk_widget_show (separator);
       gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), separator);
 
-      ui->cca_save_menu_item = gtk_menu_item_new_with_label (_("Save project"));
-      gtk_widget_show (ui->cca_save_menu_item);
-      gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->cca_save_menu_item);
-      g_signal_connect (G_OBJECT (ui->cca_save_menu_item), "activate",
-                        G_CALLBACK (cca_save_cb), ui);
+      ui->lash_save_menu_item = gtk_menu_item_new_with_label (_("Save project"));
+      gtk_widget_show (ui->lash_save_menu_item);
+      gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->lash_save_menu_item);
+      g_signal_connect (G_OBJECT (ui->lash_save_menu_item), "activate",
+                        G_CALLBACK (lash_save_cb), ui);
     }
-#endif /* HAVE_LADCCA */
+#endif /* HAVE_LASH */
 
   separator = gtk_separator_menu_item_new ();
   gtk_widget_show (separator);
@@ -285,18 +285,18 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (save_as_cb), ui);
 #endif /* HAVE_XML */
 
-#ifdef HAVE_LADCCA
-  if (cca_enabled (global_cca_client))
+#ifdef HAVE_LASH
+  if (lash_enabled (global_lash_client))
     {
       gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (), -1);
 
-      ui->cca_save = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
-      gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->cca_save, -1);
-      gtk_tool_item_set_tooltip_text (ui->cca_save, _("Save the current LADCCA project"));
-      g_signal_connect (G_OBJECT (ui->cca_save), "clicked", G_CALLBACK (cca_save_cb), ui);
+      ui->lash_save = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
+      gtk_toolbar_insert (GTK_TOOLBAR (toolbar), ui->lash_save, -1);
+      gtk_tool_item_set_tooltip_text (ui->lash_save, _("Save the current LASH project"));
+      g_signal_connect (G_OBJECT (ui->lash_save), "clicked", G_CALLBACK (lash_save_cb), ui);
 
     }
-#endif /* HAVE_LADCCA */
+#endif /* HAVE_LASH */
 
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (), -1);
 
@@ -413,9 +413,9 @@ ui_new (unsigned long channels)
   ui->state = STATE_NORMAL;
   ui->main_window = NULL;
 
-#ifdef HAVE_LADCCA  
-  ui->cca_save = NULL;
-  ui->cca_save_menu_item = NULL;
+#ifdef HAVE_LASH  
+  ui->lash_save = NULL;
+  ui->lash_save_menu_item = NULL;
 #endif
 
   ui->ui_to_process = lff_new (PROCESS_FIFO_SIZE, sizeof (ctrlmsg_t));

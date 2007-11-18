@@ -644,9 +644,9 @@ process_info_new (ui_t* ui, unsigned long rack_channels)
   
   jack_activate (procinfo->jack_client);
 
-#ifdef HAVE_LADCCA
-  /* sort out ladcca stuff */
-  cca_jack_client_name (global_cca_client, jack_client_name);
+#ifdef HAVE_LASH
+  /* sort out LASH stuff */
+  lash_jack_client_name (global_lash_client, jack_client_name);
 #endif
 
   return procinfo;

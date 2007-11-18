@@ -70,8 +70,8 @@ msgstr "Сохранить·настройки·эффект-процессор�
 
 #: src/ui.c:295
 #, fuzzy
-msgid "Save the current LADCCA project"
-msgstr "Сохранить·LADCCA-проект"
+msgid "Save the current LASH project"
+msgstr "Сохранить·LASH-проект"
 
 #: src/ui.c:305
 msgid "Quit JACK Rack"
@@ -212,12 +212,12 @@ msgstr ""
 
 #: src/ui_callbacks.c:333
 #, c-format
-msgid "LADCCA server disconnected\n"
-msgstr "Разорвано соединение с LADCCA-сервером\n"
+msgid "LASH server disconnected\n"
+msgstr "Разорвано соединение с LASH-сервером\n"
 
 #: src/ui_callbacks.c:340
 #, c-format
-msgid "Received LADCCA event of unknown type %d\n"
+msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
 #: src/ui_callbacks.c:499
@@ -541,8 +541,8 @@ msgstr ""
 #~ msgid "Save the rack configuration to a file"
 #~ msgstr "Сохранить·настройки·эффект-процессора·в·файл"
 
-#~ msgid "Save the LADCCA project"
-#~ msgstr "Сохранить·LADCCA-проект"
+#~ msgid "Save the LASH project"
+#~ msgstr "Сохранить·LASH-проект"
 
 #, fuzzy
 #~ msgid "Created %s port '%s'"

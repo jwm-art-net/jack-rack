@@ -37,8 +37,8 @@ void     save_cb           (GtkButton * button, gpointer user_data);
 void     save_as_cb        (GtkButton * button, gpointer user_data);
 #endif
 
-#ifdef HAVE_LADCCA
-void     cca_save_cb       (GtkButton * button, gpointer user_data);
+#ifdef HAVE_LASH
+void     lash_save_cb       (GtkButton * button, gpointer user_data);
 #endif
 
 #ifdef HAVE_GNOME

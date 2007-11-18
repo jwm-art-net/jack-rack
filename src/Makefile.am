@@ -47,7 +47,6 @@ jack_rack_CFLAGS = \
 	$(GTK_CFLAGS) \
 	$(GNOMEUI_CFLAGS) \
 	$(JACK_CFLAGS) \
-	$(LADCCA_CFLAGS) \
 	$(LASH_CFLAGS) \
 	$(LRDF_CFLAGS) \
 	$(ALSA_CFLAGS) \
@@ -66,7 +65,6 @@ jack_rack_LDFLAGS = \
 	$(JACK_LIBS) \
 	$(GTK_LIBS) \
 	$(GNOMEUI_LIBS) \
-	$(LADCCA_LIBS) \
 	$(LASH_LIBS) \
 	$(LRDF_LIBS) \
 	$(ALSA_LIBS) \

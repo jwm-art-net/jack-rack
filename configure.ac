@@ -136,47 +136,6 @@ fi
 AM_CONDITIONAL(HAVE_XML, test "$XML_FOUND" = "yes")
 
 ##############
-### LADCCA ###
-##############
-if test x$XML_FOUND = xyes; then
-  jr_enable_ladcca="yes"
-  AC_ARG_ENABLE(ladcca,
-  [  --disable-ladcca        disable LADCCA support],[
-    case "$enableval" in
-      "yes")
-        jr_enable_ladcca="yes"
-        ;;
-      "no")
-        jr_enable_ladcca="no"
-        ;;
-      *)
-        AC_MSG_ERROR([must use --enable-ladcca(=yes/no) or --disable-ladcca])
-        ;;
-    esac
-  ])
-
-  if test "$jr_enable_ladcca" = "yes"; then
-    PKG_CHECK_MODULES(LADCCA, ladcca-1.0 >= 0.4.0, LADCCA_FOUND="yes", LADCCA_FOUND="no")
-  
-    if test "$LADCCA_FOUND" = "yes"; then
-      AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])
-      LADCCA_VERSION=$( pkg-config --modversion ladcca-1.0 )
-      AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LADCCA_VERSION", [The version of ladcca we're compiling against])
-      AC_SUBST(LADCCA_CFLAGS)
-      AC_SUBST(LADCCA_LIBS)
-    fi
-  else
-    AC_MSG_WARN([LADCCA support is disabled])
-    LADCCA_FOUND="no"
-  fi
-else
-  LADCCA_FOUND="no"
-fi
-
-AM_CONDITIONAL(HAVE_LADCCA, test "$LADCCA_FOUND" = "yes")
-
-
-##############
 ### LASH ###
 ##############
 if test x$XML_FOUND = xyes; then
@@ -201,15 +160,10 @@ if test x$XML_FOUND = xyes; then
   
     if test "$LASH_FOUND" = "yes"; then
       AC_DEFINE(HAVE_LASH, 1, [whether or not we are supporting lash])
-      AC_DEFINE(HAVE_LADCCA, 1, [whether or not we are supporting ladcca])
       LASH_VERSION=$( pkg-config --modversion lash-1.0 )
       AC_DEFINE_UNQUOTED(LASH_VERSION, "$LASH_VERSION", [The version of lash we're compiling against])
-      AC_DEFINE_UNQUOTED(LADCCA_VERSION, "$LASH_VERSION", [The version of ladcca we're compiling against])
       AC_SUBST(LASH_CFLAGS)
       AC_SUBST(LASH_LIBS)
-      LADCCA_CFLAGS=""
-      LADCCA_LIBS=""
-      #AC_CHECK_HEADER(lash.h, true, AC_MSG_ERROR([lash is required]))
     fi
   else
     AC_MSG_WARN([LASH support is disabled])
@@ -220,17 +174,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_LASH, test "$LASH_FOUND" = "yes")
-
-#if test x$LADCCA_FOUND" = xyes; then
-#   if x$LASH_FOUND = xyes; then
-#   fi
-#fi
-#
-#if x$LASH_FOUND = xyes; then
-#   if x$LADCCA_FOUND = xyes; then
-#   fi
-#fi
-
 
 ############
 ### lrdf ###
@@ -289,7 +232,6 @@ AC_MSG_RESULT([
   ALSA support:            $ALSA_FOUND
   XML support:             $XML_FOUND
   LRDF support:            $LRDF_FOUND
-  LADCCA support:          $LADCCA_FOUND
   LASH support:            $LASH_FOUND
   GNOME 2 support:         $GNOME_FOUND
   

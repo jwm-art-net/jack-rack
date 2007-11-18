@@ -86,9 +86,9 @@ struct _ui
   GtkToolItem *     open;
 #endif
 
-#ifdef HAVE_LADCCA
-  GtkToolItem *     cca_save;
-  GtkWidget *       cca_save_menu_item;
+#ifdef HAVE_LASH
+  GtkToolItem *     lash_save;
+  GtkWidget *       lash_save_menu_item;
 #endif
 
   GtkWidget *       splash_screen;

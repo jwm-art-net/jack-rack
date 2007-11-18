@@ -64,8 +64,8 @@ msgid "Save the rack configuration to a new file"
 msgstr "Speichere die Rack-Konfiguration in eine neue Datei"
 
 #: src/ui.c:295
-msgid "Save the current LADCCA project"
-msgstr "Speichert das aktuelle LADCCA-Projekt"
+msgid "Save the current LASH project"
+msgstr "Speichert das aktuelle LASH-Projekt"
 
 #: src/ui.c:305
 msgid "Quit JACK Rack"
@@ -199,12 +199,12 @@ msgstr "Sebastian Arnold"
 
 #: src/ui_callbacks.c:333
 #, c-format
-msgid "LADCCA server disconnected\n"
-msgstr "LADCCA Serververbindung getrennt\n"
+msgid "LASH server disconnected\n"
+msgstr "LASH Serververbindung getrennt\n"
 
 #: src/ui_callbacks.c:340
 #, c-format
-msgid "Received LADCCA event of unknown type %d\n"
+msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
 #: src/ui_callbacks.c:499
@@ -517,8 +517,8 @@ msgstr ""
 #~ msgid "Save the rack configuration to a file"
 #~ msgstr "Rack-Konfiguration in eine Datei speichern"
 
-#~ msgid "Save the LADCCA project"
-#~ msgstr "LADCCA-Projekt speichern"
+#~ msgid "Save the LASH project"
+#~ msgstr "LASH-Projekt speichern"
 
 #~ msgid "Exit the program"
 #~ msgstr "Das Programm verlassen"

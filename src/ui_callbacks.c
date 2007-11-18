@@ -191,16 +191,16 @@ save_as_cb (GtkButton * button, gpointer user_data)
 }
 #endif /* HAVE_XML */
  
-#ifdef HAVE_LADCCA
+#ifdef HAVE_LASH
 void
-cca_save_cb (GtkButton * button, gpointer user_data)
+lash_save_cb (GtkButton * button, gpointer user_data)
 {
-  cca_event_t * event;
+  lash_event_t * event;
   
-  event = cca_event_new_with_type (CCA_Save);
-  cca_send_event (global_cca_client, event);
+  event = lash_event_new_with_type (LASH_Save);
+  lash_send_event (global_lash_client, event);
 }
-#endif /* HAVE_LADCCA */
+#endif /* HAVE_LASH */
 
 
 void
@@ -306,50 +306,50 @@ plugin_add_button_cb (GtkWidget *widget, gpointer user_data)
 }
 
 
-#ifdef HAVE_LADCCA
+#ifdef HAVE_LASH
 static int
-cca_idle (ui_t * ui, cca_client_t * client)
+lash_idle (ui_t * ui, lash_client_t * client)
 {
-  cca_event_t * event;
+  lash_event_t * event;
 
-  while ( (event = cca_get_event (client)) )
+  while ( (event = lash_get_event (client)) )
     {
-      switch (cca_event_get_type (event))
+      switch (lash_event_get_type (event))
         {
-        case CCA_Save_File:
-          ui_save_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-          cca_send_event (global_cca_client, event);
+        case LASH_Save_File:
+          ui_save_file (ui, lash_get_fqn (lash_event_get_string (event), "jack_rack.rack"));
+          lash_send_event (global_lash_client, event);
           break;
-        case CCA_Restore_File:
-          ui_open_file (ui, cca_get_fqn (cca_event_get_string (event), "jack_rack.rack"));
-          cca_send_event (global_cca_client, event);
+        case LASH_Restore_File:
+          ui_open_file (ui, lash_get_fqn (lash_event_get_string (event), "jack_rack.rack"));
+          lash_send_event (global_lash_client, event);
           break;
-        case CCA_Quit:
+        case LASH_Quit:
           quit_cb (NULL, ui);
-          cca_event_destroy (event);
+          lash_event_destroy (event);
           break;
-        case CCA_Server_Lost:
+        case LASH_Server_Lost:
           printf ("server lost\n");
-          printf (_("LADCCA server disconnected\n"));
-          gtk_widget_set_sensitive (GTK_WIDGET (ui->cca_save), FALSE);
-          gtk_widget_set_sensitive (GTK_WIDGET (ui->cca_save_menu_item), FALSE);
-          cca_event_destroy (event);
+          printf (_("LASH server disconnected\n"));
+          gtk_widget_set_sensitive (GTK_WIDGET (ui->lash_save), FALSE);
+          gtk_widget_set_sensitive (GTK_WIDGET (ui->lash_save_menu_item), FALSE);
+          lash_event_destroy (event);
           return 0;
           break;
         default:
-          fprintf (stderr, _("Received LADCCA event of unknown type %d\n"), cca_event_get_type (event));
-          cca_event_destroy (event);
+          fprintf (stderr, _("Received LASH event of unknown type %d\n"), lash_event_get_type (event));
+          lash_event_destroy (event);
           break;
         }
     }
 
-  if (!cca_enabled (client))
+  if (!lash_enabled (client))
     return 0;
 
 
   return 1;
 }
-#endif /* HAVE_LADCCA */
+#endif /* HAVE_LASH */
 
 
 #ifdef HAVE_ALSA
@@ -567,9 +567,9 @@ idle_cb (gpointer data)
   ctrlmsg_t ctrlmsg;
   ui_t * ui;
   jack_rack_t * jack_rack;
-#ifdef HAVE_LADCCA
-  static int call_cca_idle = 1;
-#endif /* HAVE_LADCCA */
+#ifdef HAVE_LASH
+  static int call_lash_idle = 1;
+#endif /* HAVE_LASH */
 
   ui = (ui_t *) data;
   jack_rack = ui->jack_rack;
@@ -637,9 +637,9 @@ idle_cb (gpointer data)
       }
     }
 
-#ifdef HAVE_LADCCA
-  if (call_cca_idle)
-    call_cca_idle = cca_idle (ui, global_cca_client);
+#ifdef HAVE_LASH
+  if (call_lash_idle)
+    call_lash_idle = lash_idle (ui, global_lash_client);
 #endif
   
   usleep (1000);

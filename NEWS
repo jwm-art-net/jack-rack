@@ -3,6 +3,8 @@
   (reported by Danni Coy).
 * Use the new GTK tooltips API (reported by Owen Williams and Stanislav
   Karchebny).
+* Removed support for the old LADCCA interface, and cleaned everything
+  up to refer to LASH instead.
 
 
 1.4.6:

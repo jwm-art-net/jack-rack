@@ -58,10 +58,10 @@ midi_info_connect_alsa (ui_t * ui)
 
   
   
-  /* tell ladcca our client id */
-#ifdef HAVE_LADCCA
-  cca_alsa_client_id (global_cca_client, snd_seq_client_id (seq));
-#endif /* HAVE_LADCCA */
+  /* tell LASH our client id */
+#ifdef HAVE_LASH
+  lash_alsa_client_id (global_lash_client, snd_seq_client_id (seq));
+#endif /* HAVE_LASH */
 
   /* set our client name */
   snd_seq_set_client_name (seq, client_name->str);
