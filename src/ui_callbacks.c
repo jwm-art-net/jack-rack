@@ -655,3 +655,34 @@ jack_shutdown_cb (void * data)
   ui->shutdown = TRUE;
 }
 
+static gboolean
+jack_session_cb (gpointer data)
+{
+  ui_t * ui = (ui_t*)data;
+  char cmd_buf[256];
+  char fname_buf[256];
+  jack_session_event_type_t ev_type = ui->js_event->type;
+
+  snprintf( fname_buf, sizeof(fname_buf), "%srack.xml", ui->js_event->session_dir);
+  snprintf( cmd_buf, sizeof(cmd_buf), "jack-rack --jack-session-uuid %s \"%s\"", ui->js_event->client_uuid, fname_buf );
+
+  ui->js_event->command_line = strdup( cmd_buf );
+
+  if (!ui_save_file (ui, fname_buf))
+    ui->js_event->flags = JackSessionSaveError;
+
+  jack_session_reply( ui->procinfo->jack_client, ui->js_event );
+
+  if (ev_type == JackSessionSaveAndQuit)
+    ui->shutdown = TRUE;
+
+  return FALSE;
+}
+
+void 
+jack_session_cb_aux (jack_session_event_t *ev, void *data)
+{
+  ui_t * ui = (ui_t*)data;
+  ui->js_event = ev;
+  g_idle_add (jack_session_cb, data);
+}

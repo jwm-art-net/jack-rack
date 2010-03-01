@@ -453,7 +453,12 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
   _update_status ( _("Connecting to JACK server with client name '%s'"), jack_client_name );
 
-  if (!(procinfo->jack_client = jack_client_new (jack_client_name)))
+  if (strlen (session_uuid->str))
+    procinfo->jack_client = jack_client_open (jack_client_name, JackSessionID, NULL, session_uuid->str);
+  else
+    procinfo->jack_client = jack_client_open (jack_client_name, JackNullOption, NULL);
+
+  if (!procinfo->jack_client)
         return -1;
   
   _update_status ( _status_cb_data, _("Connected to JACK server") );
@@ -638,6 +643,7 @@ process_info_new (ui_t* ui, unsigned long rack_channels)
   
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
   jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
+  jack_set_session_callback (procinfo->jack_client, jack_session_cb_aux, ui);
   
   procinfo->ui_to_process = ui->ui_to_process; 
   procinfo->process_to_ui = ui->process_to_ui; 

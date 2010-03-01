@@ -51,6 +51,7 @@ gboolean connect_inputs = FALSE;
 gboolean connect_outputs = FALSE;
 gboolean time_runs = TRUE;
 GString  *client_name = NULL;
+GString  *session_uuid = NULL;
 GString  *initial_filename = NULL;
 
 #ifdef HAVE_LASH
@@ -117,6 +118,7 @@ int main (int argc, char ** argv) {
     { "input", 1, NULL, 'i' },
     { "output", 1, NULL, 'o' },
     { "no-time", 0, NULL, 't' },
+    { "jack-session-uuid", 1, NULL, 'U' },
     { 0, 0, 0, 0 }
   };
 
@@ -157,7 +159,8 @@ int main (int argc, char ** argv) {
 
   /* set the client name */
   client_name = g_string_new ("");
-  g_string_printf (client_name, "%s (%d)", CLIENT_NAME_BASE, getpid());
+  session_uuid = g_string_new ("");
+  g_string_printf (client_name, "%s", CLIENT_NAME_BASE);
   
   while ((opt = getopt_long (argc, argv, options, long_options, NULL)) != -1) {
     switch (opt) {
@@ -199,6 +202,10 @@ int main (int argc, char ** argv) {
       case 't':
         time_runs = FALSE;
         break;
+
+      case 'U':
+        g_string_printf (session_uuid, "%s", optarg);
+	break;
 
       case ':':
       case '?':

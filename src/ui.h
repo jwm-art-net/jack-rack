@@ -25,6 +25,9 @@
 
 #include <gtk/gtk.h>
 
+#include <jack/jack.h>
+#include <jack/session.h>
+
 #include "jack_rack.h"
 #include "plugin_mgr.h"
 #include "midi.h"
@@ -98,6 +101,7 @@ struct _ui
   GtkWidget         *midi_menu;
   GtkWidget         *midi_menu_item;
 #endif
+  jack_session_event_t *js_event;
 };
 
 ui_t * ui_new     (unsigned long channels);

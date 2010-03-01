@@ -61,6 +61,7 @@ extern gboolean   connect_inputs;
 extern gboolean   connect_outputs;
 extern gboolean   time_runs;
 extern GString    *client_name;
+extern GString    *session_uuid;
 extern GString    *initial_filename;
 
 typedef enum MIDI_CONTROL_TYPE 
