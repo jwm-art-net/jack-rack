@@ -663,7 +663,6 @@ jack_session_cb (gpointer data)
   ui_t * ui = (ui_t*)data;
   char cmd_buf[256];
   char fname_buf[256];
-  jack_session_event_type_t ev_type = ui->js_event->type;
 
   snprintf( fname_buf, sizeof(fname_buf), "%srack.xml", ui->js_event->session_dir);
   snprintf( cmd_buf, sizeof(cmd_buf), "jack-rack --jack-session-uuid %s \"%s\"", ui->js_event->client_uuid, fname_buf );
@@ -675,8 +674,10 @@ jack_session_cb (gpointer data)
 
   jack_session_reply( ui->procinfo->jack_client, ui->js_event );
 
-  if (ev_type == JackSessionSaveAndQuit)
+  if (ui->js_event->type == JackSessionSaveAndQuit)
     ui->shutdown = TRUE;
+
+  jack_session_event_free( ui->js_event );
 
   return FALSE;
 }
