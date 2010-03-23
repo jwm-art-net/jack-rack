@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the jack-rack package.
 # Raphaël Doursenaud <rdoursenaud@free.fr>, 2005.
 # , fuzzy
-# 
-# 
+#
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-18 13:02+0000\n"
+"POT-Creation-Date: 2010-03-01 07:31+0100\n"
 "PO-Revision-Date: 2007-01-09 05:42+0100\n"
 "Last-Translator: Raphaël Doursenaud <rdoursenaud@free.fr>\n"
 "Language-Team: French\n"
@@ -170,16 +170,16 @@ msgstr "Traité/Direct"
 msgid "Enable"
 msgstr "Activer"
 
-#: src/ui_callbacks.c:59
+#: src/ui_callbacks.c:62
 #, c-format
 msgid "%s: no plugin description!\n"
 msgstr ""
 
-#: src/ui_callbacks.c:78
+#: src/ui_callbacks.c:81
 msgid "I/O Channels"
 msgstr "Canaux d'E/S"
 
-#: src/ui_callbacks.c:91
+#: src/ui_callbacks.c:94
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
@@ -187,37 +187,37 @@ msgstr ""
 "Attention: changer le nombre de\n"
 "canaux videra le rack actuel"
 
-#: src/ui_callbacks.c:133
+#: src/ui_callbacks.c:136
 msgid "Open File"
 msgstr "Ouvrir un fichier"
 
-#: src/ui_callbacks.c:174
+#: src/ui_callbacks.c:177
 msgid "Save File"
 msgstr "Sauvegarder un fichier"
 
-#: src/ui_callbacks.c:259
+#: src/ui_callbacks.c:262
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Un rack d'effets LADSPA pour l'API audio JACK"
 
-#: src/ui_callbacks.c:263
+#: src/ui_callbacks.c:266
 msgid "__TRANSLATOR_CREDITS"
 msgstr "Raphaël Doursenaud"
 
-#: src/ui_callbacks.c:333
+#: src/ui_callbacks.c:336
 #, c-format
 msgid "LASH server disconnected\n"
 msgstr "Serveur LASH déconnecté\n"
 
-#: src/ui_callbacks.c:340
+#: src/ui_callbacks.c:343
 #, c-format
 msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
-#: src/ui_callbacks.c:499
+#: src/ui_callbacks.c:502
 msgid "Connecting to JACK..."
 msgstr "Connexion à JACK..."
 
-#: src/ui_callbacks.c:503
+#: src/ui_callbacks.c:506
 #, fuzzy
 msgid "Connecting to JACK server..."
 msgstr "Connexion à JACK..."

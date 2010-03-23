@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-18 13:02+0000\n"
+"POT-Creation-Date: 2010-03-01 07:31+0100\n"
 "PO-Revision-Date: 2007-01-25 16:00+0100\n"
 "Last-Translator: Sebastian Arnold <mail@sebastian-arnold.net>\n"
 "Language-Team: Sebastian Arnold <linux@sebastian-arnold.net>\n"
@@ -164,16 +164,16 @@ msgstr "Wet/Dry"
 msgid "Enable"
 msgstr "Aktivieren"
 
-#: src/ui_callbacks.c:59
+#: src/ui_callbacks.c:62
 #, c-format
 msgid "%s: no plugin description!\n"
 msgstr ""
 
-#: src/ui_callbacks.c:78
+#: src/ui_callbacks.c:81
 msgid "I/O Channels"
 msgstr "Ein-/Ausgangskanäle"
 
-#: src/ui_callbacks.c:91
+#: src/ui_callbacks.c:94
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
@@ -181,37 +181,37 @@ msgstr ""
 "Achtung: beim Verändern der Anzahl\n"
 "der Kanäle wird das Rack zurückgesetzt"
 
-#: src/ui_callbacks.c:133
+#: src/ui_callbacks.c:136
 msgid "Open File"
 msgstr "Datei Öffnen"
 
-#: src/ui_callbacks.c:174
+#: src/ui_callbacks.c:177
 msgid "Save File"
 msgstr "Datei Speichern"
 
-#: src/ui_callbacks.c:259
+#: src/ui_callbacks.c:262
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Ein LADSPA-Effekt-Rack für das JACK Audiosystem"
 
-#: src/ui_callbacks.c:263
+#: src/ui_callbacks.c:266
 msgid "__TRANSLATOR_CREDITS"
 msgstr "Sebastian Arnold"
 
-#: src/ui_callbacks.c:333
+#: src/ui_callbacks.c:336
 #, c-format
 msgid "LASH server disconnected\n"
 msgstr "LASH Serververbindung getrennt\n"
 
-#: src/ui_callbacks.c:340
+#: src/ui_callbacks.c:343
 #, c-format
 msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
-#: src/ui_callbacks.c:499
+#: src/ui_callbacks.c:502
 msgid "Connecting to JACK..."
 msgstr "Verbinde mit JACK..."
 
-#: src/ui_callbacks.c:503
+#: src/ui_callbacks.c:506
 #, fuzzy
 msgid "Connecting to JACK server..."
 msgstr "Verbinde mit JACK..."
