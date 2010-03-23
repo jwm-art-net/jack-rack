@@ -655,6 +655,8 @@ jack_shutdown_cb (void * data)
   ui->shutdown = TRUE;
 }
 
+#if HAVE_JACK_SESSION 
+
 static gboolean
 jack_session_cb (gpointer data)
 {
@@ -686,3 +688,6 @@ jack_session_cb_aux (jack_session_event_t *ev, void *data)
   ui->js_event = ev;
   g_idle_add (jack_session_cb, data);
 }
+
+#endif
+

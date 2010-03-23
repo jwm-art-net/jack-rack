@@ -5,6 +5,8 @@ AM_CONFIG_HEADER(src/ac_config.h)
 AM_MAINTAINER_MODE
 
 AC_PROG_CC
+AM_PROG_CC_C_O
+
 #AC_PROG_LIBTOOL
 
 
@@ -17,6 +19,11 @@ JACK_VERSION=$( pkg-config --modversion jack )
 AC_DEFINE_UNQUOTED(JACK_VERSION, "$JACK_VERSION", [The version of jack we're compiling against])
 AC_SUBST(JACK_CFLAGS)
 AC_SUBST(JACK_LIBS)
+
+AC_CHECK_HEADER(jack/session.h, JACK_SESSION_FOUND="yes", JACK_SESSION_FOUND="no")
+if test "$JACK_SESSION_FOUND" = "yes"; then
+	AC_DEFINE(HAVE_JACK_SESSION, 1, [whether jack/session.h is available])
+fi
 
 
 ##############
@@ -234,6 +241,7 @@ AC_MSG_RESULT([
   LRDF support:            $LRDF_FOUND
   LASH support:            $LASH_FOUND
   GNOME 2 support:         $GNOME_FOUND
+  JACK Session support:    $JACK_SESSION_FOUND
   
   Installation prefix:     $prefix
 

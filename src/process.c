@@ -19,6 +19,11 @@
  */
 
 #include <jack/jack.h>
+
+#if HAVE_JACK_SESSION
+#include <jack/session.h>
+#endif
+
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
@@ -453,9 +458,11 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 {
   _update_status ( _("Connecting to JACK server with client name '%s'"), jack_client_name );
 
+#if HAVE_JACK_SESSION
   if (strlen (session_uuid->str))
     procinfo->jack_client = jack_client_open (jack_client_name, JackSessionID, NULL, session_uuid->str);
   else
+#endif
     procinfo->jack_client = jack_client_open (jack_client_name, JackNullOption, NULL);
 
   if (!procinfo->jack_client)
@@ -465,6 +472,11 @@ process_info_connect_jack (process_info_t * procinfo, ui_t * ui)
 
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
   jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui); /* FIXME: need a generic callback for this, too */
+
+#if HAVE_JACK_SESSION
+  if( jack_set_session_callback )
+	  jack_set_session_callback (procinfo->jack_client, jack_session_cb_aux, ui);
+#endif
                                             
   return 0;
 }
@@ -643,7 +655,10 @@ process_info_new (ui_t* ui, unsigned long rack_channels)
   
   jack_set_process_callback (procinfo->jack_client, process, procinfo);
   jack_on_shutdown (procinfo->jack_client, jack_shutdown_cb, ui);
-  jack_set_session_callback (procinfo->jack_client, jack_session_cb_aux, ui);
+#if HAVE_JACK_SESSION
+  if( jack_set_session_callback )
+	  jack_set_session_callback (procinfo->jack_client, jack_session_cb_aux, ui);
+#endif
   
   procinfo->ui_to_process = ui->ui_to_process; 
   procinfo->process_to_ui = ui->process_to_ui; 
