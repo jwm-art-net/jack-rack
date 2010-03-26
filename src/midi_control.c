@@ -125,6 +125,9 @@ wet_dry_midi_control_new (struct _plugin_slot * plugin_slot, unsigned long chann
   
   midi_ctrl->min = 0.0;
   midi_ctrl->max = 1.0;
+
+  midi_ctrl->real_min = midi_ctrl->min;
+  midi_ctrl->real_max = midi_ctrl->max;
   
   return midi_ctrl;
 }
@@ -140,6 +143,9 @@ toggle_midi_control_new (struct _plugin_slot * plugin_slot)
    
   midi_ctrl->min = 0.0;
   midi_ctrl->max = 1.0;
+
+  midi_ctrl->real_min = midi_ctrl->min;
+  midi_ctrl->real_max = midi_ctrl->max;
   
   return midi_ctrl;
 }
