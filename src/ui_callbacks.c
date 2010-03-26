@@ -665,7 +665,7 @@ jack_session_cb (gpointer data)
   char fname_buf[256];
 
   snprintf( fname_buf, sizeof(fname_buf), "%srack.xml", ui->js_event->session_dir);
-  snprintf( cmd_buf, sizeof(cmd_buf), "jack-rack --jack-session-uuid %s \"%s\"", ui->js_event->client_uuid, fname_buf );
+  snprintf( cmd_buf, sizeof(cmd_buf), "jack-rack --jack-session-uuid %s \"${SESSION_DIR}rack.xml\"", ui->js_event->client_uuid );
 
   ui->js_event->command_line = strdup( cmd_buf );
 
