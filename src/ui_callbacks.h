@@ -26,7 +26,9 @@
 #include <gtk/gtk.h>
 
 #include <jack/jack.h>
+#ifdef HAVE_JACK_SESSION
 #include <jack/session.h>
+#endif
 
 void     add_cb            (GtkMenuItem * menuitem, gpointer user_data);
 void     channel_cb        (GtkWidget * button, gpointer user_data);
@@ -58,6 +60,8 @@ void plugin_add_button_cb (GtkWidget *widget, gpointer user_data);
 gboolean idle_cb (gpointer data);
 
 void jack_shutdown_cb (void * data);
+#ifdef HAVE_JACK_SESSION
 void jack_session_cb_aux (jack_session_event_t *ev, void *data);
+#endif
 
 #endif /* __JR_UI_CALLBACKS_H__ */
