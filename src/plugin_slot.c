@@ -558,6 +558,10 @@ plugin_slot_change_plugin (plugin_slot_t * plugin_slot, plugin_t * plugin)
     }
 
 
+#ifdef HAVE_ALSA
+  /* remove controls for this plugin */
+  plugin_slot_remove_midi_controls (plugin_slot);
+#endif
 
   /* kill all the control stuff */
   if (plugin_slot->control_table)
