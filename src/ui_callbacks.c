@@ -675,7 +675,7 @@ jack_session_cb (gpointer data)
   jack_session_reply( ui->procinfo->jack_client, ui->js_event );
 
   if (ui->js_event->type == JackSessionSaveAndQuit)
-    ui->shutdown = TRUE;
+    quit_cb (NULL, ui);
 
   jack_session_event_free( ui->js_event );
 
