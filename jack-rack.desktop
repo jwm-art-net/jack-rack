@@ -2,6 +2,7 @@
 Encoding=UTF-8
 Name=JACK Rack
 Comment=Stereo LADSPA effects rack
+Comment[ru]=Стойка эффектов LADSPA
 Exec=jack-rack
 Icon=jack-rack-icon.png
 Terminal=false
