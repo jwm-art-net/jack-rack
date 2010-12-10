@@ -1,19 +1,22 @@
 # translation of ru.po to Russian
 # Alexandre Prokoudine <avp@altlinux.ru>, 2003
+# Александр Прокудин <alexandre.prokoudine@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ru\n"
+"Project-Id-Version: JACK Rack 1.4.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-09 00:06+0000\n"
-"PO-Revision-Date: 2003-07-01 20:33+0400\n"
-"Last-Translator: Alexandre Prokoudine <avp@altlinux.ru>\n"
-"Language-Team: Russian <ru@li.org>\n"
-"Language: ru\n"
+"POT-Creation-Date: 2010-12-09 22:19+0300\n"
+"PO-Revision-Date: 2010-12-10 04:22+0300\n"
+"Last-Translator: Александр Прокудин <alexandre.prokoudine@gmail.com>\n"
+"Language-Team: Russian <gnome-cyr@lists.gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Encoding: UTF-8\n"
 "X-Generator: KBabel 1.0.1\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2); 10<=4 && (n%100<10 || n%"
+"100>=20) ? 1 : 2);\n"
 
 #: src/ui.c:75
 msgid "File"
@@ -21,7 +24,7 @@ msgstr "Файл"
 
 #: src/ui.c:79
 msgid "Rack"
-msgstr "Эффект-процессор"
+msgstr "Стойка"
 
 #: src/ui.c:85
 msgid "Help"
@@ -49,30 +52,27 @@ msgstr "Добавить·модуль"
 
 #: src/ui.c:260
 msgid "Change the number of I/O channels the rack has"
-msgstr "Изменить·количество·I/O·портов·эффект-процессора"
+msgstr "Изменить·количество·портов·I/O стойки эффектов"
 
 #: src/ui.c:268
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
 #: src/ui.c:274
-#, fuzzy
 msgid "Load a previously-saved rack configuration"
-msgstr "Открыть·файл·настроек·эффект-процессора"
+msgstr "Открыть·конфигурацию стойки эффектов"
 
 #: src/ui.c:279
 msgid "Save the rack configuration to the current file"
-msgstr "Сохранить·настройки·эффект-процессора·в·текущий·файл"
+msgstr "Сохранить·конфигурацию стойки эффектов"
 
 #: src/ui.c:284
-#, fuzzy
 msgid "Save the rack configuration to a new file"
-msgstr "Сохранить·настройки·эффект-процессора·в·файл"
+msgstr "Сохранить·конфигурацию стойки эффектов в новый файл"
 
 #: src/ui.c:295
-#, fuzzy
 msgid "Save the current LASH project"
-msgstr "Сохранить·LASH-проект"
+msgstr "Сохранить·текущий проект LASH"
 
 #: src/ui.c:305
 msgid "Quit JACK Rack"
@@ -134,12 +134,11 @@ msgstr ""
 
 #: src/plugin_mgr.c:338
 msgid "in"
-msgstr ""
+msgstr "вх"
 
 #: src/plugin_mgr.c:338
-#, fuzzy
 msgid "out"
-msgstr "О программе"
+msgstr "вых"
 
 #: src/plugin_mgr.c:345
 msgid "ch"
@@ -147,7 +146,7 @@ msgstr "к"
 
 #: src/plugin_mgr.c:542
 msgid "Uncategorised"
-msgstr ""
+msgstr "Без категории"
 
 #: src/plugin_mgr.c:610
 #, c-format
@@ -155,9 +154,9 @@ msgid "Found LRDF description file '%s'"
 msgstr "Найден файл описания LRDF '%s'"
 
 #: src/plugin_mgr.c:650
-#, fuzzy, c-format
+#, c-format
 msgid "%s: could not parse LRDF file '%s'\n"
-msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
+msgstr "%s: не·удалось·выполнить·разбор·файла·LRDF '%s'\n"
 
 #: src/port_controls.c:274 src/wet_dry_controls.c:89
 msgid "Lock"
@@ -169,20 +168,20 @@ msgstr "Вкл"
 
 #: src/midi_control.c:280
 msgid "Wet/dry"
-msgstr "Wet/dry"
+msgstr "До/После"
 
 #: src/midi_control.c:285 src/plugin_slot.c:412
 msgid "Enable"
-msgstr "Разрешить"
+msgstr "Включить"
 
 #: src/ui_callbacks.c:59
 #, c-format
 msgid "%s: no plugin description!\n"
-msgstr ""
+msgstr "%s: нет описания эффекта!\n"
 
 #: src/ui_callbacks.c:78
 msgid "I/O Channels"
-msgstr "I/O·каналы"
+msgstr "Каналы I/O"
 
 #: src/ui_callbacks.c:91
 msgid ""
@@ -193,23 +192,20 @@ msgstr ""
 "к·стиранию·текущих·настроек·эффект-процессора"
 
 #: src/ui_callbacks.c:133
-#, fuzzy
 msgid "Open File"
-msgstr "Файл"
+msgstr "Открыть файл"
 
 #: src/ui_callbacks.c:174
-#, fuzzy
 msgid "Save File"
-msgstr "Выберите файл"
+msgstr "Сохранить файл"
 
 #: src/ui_callbacks.c:259
-#, fuzzy
 msgid "A LADSPA effects rack for the JACK audio API"
-msgstr "Эффект-процессор·на·основе·LADSPA для JACK audio API"
+msgstr "Стойка эффектов обработки LADSPA для JACK"
 
 #: src/ui_callbacks.c:263
 msgid "__TRANSLATOR_CREDITS"
-msgstr ""
+msgstr "Александр Прокудин <alexandre@prokoudine.info>"
 
 #: src/ui_callbacks.c:333
 #, c-format
@@ -222,14 +218,12 @@ msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
 #: src/ui_callbacks.c:499
-#, fuzzy
 msgid "Connecting to JACK..."
-msgstr "Установлено соединение с JACK-сервером"
+msgstr "Выполняется соединение с JACK..."
 
 #: src/ui_callbacks.c:503
-#, fuzzy
 msgid "Connecting to JACK server..."
-msgstr "Установлено соединение с JACK-сервером"
+msgstr "Выполняется соединение с сервером JACK..."
 
 #: src/file.c:200
 #, c-format
@@ -267,7 +261,7 @@ msgstr "Блокировать·все"
 
 #: src/plugin_slot.c:423
 msgid "Wet/Dry"
-msgstr "Wet/Dry"
+msgstr "До/После"
 
 #: src/wet_dry_controls.c:105
 msgid "Channel"
@@ -281,7 +275,7 @@ msgstr "Скомпилировано·с:\n"
 #: src/main.c:86
 #, c-format
 msgid "Usage: jack-rack [OPTION]..."
-msgstr ""
+msgstr "Использование: jack-rack [АРГУМЕНТ]..."
 
 #: src/main.c:93
 msgid "Display this help info"
@@ -310,24 +304,24 @@ msgstr "Выходы·подключены·к·первым·двум·физи
 #: src/main.c:101
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
-"Сколько·I/O·каналов·эффект-процессор·должен·использовать (по·умолчанию: 2)"
+"Сколько·каналов·I/O стойка·эффектов должна·использовать (по·умолчанию: 2)"
 
 #: src/main.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "There must be at least one channel\n"
-msgstr "должно·быть·не·менее·одного·канала\n"
+msgstr "Должно·быть·не·менее·одного·канала\n"
 
 #: src/main.c:223
 #, c-format
 msgid "Please specify only one file to open"
-msgstr ""
+msgstr "Выберите только один файл для открытия"
 
 #: src/midi.c:47
 msgid "Connecting to ALSA sequencer"
 msgstr "Устанавливается соединение с ALSA sequencer"
 
 #: src/midi.c:53
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Could not open ALSA sequencer, aborting:\n"
 "\n"
@@ -335,12 +329,11 @@ msgid ""
 "\n"
 "Please check that your ALSA configuration is correct."
 msgstr ""
-"Не удалось установить соединение с ALSA sequencer, операция прерывается\n"
+"Не удалось установить соединение с секвенсером ALSA, операция прерывается\n"
 "\n"
 "%s\n"
 "\n"
-"Убедитесь в том, что вы корректно настроили ALSA, что файл\n"
-"/proc/asound/seq/clients существует и содержит требуемые устройства."
+"Убедитесь в том, что подсистема ALSA корректно настроена."
 
 #: src/midi.c:56
 #, c-format
@@ -352,13 +345,13 @@ msgid "Creating ALSA sequencer port"
 msgstr "Создаётся порт для ALSA sequencer"
 
 #: src/midi.c:80
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Could not create ALSA port, aborting:\n"
 "\n"
 "%s"
 msgstr ""
-"Не удалось создать порт для ALSA port, операция прерывается\n"
+"Не удалось создать порт для ALSA, операция прерывается\n"
 "\n"
 "%s"
 
@@ -416,39 +409,39 @@ msgid "Connected to JACK server"
 msgstr "Установлено соединение с JACK-сервером"
 
 #: src/process.c:512
-#, fuzzy, c-format
+#, c-format
 msgid "Connecting port '%s' with '%s'"
-msgstr "Соединяются порты '%s' и '%s'"
+msgstr "Порт '%s' соединяется с '%s'"
 
 #: src/process.c:519
-#, fuzzy, c-format
+#, c-format
 msgid "%s: error connecting ports '%s' and '%s'\n"
-msgstr "Соединяются порты '%s' и '%s'"
+msgstr "%s: ошибка при соединении портов '%s' и '%s'\n"
 
 #: src/process.c:522
-#, fuzzy, c-format
+#, c-format
 msgid "Connected port '%s' with '%s'"
-msgstr "Соединены порты '%s' и '%s'"
+msgstr "Порт '%s' соединён с '%s'"
 
 #: src/process.c:571
-#, fuzzy, c-format
+#, c-format
 msgid "Creating input port '%s'"
-msgstr "Создаётся %s порт %s"
+msgstr "Создаётся порт входа '%s'"
 
 #: src/process.c:576
-#, fuzzy, c-format
+#, c-format
 msgid "Creating output port '%s'"
-msgstr "Создаётся %s порт %s"
+msgstr "Создаётся порт выхода '%s'"
 
 #: src/process.c:591
-#, fuzzy, c-format
+#, c-format
 msgid "%s: could not register port '%s'; aborting\n"
-msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+msgstr "%s: не удалось зарегистрировать порт '%s'; операция прерывается\n"
 
 #: src/process.c:594
-#, fuzzy, c-format
+#, c-format
 msgid "Could not register JACK port '%s'; aborting"
-msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+msgstr "Не удалось зарегистрировать порт '%s' в JACK; операция прерывается"
 
 #: src/midi_window.c:79
 msgid "Plugin"
@@ -472,18 +465,18 @@ msgstr "MIDI-контроллер"
 
 #: src/midi_window.c:120
 msgid "Min Value"
-msgstr ""
+msgstr "Мин. значение"
 
 #: src/midi_window.c:130
 msgid "Max Value"
-msgstr ""
+msgstr "Макс. значение"
 
 #: src/midi_window.c:154
 msgid "JACK Rack MIDI Controls"
 msgstr "MIDI-регуляторы·JACK Rack"
 
 #: src/jack_rack.c:75
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Plugin not RT capable\n"
 "\n"
@@ -493,14 +486,14 @@ msgid ""
 "\n"
 "Are you sure you want to add this plugin?"
 msgstr ""
-"Модуль не предназначен для работы в режиме реального времени\n"
+"Эффект не предназначен для работы в режиме реального времени\n"
 "\n"
-"Модуль '%s' не описывает себя как модуль для работы в режиме \n"
+"Эффект '%s' не описывает себя как модуль для работы в режиме \n"
 "реального времени.  Вы можете слышать неприятные артефакты, и \n"
-"JACK-сервер может даже отключитm JACK Rack, если вы попытаетесь \n"
+"JACK-сервер может даже отключить JACK Rack, если вы попытаетесь \n"
 "использовать этот модуль.\n"
 "\n"
-"Вы действительно хотите добавить этот модуль?"
+"Вы действительно хотите добавить этот эффект?"
 
 #: src/jack_rack.c:95
 #, c-format
@@ -518,9 +511,9 @@ msgid "Could not register jack port '%s'; aborting"
 msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
 
 #: src/plugin.c:581
-#, fuzzy, c-format
+#, c-format
 msgid "%s: could not unregister jack port\n"
-msgstr "Не удалось зарегистрировать порт '%s' для jack; операция прерывается"
+msgstr "%s: не удалось аннулировать регистрацию порта JACK\n"
 
 #: src/plugin.c:609
 #, c-format
