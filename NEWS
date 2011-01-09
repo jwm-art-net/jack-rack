@@ -3,6 +3,7 @@
 * (development moved from CVS to Git)
 * Add support for jack-session.
 * Fix bugs in MIDI controls (patch from Peter Nelson).
+* Add a Czech translation (patch from Pavel Fric).
 
 
 1.4.7:
