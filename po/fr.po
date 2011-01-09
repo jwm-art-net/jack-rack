@@ -9,10 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: jack-rack 1.4.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-01 07:31+0100\n"
+"POT-Creation-Date: 2011-01-09 00:06+0000\n"
 "PO-Revision-Date: 2007-01-09 05:42+0100\n"
 "Last-Translator: Raphaël Doursenaud <rdoursenaud@free.fr>\n"
 "Language-Team: French\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -162,24 +163,24 @@ msgstr "Verrouiller"
 msgid "On"
 msgstr "Activé"
 
-#: src/midi_control.c:274
+#: src/midi_control.c:280
 msgid "Wet/dry"
 msgstr "Traité/Direct"
 
-#: src/midi_control.c:279 src/plugin_slot.c:412
+#: src/midi_control.c:285 src/plugin_slot.c:412
 msgid "Enable"
 msgstr "Activer"
 
-#: src/ui_callbacks.c:62
+#: src/ui_callbacks.c:59
 #, c-format
 msgid "%s: no plugin description!\n"
 msgstr ""
 
-#: src/ui_callbacks.c:81
+#: src/ui_callbacks.c:78
 msgid "I/O Channels"
 msgstr "Canaux d'E/S"
 
-#: src/ui_callbacks.c:94
+#: src/ui_callbacks.c:91
 msgid ""
 "Warning: changing the number of\n"
 "channels will clear the current rack"
@@ -187,37 +188,37 @@ msgstr ""
 "Attention: changer le nombre de\n"
 "canaux videra le rack actuel"
 
-#: src/ui_callbacks.c:136
+#: src/ui_callbacks.c:133
 msgid "Open File"
 msgstr "Ouvrir un fichier"
 
-#: src/ui_callbacks.c:177
+#: src/ui_callbacks.c:174
 msgid "Save File"
 msgstr "Sauvegarder un fichier"
 
-#: src/ui_callbacks.c:262
+#: src/ui_callbacks.c:259
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Un rack d'effets LADSPA pour l'API audio JACK"
 
-#: src/ui_callbacks.c:266
+#: src/ui_callbacks.c:263
 msgid "__TRANSLATOR_CREDITS"
 msgstr "Raphaël Doursenaud"
 
-#: src/ui_callbacks.c:336
+#: src/ui_callbacks.c:333
 #, c-format
 msgid "LASH server disconnected\n"
 msgstr "Serveur LASH déconnecté\n"
 
-#: src/ui_callbacks.c:343
+#: src/ui_callbacks.c:340
 #, c-format
 msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
-#: src/ui_callbacks.c:502
+#: src/ui_callbacks.c:499
 msgid "Connecting to JACK..."
 msgstr "Connexion à JACK..."
 
-#: src/ui_callbacks.c:506
+#: src/ui_callbacks.c:503
 #, fuzzy
 msgid "Connecting to JACK server..."
 msgstr "Connexion à JACK..."
@@ -265,52 +266,52 @@ msgstr "Traité/Direct"
 msgid "Channel"
 msgstr "Canal"
 
-#: src/main.c:70
+#: src/main.c:71
 #, c-format
 msgid "Compiled with:\n"
 msgstr "Compilé avec :\n"
 
-#: src/main.c:85
+#: src/main.c:86
 #, c-format
 msgid "Usage: jack-rack [OPTION]..."
 msgstr ""
 
-#: src/main.c:92
+#: src/main.c:93
 msgid "Display this help info"
 msgstr "Afficher ce message d'aide"
 
-#: src/main.c:94
+#: src/main.c:95
 msgid "Use the pid in the JACK client name (default)"
 msgstr "Utiliser le pid dans le nom de client JACK (défaut)"
 
-#: src/main.c:95
+#: src/main.c:96
 msgid "Use <string> in the JACK client name"
 msgstr "Utiliser <string> dans le nom de client JACK"
 
-#: src/main.c:96
+#: src/main.c:97
 msgid "Use just jack_rack as the client name"
 msgstr "Utiliser simplement jack_rack en tant que nom de client"
 
-#: src/main.c:98
+#: src/main.c:99
 msgid "Connected inputs to the first two physical capture ports"
 msgstr "Entrées connectées aux deux premiers ports de capture physiques"
 
-#: src/main.c:99
+#: src/main.c:100
 msgid "Connected outputs to the first two physical playback ports"
 msgstr "orties connectées aux deux premiers ports de reproduction physiques"
 
-#: src/main.c:100
+#: src/main.c:101
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Combien de canaux d'entrée et de sortie le rack doit-il utiliser­? (par "
 "défaut:2)"
 
-#: src/main.c:194
+#: src/main.c:197
 #, fuzzy, c-format
 msgid "There must be at least one channel\n"
 msgstr "il doit y avoir au moins un canal\n"
 
-#: src/main.c:216
+#: src/main.c:223
 #, c-format
 msgid "Please specify only one file to open"
 msgstr ""
@@ -367,71 +368,71 @@ msgstr ""
 msgid "%s: could not set SCHED_FIFO for MIDI thread: %s\n"
 msgstr ""
 
-#: src/process.c:166
+#: src/process.c:171
 #, c-format
 msgid "%s: GUI FIFO is out of space\n"
 msgstr ""
 
-#: src/process.c:221
+#: src/process.c:226
 #, c-format
 msgid "%s: no JACK buffer for input port %ld\n"
 msgstr ""
 
-#: src/process.c:228
+#: src/process.c:233
 #, c-format
 msgid "%s: no JACK buffer for output port %ld\n"
 msgstr ""
 
-#: src/process.c:420
+#: src/process.c:425
 #, c-format
 msgid "%s: no process_info from JACK!\n"
 msgstr ""
 
-#: src/process.c:434
+#: src/process.c:439
 #, c-format
 msgid "%s: failed to get JACK ports, not processing\n"
 msgstr ""
 
-#: src/process.c:454
+#: src/process.c:459
 #, c-format
 msgid "Connecting to JACK server with client name '%s'"
 msgstr "Connexion au serveur JACK avec le nom de client '%s'"
 
-#: src/process.c:459
+#: src/process.c:471
 msgid "Connected to JACK server"
 msgstr "Connecté au serveur JACK"
 
-#: src/process.c:495
+#: src/process.c:512
 #, c-format
 msgid "Connecting port '%s' with '%s'"
 msgstr "Connexion des ports '%s' avec '%s'"
 
-#: src/process.c:502
+#: src/process.c:519
 #, fuzzy, c-format
 msgid "%s: error connecting ports '%s' and '%s'\n"
 msgstr "Connexion des ports '%s' avec '%s'"
 
-#: src/process.c:505
+#: src/process.c:522
 #, c-format
 msgid "Connected port '%s' with '%s'"
 msgstr "Ports '%s' connectés avec '%s'"
 
-#: src/process.c:554
+#: src/process.c:571
 #, fuzzy, c-format
 msgid "Creating input port '%s'"
 msgstr "Création %s port %s"
 
-#: src/process.c:559
+#: src/process.c:576
 #, fuzzy, c-format
 msgid "Creating output port '%s'"
 msgstr "Création %s port %s"
 
-#: src/process.c:574
+#: src/process.c:591
 #, c-format
 msgid "%s: could not register port '%s'; aborting\n"
 msgstr ""
 
-#: src/process.c:577
+#: src/process.c:594
 #, c-format
 msgid "Could not register JACK port '%s'; aborting"
 msgstr ""
