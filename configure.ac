@@ -2,7 +2,6 @@ AC_INIT([JACK Rack], 1.4.7)
 AC_CONFIG_SRCDIR(src/lock_free_fifo.h)
 AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/ac_config.h)
-AM_MAINTAINER_MODE
 
 AC_PROG_CC
 AM_PROG_CC_C_O
