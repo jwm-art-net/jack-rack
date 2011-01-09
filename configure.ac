@@ -70,8 +70,8 @@ AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
 ##############
 ### GTK+ 2 ###
 ##############
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0, true,
-                  AC_MSG_ERROR([you need gtk+ >= 2.0.0  see http://www.gtk.org/]))
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.12.0, true,
+                  AC_MSG_ERROR([you need gtk+ >= 2.12.0  see http://www.gtk.org/]))
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 

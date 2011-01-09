@@ -5,6 +5,8 @@
 * Fix bugs in MIDI controls (patch from Peter Nelson).
 * Add a Czech translation (patch from Pavel Fric).
 * Update the Russian translation (patch from Alexandre Prokoudine).
+* Check for an appropriate GTK+ version (reported by Steven
+  Chamberlain).
 
 
 1.4.7:
