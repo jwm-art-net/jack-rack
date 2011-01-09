@@ -1,3 +1,10 @@
+1.4.8:
+* (Torben Hohn joined the maintainers)
+* (development moved from CVS to Git)
+* Add support for jack-session.
+* Fix bugs in MIDI controls (patch from Peter Nelson).
+
+
 1.4.7:
 * Use the correct channel numbers when sending control messages
   (reported by Danni Coy).
