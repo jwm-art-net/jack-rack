@@ -1,9 +1,0 @@
-This is the development tree.  It is for developers.  It is not for users. 
-It is not stable.  It likely won't compile.  Don't moan if doesn't work
-(send patches, by all means, just don't moan :)  The latest release that's
-intended for users is always available from http://sf.net/projects/jack-rack.
-
-Instructions for bootstrapping a freshly checked out CVS tree:
-
-* run 'gettextize'
-* run './autogen.sh'
