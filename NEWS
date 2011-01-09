@@ -4,6 +4,7 @@
 * Add support for jack-session.
 * Fix bugs in MIDI controls (patch from Peter Nelson).
 * Add a Czech translation (patch from Pavel Fric).
+* Update the Russian translation (patch from Alexandre Prokoudine).
 
 
 1.4.7:
