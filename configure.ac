@@ -78,11 +78,12 @@ AC_SUBST(GTK_LIBS)
 ###############
 ### GNOME 2 ###
 ###############
-jr_enable_gnome="yes"
+jr_enable_gnome="no"
 AC_ARG_ENABLE(gnome,
-[  --disable-gnome         disable GNOME 2 support],[
+[  --disable-gnome         disable GNOME 2 support (default)],[
   case "$enableval" in
     "yes")
+      jr_enable_gnome="yes"
       ;;
     "no")
       jr_enable_gnome="no"
