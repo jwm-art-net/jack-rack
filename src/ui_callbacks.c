@@ -123,7 +123,6 @@ new_cb (GtkWidget * widget, gpointer user_data)
   ui_set_filename (ui, NULL);
 }
 
-#ifdef HAVE_XML
 void
 open_cb (GtkButton * button, gpointer user_data)
 {
@@ -189,7 +188,6 @@ save_as_cb (GtkButton * button, gpointer user_data)
 
   gtk_widget_destroy (dialog);
 }
-#endif /* HAVE_XML */
  
 #ifdef HAVE_LASH
 void
@@ -533,10 +531,8 @@ setup_reconnect ( gpointer data )
                 gtk_widget_set_sensitive (ui->midi_menuitem, FALSE);
                 gtk_widget_set_sensitive (ui->midi_window->main_box, FALSE);
 #endif
-#ifdef HAVE_XML
                 gtk_widget_set_sensitive (GTK_WIDGET (ui->open), FALSE);
                 gtk_widget_set_sensitive (ui->open_menuitem, FALSE);
-#endif
         }
         
         active = FALSE;

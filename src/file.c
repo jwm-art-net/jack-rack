@@ -22,7 +22,6 @@
 
 #include "ac_config.h"
 
-#ifdef HAVE_XML
 
 #include <gtk/gtk.h>
 #include <libxml/tree.h>
@@ -510,7 +509,6 @@ ui_open_file (ui_t * ui, const char * filename)
 }
 
 
-#endif /* HAVE_XML */
 
 /* EOF */
 

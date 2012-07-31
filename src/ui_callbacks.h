@@ -36,11 +36,9 @@ void     new_cb            (GtkWidget * button, gpointer user_data);
 void     quit_cb           (GtkButton * button, gpointer user_data);
 gboolean window_destroy_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data);                                                  
 
-#ifdef HAVE_XML
 void     open_cb           (GtkButton * button, gpointer user_data);
 void     save_cb           (GtkButton * button, gpointer user_data);
 void     save_as_cb        (GtkButton * button, gpointer user_data);
-#endif
 
 #ifdef HAVE_LASH
 void     lash_save_cb       (GtkButton * button, gpointer user_data);

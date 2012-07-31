@@ -86,10 +86,8 @@ struct _ui
 #endif
   GtkWidget *       new_menuitem;
   GtkToolItem *     new;
-#ifdef HAVE_XML
   GtkWidget *       open_menuitem;
   GtkToolItem *     open;
-#endif
 
 #ifdef HAVE_LASH
   GtkToolItem *     lash_save;

@@ -37,10 +37,8 @@
 #include <libgnomeui/libgnomeui.h>
 #endif
 
-#ifdef HAVE_XML
 #include <libxml/tree.h>
 #define XML_COMPRESSION_LEVEL 5
-#endif
 
 #include "ui.h"
 #include "globals.h"
@@ -76,19 +74,13 @@ void print_help (void) {
 #ifdef HAVE_LASH
   printf(  "  LASH %s\n", LASH_VERSION);
 #endif
-#ifdef HAVE_XML
   printf(  "  libxml2 %s\n", XML_VERSION);
-#endif
 #ifdef HAVE_GNOME
   printf(  "  GNOME %s\n", GNOME_VERSION);
 #endif
   printf("\n");
   printf(_("Usage: jack-rack [OPTION]..."));
-#ifdef HAVE_XML
   printf(" [file]\n");
-#else
-  printf("\n");
-#endif /* HAVE_XML */
   printf("\n");
   printf(" -h, --help                  %s\n", _("Display this help info"));
   printf("\n");
@@ -216,7 +208,6 @@ int main (int argc, char ** argv) {
     }
   }
 
-#ifdef HAVE_XML
   if (optind < argc)
   {
     if (argc - optind > 1)
@@ -227,7 +218,6 @@ int main (int argc, char ** argv) {
 
     initial_filename = g_string_new(argv[optind]);
   }
-#endif /* HAVE_XML */
 
 #ifdef HAVE_LASH
   {
@@ -243,9 +233,7 @@ int main (int argc, char ** argv) {
     }
 #endif /* HAVE_LASH */
 
-#ifdef HAVE_XML
   xmlSetCompressMode (XML_COMPRESSION_LEVEL);
-#endif
 
   global_ui = ui_new (channels);
   if (!global_ui)

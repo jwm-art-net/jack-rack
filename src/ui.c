@@ -48,10 +48,10 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *file_menuitem;
   
   GtkWidget *file_menu;
-#ifdef HAVE_XML
+
   GtkWidget *save;
   GtkWidget *save_as;
-#endif /* HAVE_XML */
+
   GtkWidget *separator;
   GtkWidget *quit;
   GtkWidget *rack_menuitem;
@@ -97,7 +97,6 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   g_signal_connect (G_OBJECT (ui->new_menuitem), "activate",
                     G_CALLBACK (new_cb), ui);
 
-#ifdef HAVE_XML
   ui->open_menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
   gtk_widget_show (ui->open_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), ui->open_menuitem);
@@ -115,7 +114,6 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), save_as);
   g_signal_connect (G_OBJECT (save_as), "activate",
                     G_CALLBACK (save_as_cb), ui);
-#endif /* HAVE_XML */
 
 #ifdef HAVE_LASH
   if (lash_enabled (global_lash_client))
@@ -268,7 +266,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_tool_item_set_tooltip_text (ui->new, _("Clear the rack"));
   g_signal_connect (G_OBJECT (ui->new), "clicked", G_CALLBACK (new_cb), ui);
 
-#ifdef HAVE_XML
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_OPEN);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   gtk_tool_item_set_tooltip_text (tool_item, _("Load a previously-saved rack configuration"));
@@ -283,7 +280,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   gtk_tool_item_set_tooltip_text (tool_item, _("Save the rack configuration to a new file"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (save_as_cb), ui);
-#endif /* HAVE_XML */
 
 #ifdef HAVE_LASH
   if (lash_enabled (global_lash_client))
@@ -339,7 +335,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_menu_shell_append (GTK_MENU_SHELL (ui->midi_menu), ui->midi_menu_item);
 #endif /* HAVE_ALSA */
 
-#ifdef HAVE_XML
   /* open file from command line, if any */
   if ( initial_filename != NULL )
   {
@@ -351,7 +346,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
 
     g_free (fn);
   }
-#endif /* HAVE_XML */
 }
 
 

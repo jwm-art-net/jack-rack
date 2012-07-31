@@ -32,6 +32,26 @@ fi
 AC_CHECK_HEADER(ladspa.h, true, AC_MSG_ERROR([LADSPA is required  see http://www.ladspa.org/]))
 
 
+##############
+### GTK+ 2 ###
+##############
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.12.0, true,
+                  AC_MSG_ERROR([you need gtk+ >= 2.12.0  see http://www.gtk.org/]))
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
+
+###############
+### libxml2 ###
+###############
+PKG_CHECK_MODULES(XML, libxml-2.0, true, AC_MSG_ERROR([libxml2 is required see http://www.xmlsoft.org/]))
+
+XML_VERSION=$( pkg-config --modversion libxml-2.0 )
+AC_DEFINE_UNQUOTED(XML_VERSION, "$XML_VERSION", [The version of libxml2 we're compiling against])
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
+
+
 ############
 ### ALSA ###
 ############
@@ -64,16 +84,6 @@ else
   ALSA_FOUND="no"
 fi
 AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
-
-
-
-##############
-### GTK+ 2 ###
-##############
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.12.0, true,
-                  AC_MSG_ERROR([you need gtk+ >= 2.12.0  see http://www.gtk.org/]))
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
 
 ###############
 ### GNOME 2 ###
@@ -109,38 +119,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_GNOME, test "$GNOME_FOUND" = "yes")
 
-###############
-### libxml2 ###
-###############
-jr_enable_xml="yes"
-AC_ARG_ENABLE(xml,
-[  --disable-xml           disable libxml2 support (this is required for saving/loading files)],[
-  case "$enableval" in
-    "yes")
-      ;;
-    "no")
-      jr_enable_xml="no"
-      ;;
-    *)
-      AC_MSG_ERROR([must use --enable-xml(=yes/no) or --disable-xml])
-      ;;
-  esac
-])
-
-if test "$jr_enable_xml" = "yes"; then
-  PKG_CHECK_MODULES(XML, libxml-2.0, XML_FOUND="yes", XML_FOUND="no")
-
-  if test "$XML_FOUND" = "yes"; then
-    AC_DEFINE(HAVE_XML, 1, [whether or not we are have xml support])
-    XML_VERSION=$( pkg-config --modversion libxml-2.0 )
-    AC_DEFINE_UNQUOTED(XML_VERSION, "$XML_VERSION", [The version of libxml2 we're compiling against])
-    AC_SUBST(XML_CFLAGS)
-    AC_SUBST(XML_LIBS)
-  fi
-else
-  XML_FOUND="no"
-fi
-AM_CONDITIONAL(HAVE_XML, test "$XML_FOUND" = "yes")
 
 ##############
 ### LASH ###
@@ -237,7 +215,6 @@ AC_MSG_RESULT([
   JACK Rack configured
   
   ALSA support:            $ALSA_FOUND
-  XML support:             $XML_FOUND
   LRDF support:            $LRDF_FOUND
   LASH support:            $LASH_FOUND
   GNOME 2 support:         $GNOME_FOUND

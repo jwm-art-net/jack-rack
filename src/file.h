@@ -41,8 +41,6 @@ struct _saved_plugin
 
 
 
-#ifdef HAVE_XML
-
 #include <jack/jack.h>
 
 #include "ui.h"
@@ -56,7 +54,5 @@ struct _saved_rack
   GSList *       plugins;
 };
 
-
-#endif /* HAVE_XML */
 
 #endif /* __JR_FILE_H__ */
