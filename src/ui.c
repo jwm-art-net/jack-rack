@@ -57,11 +57,9 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   GtkWidget *rack_menuitem;
   GtkWidget *rack_menu;
   
-#ifdef HAVE_GNOME
   GtkWidget *help_menuitem;
   GtkWidget *help_menu;
   GtkWidget *about;
-#endif
 
   /* the menu bar */
   menubar_handle = gtk_handle_box_new ();
@@ -81,11 +79,10 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), rack_menuitem);
   
 
-#ifdef HAVE_GNOME  
   help_menuitem = gtk_menu_item_new_with_label (_("Help"));
   gtk_widget_show (help_menuitem);
   gtk_menu_shell_append (GTK_MENU_SHELL (menubar), help_menuitem);
-#endif
+  gtk_menu_item_set_right_justified (GTK_MENU_ITEM(help_menuitem), TRUE);
 
   /* file menu */
   file_menu = gtk_menu_new ();
@@ -166,7 +163,6 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
                     G_CALLBACK (midi_cb), ui);
 #endif /* HAVE_ALSA */
 
-#ifdef HAVE_GNOME
   /* help menu */
   help_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(help_menuitem), help_menu);
@@ -176,7 +172,6 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   gtk_menu_shell_append (GTK_MENU_SHELL (help_menu), about);
   g_signal_connect (G_OBJECT (about), "activate",
                     G_CALLBACK (about_cb), ui);
-#endif
 }
 
 static void
