@@ -30,10 +30,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-#ifdef HAVE_GNOME
-#include <libgnomeui/libgnomeui.h>
-#endif
-
 #include "jack_rack.h"
 #include "lock_free_fifo.h"
 #include "plugin_slot_callbacks.h"

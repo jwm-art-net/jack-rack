@@ -85,40 +85,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_ALSA, test "$ALSA_FOUND" = "yes")
 
-###############
-### GNOME 2 ###
-###############
-jr_enable_gnome="no" # does not build
-AC_ARG_ENABLE(gnome,
-[  --disable-gnome         disable GNOME 2 support (default: disabled)],[
-  case "$enableval" in
-    "yes")
-      jr_enable_gnome="yes"
-      ;;
-    "no")
-      jr_enable_gnome="no"
-      ;;
-    *)
-      AC_MSG_ERROR([must use --enable-gnome(=yes/no) or --disable-gnome])
-      ;;
-  esac
-])
-
-if test "$jr_enable_gnome" = "yes"; then
-  PKG_CHECK_MODULES(GNOMEUI, libgnomeui-2.0, GNOME_FOUND="yes", GNOME_FOUND="no")
-
-  if test "$GNOME_FOUND" = "yes"; then
-    AC_DEFINE(HAVE_GNOME, 1, [whether or not we are supporting gnome])
-    GNOME_VERSION=$( pkg-config --modversion libgnomeui-2.0 )
-    AC_DEFINE_UNQUOTED(GNOME_VERSION, "$GNOME_VERSION", [The version of gnome we're compiling against])
-    AC_SUBST(GNOMEUI_CFLAGS)
-    AC_SUBST(GNOMEUI_LIBS)
-  fi
-else
-  GNOME_FOUND="no"
-fi
-AM_CONDITIONAL(HAVE_GNOME, test "$GNOME_FOUND" = "yes")
-
 
 ##############
 ### LASH ###
@@ -217,7 +183,6 @@ AC_MSG_RESULT([
   ALSA support:            $ALSA_FOUND
   LRDF support:            $LRDF_FOUND
   LASH support:            $LASH_FOUND
-  GNOME 2 support:         $GNOME_FOUND
   JACK Session support:    $JACK_SESSION_FOUND
   
   Installation prefix:     $prefix
