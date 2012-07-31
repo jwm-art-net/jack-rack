@@ -34,7 +34,7 @@ void     add_cb            (GtkMenuItem * menuitem, gpointer user_data);
 void     channel_cb        (GtkWidget * button, gpointer user_data);
 void     new_cb            (GtkWidget * button, gpointer user_data);
 void     quit_cb           (GtkButton * button, gpointer user_data);
-gboolean window_destroy_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data);                                                  
+gboolean window_destroy_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 void     open_cb           (GtkButton * button, gpointer user_data);
 void     save_cb           (GtkButton * button, gpointer user_data);
@@ -44,9 +44,7 @@ void     save_as_cb        (GtkButton * button, gpointer user_data);
 void     lash_save_cb       (GtkButton * button, gpointer user_data);
 #endif
 
-#ifdef HAVE_GNOME
 void     about_cb          (GtkWidget * widget, gpointer user_data);
-#endif
 
 #ifdef HAVE_ALSA
 void     midi_cb           (GtkWidget * button, gpointer user_data);

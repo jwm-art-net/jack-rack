@@ -30,10 +30,6 @@
 #include <gtk/gtk.h>
 #include <ladspa.h>
 
-#ifdef HAVE_GNOME
-#include <libgnomeui/libgnomeui.h>
-#endif
-
 #include "jack_rack.h"
 #include "lock_free_fifo.h"
 #include "ui_callbacks.h"
@@ -233,7 +229,6 @@ window_destroy_cb (GtkWidget *widget,
   return TRUE;
 }
 
-#ifdef HAVE_GNOME
 void
 about_cb (GtkWidget * widget, gpointer user_data)
 {
@@ -264,7 +259,6 @@ about_cb (GtkWidget * widget, gpointer user_data)
                          NULL);
 
 }
-#endif /* HAVE_GNOME */
 
 
 #ifdef HAVE_ALSA
