@@ -78,9 +78,9 @@ AC_SUBST(GTK_LIBS)
 ###############
 ### GNOME 2 ###
 ###############
-jr_enable_gnome="no"
+jr_enable_gnome="no" # does not build
 AC_ARG_ENABLE(gnome,
-[  --disable-gnome         disable GNOME 2 support (default)],[
+[  --disable-gnome         disable GNOME 2 support (default: disabled)],[
   case "$enableval" in
     "yes")
       jr_enable_gnome="yes"
@@ -148,7 +148,7 @@ AM_CONDITIONAL(HAVE_XML, test "$XML_FOUND" = "yes")
 if test x$XML_FOUND = xyes; then
   jr_enable_lash="no"
   AC_ARG_ENABLE(lash,
-  [  --disable-lash        disable LASH support],[
+  [  --disable-lash          disable LASH support (default: disabled)],[
     case "$enableval" in
       "yes")
         jr_enable_lash="yes"

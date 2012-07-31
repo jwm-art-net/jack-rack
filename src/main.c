@@ -99,6 +99,7 @@ void print_help (void) {
   printf(" -i, --input                 %s\n", _("Connected inputs to the first two physical capture ports"));
   printf(" -o, --output                %s\n", _("Connected outputs to the first two physical playback ports"));
   printf(" -c, --channels <int>        %s\n", _("How many input and output channels the rack should use (default: 2)"));
+  printf(" -U, --jack-session-uuid     %s\n", _("For use by JACK session manager"));
 /*  printf(" -t, --no-time               %s\n", _("Do not display plugins' execution time")); */
   printf("\n");
 }
