@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: JACK Rack 1.4.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-09 00:06+0000\n"
+"POT-Creation-Date: 2012-07-31 13:17+0100\n"
 "PO-Revision-Date: 2010-12-10 04:22+0300\n"
 "Last-Translator: Александр Прокудин <alexandre.prokoudine@gmail.com>\n"
 "Language-Team: Russian <gnome-cyr@lists.gnome.org>\n"
@@ -31,55 +31,55 @@ msgstr "Стойка"
 msgid "Help"
 msgstr "Справка"
 
-#: src/ui.c:127
+#: src/ui.c:125
 msgid "Save project"
 msgstr "Сохранить·проект"
 
-#: src/ui.c:157 src/ui.c:259
+#: src/ui.c:155 src/ui.c:257
 msgid "Channels"
 msgstr "Каналы"
 
-#: src/ui.c:164
+#: src/ui.c:162
 msgid "MIDI Controls"
 msgstr "MIDI-регуляторы"
 
-#: src/ui.c:176
+#: src/ui.c:174
 msgid "About"
 msgstr "О программе"
 
-#: src/ui.c:249
+#: src/ui.c:247
 msgid "Add a plugin"
 msgstr "Добавить·модуль"
 
-#: src/ui.c:260
+#: src/ui.c:258
 msgid "Change the number of I/O channels the rack has"
 msgstr "Изменить·количество·портов·I/O стойки эффектов"
 
-#: src/ui.c:268
+#: src/ui.c:266
 msgid "Clear the rack"
 msgstr "Стереть·набор·эффектов"
 
-#: src/ui.c:274
+#: src/ui.c:271
 msgid "Load a previously-saved rack configuration"
 msgstr "Открыть·конфигурацию стойки эффектов"
 
-#: src/ui.c:279
+#: src/ui.c:276
 msgid "Save the rack configuration to the current file"
 msgstr "Сохранить·конфигурацию стойки эффектов"
 
-#: src/ui.c:284
+#: src/ui.c:281
 msgid "Save the rack configuration to a new file"
 msgstr "Сохранить·конфигурацию стойки эффектов в новый файл"
 
-#: src/ui.c:295
+#: src/ui.c:291
 msgid "Save the current LASH project"
 msgstr "Сохранить·текущий проект LASH"
 
-#: src/ui.c:305
+#: src/ui.c:301
 msgid "Quit JACK Rack"
 msgstr "Выйти·из·JACK Rack"
 
-#: src/ui.c:334
+#: src/ui.c:330
 msgid "Add MIDI control"
 msgstr "Добавить·MIDI-регулятор"
 
@@ -192,61 +192,61 @@ msgstr ""
 "Предупреждение: изменение·количества·каналов приведёт\n"
 "к·стиранию·текущих·настроек·эффект-процессора"
 
-#: src/ui_callbacks.c:133
+#: src/ui_callbacks.c:132
 msgid "Open File"
 msgstr "Открыть файл"
 
-#: src/ui_callbacks.c:174
+#: src/ui_callbacks.c:173
 msgid "Save File"
 msgstr "Сохранить файл"
 
-#: src/ui_callbacks.c:259
+#: src/ui_callbacks.c:257
 msgid "A LADSPA effects rack for the JACK audio API"
 msgstr "Стойка эффектов обработки LADSPA для JACK"
 
-#: src/ui_callbacks.c:263
+#: src/ui_callbacks.c:261
 msgid "__TRANSLATOR_CREDITS"
 msgstr "Александр Прокудин <alexandre@prokoudine.info>"
 
-#: src/ui_callbacks.c:333
+#: src/ui_callbacks.c:331
 #, c-format
 msgid "LASH server disconnected\n"
 msgstr "Разорвано соединение с LASH-сервером\n"
 
-#: src/ui_callbacks.c:340
+#: src/ui_callbacks.c:338
 #, c-format
 msgid "Received LASH event of unknown type %d\n"
 msgstr ""
 
-#: src/ui_callbacks.c:499
+#: src/ui_callbacks.c:497
 msgid "Connecting to JACK..."
 msgstr "Выполняется соединение с JACK..."
 
-#: src/ui_callbacks.c:503
+#: src/ui_callbacks.c:501
 msgid "Connecting to JACK server..."
 msgstr "Выполняется соединение с сервером JACK..."
 
-#: src/file.c:200
+#: src/file.c:199
 #, c-format
 msgid "Could not save file '%s'"
 msgstr "Не·удалось·сохранить·файл·'%s'"
 
-#: src/file.c:236
+#: src/file.c:235
 #, c-format
 msgid "The file '%s' contains an unknown plugin with ID '%ld'; skipping"
 msgstr "Файл·'%s' содержит·неизвестный·модуль·с·ID '%ld'·и·будет·пропущен"
 
-#: src/file.c:463
+#: src/file.c:462
 #, c-format
 msgid "Could not parse file '%s'"
 msgstr "Не·удалось·произвести·синтаксический·разбор·файла·'%s'"
 
-#: src/file.c:469
+#: src/file.c:468
 #, c-format
 msgid "The file '%s' is not a JACK Rack settings file"
 msgstr "'%s' не·является·файлом·настроек JACK Rack"
 
-#: src/file.c:483
+#: src/file.c:482
 msgid ""
 "The current rack will be cleared.\n"
 "\n"
@@ -268,51 +268,55 @@ msgstr "До/После"
 msgid "Channel"
 msgstr "Канал"
 
-#: src/main.c:71
+#: src/main.c:69
 #, c-format
 msgid "Compiled with:\n"
 msgstr "Скомпилировано·с:\n"
 
-#: src/main.c:86
+#: src/main.c:85
 #, c-format
 msgid "Usage: jack-rack [OPTION]..."
 msgstr "Использование: jack-rack [АРГУМЕНТ]..."
 
-#: src/main.c:93
+#: src/main.c:88
 msgid "Display this help info"
 msgstr "Отображать·эту справку"
 
-#: src/main.c:95
+#: src/main.c:90
 msgid "Use the pid in the JACK client name (default)"
 msgstr "Использовать·этот pid в·имени·JACK-клиенте (по·умолчанию)"
 
-#: src/main.c:96
+#: src/main.c:91
 msgid "Use <string> in the JACK client name"
 msgstr "Использовать·<string> в·имени JACK-клиента"
 
-#: src/main.c:97
+#: src/main.c:92
 msgid "Use just jack_rack as the client name"
 msgstr "Использовать·только·jack_rack·в·качестве·имени·клиента"
 
-#: src/main.c:99
+#: src/main.c:94
 msgid "Connected inputs to the first two physical capture ports"
 msgstr "Входы·подключены·к·первым·двум·физическим·портам·записи"
 
-#: src/main.c:100
+#: src/main.c:95
 msgid "Connected outputs to the first two physical playback ports"
 msgstr "Выходы·подключены·к·первым·двум·физическим·портам·воспроизведения"
 
-#: src/main.c:101
+#: src/main.c:96
 msgid "How many input and output channels the rack should use (default: 2)"
 msgstr ""
 "Сколько·каналов·I/O стойка·эффектов должна·использовать (по·умолчанию: 2)"
 
-#: src/main.c:197
+#: src/main.c:97
+msgid "For use by JACK session manager"
+msgstr ""
+
+#: src/main.c:193
 #, c-format
 msgid "There must be at least one channel\n"
 msgstr "Должно·быть·не·менее·одного·канала\n"
 
-#: src/main.c:223
+#: src/main.c:218
 #, c-format
 msgid "Please specify only one file to open"
 msgstr "Выберите только один файл для открытия"

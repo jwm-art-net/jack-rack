@@ -32,11 +32,6 @@
 #include <signal.h>
 #include <locale.h>
 
-#ifdef HAVE_GNOME
-#include <libgnome/libgnome.h>
-#include <libgnomeui/libgnomeui.h>
-#endif
-
 #include <libxml/tree.h>
 #define XML_COMPRESSION_LEVEL 5
 
@@ -75,9 +70,6 @@ void print_help (void) {
   printf(  "  LASH %s\n", LASH_VERSION);
 #endif
   printf(  "  libxml2 %s\n", XML_VERSION);
-#ifdef HAVE_GNOME
-  printf(  "  GNOME %s\n", GNOME_VERSION);
-#endif
 #ifdef HAVE_LO
   printf(  "  liblo %s\n", LO_VERSION);
 #endif
@@ -146,11 +138,6 @@ int main (int argc, char ** argv) {
 #endif  
 
   gtk_init (&argc, &argv);
-
-#ifdef HAVE_GNOME
-  gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
-                      argc, argv, NULL);
-#endif  
 
 
   /* set the client name */
