@@ -78,6 +78,9 @@ void print_help (void) {
 #ifdef HAVE_GNOME
   printf(  "  GNOME %s\n", GNOME_VERSION);
 #endif
+#ifdef HAVE_LO
+  printf(  "  liblo %s\n", LO_VERSION);
+#endif
   printf("\n");
   printf(_("Usage: jack-rack [OPTION]..."));
   printf(" [file]\n");

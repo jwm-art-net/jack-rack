@@ -198,6 +198,40 @@ AM_CONDITIONAL(HAVE_LRDF, test "$LRDF_FOUND" = "yes")
 
 
 ###############
+#### liblo ####
+###############
+jr_enable_lo="yes"
+AC_ARG_ENABLE(lo,
+[  --disable-lo            disable liblo support (required for Non Session Support)],[
+  case "$enableval" in
+    "yes")
+      ;;
+    "no")
+      jr_enable_lo="no"
+      ;;
+    *)
+      AC_MSG_ERROR([must use --enable-lo(=yes/no) or --disable-lo])
+      ;;
+  esac
+])
+
+if test "$jr_enable_lo" = "yes"; then
+  PKG_CHECK_MODULES(LO, liblo >= 0.26, LO_FOUND="yes", LO_FOUND="no")
+
+  if test "$LO_FOUND" = "yes"; then
+    AC_DEFINE(HAVE_LO, 1, [whether or not we are have liblo support])
+    LO_VERSION=$( pkg-config --modversion liblo )
+    AC_DEFINE_UNQUOTED(LO_VERSION, "$LO_VERSION", [The version of liblo we're compiling against])
+    AC_SUBST(LO_CFLAGS)
+    AC_SUBST(LO_LIBS)
+  fi
+else
+  LO_FOUND="no"
+fi
+AM_CONDITIONAL(HAVE_LO, test "$LO_FOUND" = "yes")
+
+
+###############
 ### gettext ###
 ###############
 AM_GNU_GETTEXT([external])
@@ -219,7 +253,8 @@ AC_MSG_RESULT([
   LASH support:            $LASH_FOUND
   GNOME 2 support:         $GNOME_FOUND
   JACK Session support:    $JACK_SESSION_FOUND
-  
+  LO support:              $LO_FOUND
+
   Installation prefix:     $prefix
 
 ])

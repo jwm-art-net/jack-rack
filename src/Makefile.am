@@ -51,6 +51,7 @@ jack_rack_CFLAGS = \
 	$(LRDF_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(XML_CFLAGS) \
+	$(LO_CFLAGS) \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPIXMAPDIR=\"$(pixmapdir)\" \
 	-DDTDDIR=\"$(dtddir)\" \
@@ -70,7 +71,9 @@ jack_rack_LDFLAGS = \
 	$(LASH_LIBS) \
 	$(LRDF_LIBS) \
 	$(ALSA_LIBS) \
-	$(XML_LIBS)
+	$(XML_LIBS) \
+	$(LO_LIBS)
+
 
 splint-check:
 	splint  +systemdirs /usr/include:/usr/local/lib \
