@@ -51,5 +51,6 @@ po/*.pot
 po/remove-potcdate.sed
 po/stamp-po
 src/jack-rack
-
+ABOUT-NLS
+INSTALL
 
