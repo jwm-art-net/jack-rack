@@ -62,6 +62,8 @@ jack_rack_CFLAGS = \
 
 
 jack_rack_LDFLAGS = \
+	-ldl \
+	-lm \
 	$(JACK_LIBS) \
 	$(GTK_LIBS) \
 	$(GNOMEUI_LIBS) \

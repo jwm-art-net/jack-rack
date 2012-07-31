@@ -46,5 +46,10 @@ po/remove-potcdate.sin
 ac_config.h.in
 po/POTFILES
 ac_config.h
+po/*.gmo
+po/*.pot
+po/remove-potcdate.sed
+po/stamp-po
+src/jack-rack
 
 
