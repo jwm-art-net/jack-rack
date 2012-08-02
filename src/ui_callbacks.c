@@ -40,6 +40,9 @@
 #include "process.h"
 #include "wet_dry_controls.h"
 
+#ifdef HAVE_LO
+#include "nsm.h"
+#endif
 
 void
 add_cb (GtkMenuItem * menuitem, gpointer user_data)
@@ -645,7 +648,7 @@ jack_shutdown_cb (void * data)
   ui->shutdown = TRUE;
 }
 
-#if HAVE_JACK_SESSION 
+#if HAVE_JACK_SESSION
 
 static gboolean
 jack_session_cb (gpointer data)
@@ -679,6 +682,58 @@ jack_session_cb_aux (jack_session_event_t *ev, void *data)
   ui->js_event = ev;
   g_idle_add (jack_session_cb, data);
 }
+
+#endif
+
+
+#ifdef HAVE_LO
+
+int non_session_open_cb(const char* name, const char* display_name,
+                        const char* client_id, char** out_msg, void* data)
+{
+    struct stat st;
+    const char* filename = "rack.xml";
+
+    global_nsm_filename = g_string_new("");
+
+    g_string_printf(global_nsm_filename , "%s/%s", name, filename);
+    g_string_printf(client_name, "%s", client_id);
+
+    global_nsm_state = 1;
+
+    if (stat(name, &st) != 0)
+        mkdir(name, 0777);
+
+    return ERR_OK;
+}
+
+gboolean non_session_poll_cb(gpointer data)
+{
+    nsm_check_wait((nsm_client_t*)data, 0);
+    return TRUE;
+}
+
+int non_session_save_cb(char** out_msg, void* data)
+{
+    ui_t* ui = *((ui_t**)data);
+
+    if (!ui)
+    {
+        fprintf(stderr, "ERROR nsm client, no ui data\n");
+        return ERR_UNSAVED_CHANGES;
+    }
+
+    if (ui_save_file(ui, global_nsm_filename->str) == -1)
+    {
+        fprintf(stderr, "ERROR nsm client failed to save %s\n",
+                                        global_nsm_filename->str);
+        return ERR_UNSAVED_CHANGES;
+    }
+
+
+    return ERR_OK;
+}
+
 
 #endif
 

@@ -104,6 +104,9 @@ struct _ui
 #ifdef HAVE_JACK_SESSION
   jack_session_event_t *js_event;
 #endif
+#ifdef HAVE_LO
+  char*             nsm_session_dir;
+#endif
 };
 
 ui_t * ui_new     (unsigned long channels);

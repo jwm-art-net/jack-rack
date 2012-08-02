@@ -60,4 +60,12 @@ void jack_shutdown_cb (void * data);
 void jack_session_cb_aux (jack_session_event_t *ev, void *data);
 #endif
 
+#ifdef HAVE_LO
+int      non_session_open_cb (const char* name, const char* display_name,
+                              const char* client_id, char** out_msg, void* data);
+
+gboolean non_session_poll_cb(gpointer data);
+int      non_session_save_cb (char** out_msg, void* data);
+#endif
+
 #endif /* __JR_UI_CALLBACKS_H__ */

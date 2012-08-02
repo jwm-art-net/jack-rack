@@ -25,10 +25,15 @@
 
 #include "ac_config.h"
 
-
 #ifdef HAVE_LASH
     #include <lash/lash.h>
     extern lash_client_t * global_lash_client;
+#endif
+
+#ifdef HAVE_LO
+    #include "nsm.h"
+    extern nsm_client_t* global_nsm_client;
+    extern GString*      global_nsm_filename;
 #endif
 
 
@@ -63,6 +68,8 @@ extern gboolean   time_runs;
 extern GString    *client_name;
 extern GString    *session_uuid;
 extern GString    *initial_filename;
+extern int        global_nsm_state;
+
 
 typedef enum MIDI_CONTROL_TYPE 
 {

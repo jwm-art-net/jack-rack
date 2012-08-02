@@ -330,6 +330,16 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_menu_shell_append (GTK_MENU_SHELL (ui->midi_menu), ui->midi_menu_item);
 #endif /* HAVE_ALSA */
 
+
+#ifdef HAVE_LO
+  if (global_nsm_state != -1)
+  {
+    g_timeout_add(25, non_session_poll_cb, global_nsm_client);
+    ui_open_file(ui, global_nsm_filename->str);
+  }
+  else
+#endif
+
   /* open file from command line, if any */
   if ( initial_filename != NULL )
   {
@@ -458,6 +468,10 @@ ui_new (unsigned long channels)
   gtk_widget_destroy (ui->splash_screen);
   ui->splash_screen = NULL;
   ui->splash_screen_text = NULL;
+
+#ifdef HAVE_LO
+  ui->nsm_session_dir = 0;
+#endif
 
   return ui;
 }

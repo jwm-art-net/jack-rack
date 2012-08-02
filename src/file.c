@@ -459,13 +459,15 @@ ui_open_file (ui_t * ui, const char * filename)
   doc = xmlParseFile (filename);
   if (!doc)
     {
-      ui_display_error (ui, E_ERROR, _("Could not parse file '%s'"), filename);
+      if (global_nsm_state == -1)
+          ui_display_error (ui, E_ERROR, _("Could not parse file '%s'"), filename);
       return 1;
     }
   
   if (strcmp ( ((xmlDtdPtr)doc->children)->name, "jackrack") != 0)
     {
-      ui_display_error (ui, E_ERROR, _("The file '%s' is not a JACK Rack settings file"), filename);
+      if (global_nsm_state == -1)
+          ui_display_error (ui, E_ERROR, _("The file '%s' is not a JACK Rack settings file"), filename);
       return 1;
     }
   
@@ -478,8 +480,10 @@ ui_open_file (ui_t * ui, const char * filename)
   if (ui->jack_rack->slots)
     {
       gboolean ok;
-      
-      ok = ui_get_ok (ui, _("The current rack will be cleared.\n\nAre you sure you want to continue?"));
+      if (global_nsm_state == -1)
+          ok = ui_get_ok (ui, _("The current rack will be cleared.\n\nAre you sure you want to continue?"));
+      else
+          ok = TRUE;
       
       if (!ok)
         {

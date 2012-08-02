@@ -32,6 +32,11 @@
 #include <signal.h>
 #include <locale.h>
 
+#ifdef HAVE_LO
+#include "nsm.h"
+#include "ui_callbacks.h"
+#endif
+
 #include <libxml/tree.h>
 #define XML_COMPRESSION_LEVEL 5
 
@@ -50,6 +55,17 @@ GString  *initial_filename = NULL;
 #ifdef HAVE_LASH
 lash_client_t * global_lash_client;
 #endif
+
+#ifdef HAVE_LO
+nsm_client_t*   global_nsm_client = 0;
+GString*        global_nsm_filename = 0;
+#endif
+
+/* global_nsm_state:    -1 == not under NSM
+                         0 == awaiting NSM open
+                         1 == NSM managed */
+int             global_nsm_state = -1;
+
 
 #define CLIENT_NAME_BASE      "JACK Rack"
 
@@ -91,7 +107,11 @@ void print_help (void) {
   printf("\n");
 }
 
-int main (int argc, char ** argv) {
+
+
+ /* return noof channels or -1 on error */
+int cmdline_options(int argc, char** argv)
+{
   unsigned long channels = 2;
   int opt;
 
@@ -110,39 +130,7 @@ int main (int argc, char ** argv) {
     { 0, 0, 0, 0 }
   };
 
-#ifdef HAVE_LASH
-  lash_args_t * lash_args;
-  lash_event_t * lash_event;
-#endif  
-
-  gtk_set_locale ();
-#ifdef ENABLE_NLS
-  bindtextdomain (PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset (PACKAGE, "UTF-8");
-#endif
-  
-  /* not using gnome popt */
-  for (opt = 1; opt < argc; opt++)
-    {
-      if (strcmp (argv[opt], "-h") == 0 ||
-          strcmp (argv[opt], "--help") == 0)
-        {
-          print_help ();
-          exit (0);
-        }
-    }
-
-
-#ifdef HAVE_LASH
-  lash_args = lash_extract_args (&argc, &argv);
-#endif  
-
-  gtk_init (&argc, &argv);
-
-
   /* set the client name */
-  client_name = g_string_new ("");
-  session_uuid = g_string_new ("");
   g_string_printf (client_name, "%s", CLIENT_NAME_BASE);
   
   while ((opt = getopt_long (argc, argv, options, long_options, NULL)) != -1) {
@@ -209,26 +197,109 @@ int main (int argc, char ** argv) {
     initial_filename = g_string_new(argv[optind]);
   }
 
-#ifdef HAVE_LASH
-  {
-    int flags = LASH_Config_File;
-    global_lash_client = lash_init (lash_args, PACKAGE_NAME, flags, LASH_PROTOCOL (2,0));
-  }
+  return channels;
+}
 
-  if (global_lash_client)
+
+int main (int argc, char ** argv) {
+  unsigned long channels = 2;
+
+
+  client_name = g_string_new("");
+  session_uuid = g_string_new("");
+
+  #if HAVE_LO
+  const char* nsm_url = getenv("NSM_URL");
+  #endif
+
+  int opt;
+
+#ifdef HAVE_LASH
+  lash_args_t * lash_args;
+  lash_event_t * lash_event;
+#endif  
+
+  gtk_set_locale ();
+#ifdef ENABLE_NLS
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (PACKAGE, "UTF-8");
+#endif
+  
+  /* not using gnome popt */
+  for (opt = 1; opt < argc; opt++)
     {
-      lash_event = lash_event_new_with_type (LASH_Client_Name);
-      lash_event_set_string (lash_event, client_name->str);
-      lash_send_event (global_lash_client, lash_event);
+      if (strcmp (argv[opt], "-h") == 0 ||
+          strcmp (argv[opt], "--help") == 0)
+        {
+          print_help ();
+          exit (0);
+        }
     }
+
+
+#if HAVE_LO
+  if (nsm_url && (global_nsm_client = nsm_new()))
+  {
+    int timeout= 50;
+    nsm_set_open_callback(global_nsm_client, non_session_open_cb, &global_ui);
+    nsm_set_save_callback(global_nsm_client, non_session_save_cb, &global_ui);
+
+    if (nsm_init(global_nsm_client, nsm_url) != 0)
+    {
+        fprintf(stderr, _("failed to initialize NSM client\n"));
+        nsm_free(global_nsm_client);
+        exit(EXIT_FAILURE);
+    }
+
+    global_nsm_state = 0;                      /* ":switch:" */
+    nsm_send_announce(global_nsm_client, CLIENT_NAME_BASE, "", "jack-rack");
+
+    while(global_nsm_state == 0 && timeout --> 0)
+        nsm_check_wait(global_nsm_client, 10);
+
+    if (global_nsm_state == 0)
+    {
+        fprintf(stderr, _("failed to obtain response to NSM announce\n"));
+        nsm_free(global_nsm_client);
+        exit(EXIT_FAILURE);
+    }
+  }
+  else
+#endif
+  {
+    channels = cmdline_options(argc, argv);
+  }
+ 
+#ifdef HAVE_LASH
+  if (global_nsm_state == -1)
+      lash_args = lash_extract_args (&argc, &argv);
+#endif  
+
+  gtk_init (&argc, &argv);
+
+#ifdef HAVE_LASH
+  if (global_nsm_state == -1)
+  {
+    {
+        int flags = LASH_Config_File;
+        global_lash_client = lash_init (lash_args, PACKAGE_NAME, flags, LASH_PROTOCOL (2,0));
+    }
+
+      if (global_lash_client)
+        {
+          lash_event = lash_event_new_with_type (LASH_Client_Name);
+          lash_event_set_string (lash_event, client_name->str);
+          lash_send_event (global_lash_client, lash_event);
+        }
+  }
 #endif /* HAVE_LASH */
 
-  xmlSetCompressMode (XML_COMPRESSION_LEVEL);
+  /* xmlSetCompressMode (XML_COMPRESSION_LEVEL); */
 
   global_ui = ui_new (channels);
   if (!global_ui)
     return 1;
-  
+
   /* ignore the sighup (the jack client thread needs to deal with it) */
   signal (SIGHUP, SIG_IGN);
   
