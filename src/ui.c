@@ -100,6 +100,9 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   g_signal_connect (G_OBJECT (ui->open_menuitem), "activate",
                     G_CALLBACK (open_cb), ui);
 
+  if (global_nsm_state != -1)
+    gtk_widget_set_sensitive(ui->open_menuitem, FALSE);
+
   save = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE, NULL);
   gtk_widget_show (save);
   gtk_menu_shell_append (GTK_MENU_SHELL (file_menu), save);
@@ -112,8 +115,13 @@ ui_init_gui_menu (ui_t * ui, GtkWidget * main_box)
   g_signal_connect (G_OBJECT (save_as), "activate",
                     G_CALLBACK (save_as_cb), ui);
 
+  if (global_nsm_state != -1)
+    gtk_widget_set_sensitive(save_as, FALSE);
+
+
 #ifdef HAVE_LASH
-  if (lash_enabled (global_lash_client))
+  if (global_nsm_state == -1
+   && lash_enabled (global_lash_client))
     {
       separator = gtk_separator_menu_item_new ();
       gtk_widget_show (separator);
@@ -219,8 +227,6 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_window_set_default_size (GTK_WINDOW (ui->main_window), 620, 460);
   g_signal_connect (G_OBJECT (ui->main_window), "delete_event",
                         G_CALLBACK (window_destroy_cb), ui);  
-                        
-  
 
   /* button/viewport box */
   main_box = gtk_vbox_new (FALSE, 0);
@@ -265,6 +271,9 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   gtk_tool_item_set_tooltip_text (tool_item, _("Load a previously-saved rack configuration"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (open_cb), ui);
+  if (global_nsm_state != -1)
+    gtk_widget_set_sensitive(tool_item, FALSE);
+
 
   tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
@@ -276,8 +285,13 @@ ui_init_gui (ui_t * ui, unsigned long channels)
   gtk_tool_item_set_tooltip_text (tool_item, _("Save the rack configuration to a new file"));
   g_signal_connect (G_OBJECT (tool_item), "clicked", G_CALLBACK (save_as_cb), ui);
 
+  if (global_nsm_state != -1)
+    gtk_widget_set_sensitive(tool_item, FALSE);
+
+
 #ifdef HAVE_LASH
-  if (lash_enabled (global_lash_client))
+  if (global_nsm_state == -1
+   && lash_enabled (global_lash_client))
     {
       gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (), -1);
 
@@ -337,7 +351,7 @@ ui_init_gui (ui_t * ui, unsigned long channels)
     g_timeout_add(25, non_session_poll_cb, global_nsm_client);
     ui_open_file(ui, global_nsm_filename->str);
   }
-  else
+  else /* ... if ( initial_filename... */
 #endif
 
   /* open file from command line, if any */

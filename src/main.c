@@ -251,8 +251,8 @@ int main (int argc, char ** argv) {
         exit(EXIT_FAILURE);
     }
 
-    global_nsm_state = 0;                      /* ":switch:" */
-    nsm_send_announce(global_nsm_client, CLIENT_NAME_BASE, "", "jack-rack");
+    global_nsm_state = 0;
+    nsm_send_announce(global_nsm_client, CLIENT_NAME_BASE, ":switch:", "jack-rack");
 
     while(global_nsm_state == 0 && timeout --> 0)
         nsm_check_wait(global_nsm_client, 10);

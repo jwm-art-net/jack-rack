@@ -68,6 +68,7 @@ extern gboolean   time_runs;
 extern GString    *client_name;
 extern GString    *session_uuid;
 extern GString    *initial_filename;
+
 extern int        global_nsm_state;
 
 

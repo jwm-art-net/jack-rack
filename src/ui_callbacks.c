@@ -152,14 +152,21 @@ void
 save_cb (GtkButton * button, gpointer user_data)
 {
   ui_t * ui = (ui_t *) user_data;
-  
-  if (!ui->filename)
-    {
-      save_as_cb (button, user_data);
-      return;
-    }
-  
-  ui_save_file (ui, ui->filename);
+
+  if (global_nsm_state == 1)
+  {
+    ui_save_file(ui, global_nsm_filename->str);
+  }
+  else
+  {
+      if (!ui->filename)
+        {
+          save_as_cb (button, user_data);
+          return;
+        }
+
+      ui_save_file (ui, ui->filename);
+  }
 }
 
 
@@ -693,6 +700,8 @@ int non_session_open_cb(const char* name, const char* display_name,
 {
     struct stat st;
     const char* filename = "rack.xml";
+    gboolean switch_over = (global_nsm_filename != 0);
+    ui_t* ui = *((ui_t**)data);
 
     global_nsm_filename = g_string_new("");
 
@@ -703,6 +712,8 @@ int non_session_open_cb(const char* name, const char* display_name,
 
     if (stat(name, &st) != 0)
         mkdir(name, 0777);
+    else if (switch_over)
+        ui_open_file(ui, global_nsm_filename->str);
 
     return ERR_OK;
 }
