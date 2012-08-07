@@ -225,7 +225,6 @@ int main (int argc, char ** argv) {
   bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif
   
-  /* not using gnome popt */
   for (opt = 1; opt < argc; opt++)
     {
       if (strcmp (argv[opt], "-h") == 0 ||

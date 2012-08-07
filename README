@@ -3,8 +3,8 @@
 ====================
 
 JACK Rack is a LADSPA effects rack for the JACK audio API.  It uses
-GTK+ 2 (and optionally GNOME 2) for the GUI.  LADSPA version 1.1 is needed. 
-In order to save rack configurations, libxml2 is needed.
+GTK+ 2 for the GUI.  LADSPA version 1.1 is needed. In order to save
+rack configurations, libxml2 is needed.
 
 It also understands LRDF XML descriptions of LADSPA plugins.  LRDF support
 needs liblrdf, available from http://plugin.org.uk/lrdf/.  This in turn

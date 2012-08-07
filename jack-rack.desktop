@@ -7,4 +7,4 @@ Exec=jack-rack
 Icon=jack-rack-icon.png
 Terminal=false
 Type=Application
-Categories=GNOME;Application;AudioVideo;
+Categories=Application;AudioVideo;X-Jack;Midi;
